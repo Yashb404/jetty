@@ -23,11 +23,3 @@ pub enum JettyError {
     #[msg("Mint mismatch between instruction accounts and stored config.")]
     MintMismatch,
 }
-
-use anchor_lang::prelude::*;
-
-#[error_code]
-pub enum ErrorCode {
-    #[msg("Custom error message")]
-    CustomError,
-}

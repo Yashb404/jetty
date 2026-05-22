@@ -1,0 +1,114 @@
+use anchor_lang::{
+    prelude::*,
+    solana_program::{program::invoke_signed, system_instruction},
+};
+use anchor_spl::token_interface::{Mint, TokenInterface};
+use spl_tlv_account_resolution::{
+    account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
+};
+use spl_transfer_hook_interface::instruction::ExecuteInstruction;
+
+use crate::{error::JettyError, state::HookConfig};
+
+#[derive(Accounts)]
+pub struct InitExtraAccountMetaList<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+
+    pub policy_authority: Signer<'info>,
+
+    pub mint: InterfaceAccount<'info, Mint>,
+
+    #[account(
+        seeds = [b"policy", mint.key().as_ref()],
+        bump = hook_config.bump
+    )]
+    pub hook_config: Account<'info, HookConfig>,
+
+    /// CHECK: PDA allocated in handler as raw TLV data account.
+    #[account(
+        mut,
+        seeds = [b"extra-account-metas", mint.key().as_ref()],
+        bump
+    )]
+    pub extra_account_meta_list: UncheckedAccount<'info>,
+
+    pub token_program: Interface<'info, TokenInterface>,
+    pub system_program: Program<'info, System>,
+}
+
+pub fn handler(ctx: Context<InitExtraAccountMetaList>) -> Result<()> {
+    require_keys_eq!(
+        ctx.accounts.policy_authority.key(),
+        ctx.accounts.hook_config.policy_authority,
+        JettyError::Unauthorized
+    );
+
+    let account_metas = [
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"policy".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+            ],
+            false,
+            false,
+        )?,
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"allowlist".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountData {
+                    account_index: 0,
+                    data_index: 32,
+                    length: 32,
+                },
+            ],
+            false,
+            false,
+        )?,
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"allowlist".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountData {
+                    account_index: 2,
+                    data_index: 32,
+                    length: 32,
+                },
+            ],
+            false,
+            false,
+        )?,
+    ];
+    let account_size = ExtraAccountMetaList::size_of(account_metas.len())?;
+    let lamports = Rent::get()?.minimum_balance(account_size);
+    let bump = ctx.bumps.extra_account_meta_list;
+    let mint_key = ctx.accounts.mint.key();
+    let signer_seeds: &[&[u8]] = &[b"extra-account-metas", mint_key.as_ref(), &[bump]];
+
+    let create_account_ix = system_instruction::create_account(
+        &ctx.accounts.payer.key(),
+        &ctx.accounts.extra_account_meta_list.key(),
+        lamports,
+        account_size as u64,
+        &crate::ID,
+    );
+    invoke_signed(
+        &create_account_ix,
+        &[
+            ctx.accounts.payer.to_account_info(),
+            ctx.accounts.extra_account_meta_list.to_account_info(),
+        ],
+        &[signer_seeds],
+    )?;
+    let mut data = ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?;
+    ExtraAccountMetaList::init::<ExecuteInstruction>(&mut data, &account_metas)?;
+
+    Ok(())
+}
