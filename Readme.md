@@ -21,17 +21,18 @@ Three policy modules are available, each independently toggleable per mint:
 Policies take effect immediately after the update transaction confirms. There is no delay.
 
 ---
-
-Project status
+ 
+## Project status
+ 
 Active development. Not yet production-ready.
+ 
 Current focus:
-
-Core program correctness and instruction coverage
-ExtraAccountMetaList wiring and transfer hook integration testing
-Test suite reliability across all policy modules
-Dashboard UI and policy management UX
-Devnet deployment and end-to-end validation
-
+ 
+- Core program correctness and instruction coverage
+- ExtraAccountMetaList wiring and transfer hook integration testing
+- Test suite reliability across all policy modules
+- Dashboard UI and policy management UX
+- Devnet deployment and end-to-end validation
 ---
 
 ## Program accounts
