@@ -1,0 +1,16 @@
+{
+  "name": "@jetty/sdk",
+  "version": "0.0.1",
+  "description": "Minimal Jetty SDK: PDA helpers and transfer-hook helpers",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build"
+  },
+  "keywords": ["jetty", "solana", "spl-token-2022", "sdk"],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
