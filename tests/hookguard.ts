@@ -31,6 +31,9 @@ async function expectJettyError(promise: Promise<unknown>, code: number): Promis
     await promise;
     expect.fail(`expected Jetty error ${code}`);
   } catch (error) {
+    // Debug: surface the raw error for failing assertions.
+    // eslint-disable-next-line no-console
+    console.error("caught error:", error);
     expect(extractErrorCode(error)).to.equal(code);
   }
 }

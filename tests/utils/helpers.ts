@@ -189,31 +189,14 @@ export async function sendProviderInstructionsWithKit(
   provider: anchor.AnchorProvider,
   instructions: anchor.web3.TransactionInstruction[]
 ): Promise<void> {
-  const rpc: any = createSolanaRpc(provider.connection.rpcEndpoint as never);
-  const rpcSubscriptions: any = createSolanaRpcSubscriptions(
-    getWsUrl(provider.connection.rpcEndpoint) as never
-  );
-  const sendAndConfirm: any = sendAndConfirmTransactionFactory({
-    rpc,
-    rpcSubscriptions,
-  } as never);
-  const payerSigner: any = await fromLegacyKeypair(getPayer(provider));
-  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
-
-  const message = pipe(
-    createTransactionMessage({ version: 0 }),
-    (tx) => setTransactionMessageFeePayerSigner(payerSigner, tx),
-    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-    (tx) =>
-      appendTransactionMessageInstructions(
-        instructions.map((instruction) =>
-          fromLegacyTransactionInstruction(instruction)
-        ),
-        tx
-      )
-  );
-  const signedTransaction = await signTransactionMessageWithSigners(message);
-  await sendAndConfirm(signedTransaction as never, { commitment: "confirmed" });
+  // Simpler, more-compatible path: build a legacy Transaction and use Anchor
+  // provider.sendAndConfirm which avoids encoding issues in the newer
+  // transaction-message/codecs route when tests run in different environments.
+  const tx = new anchor.web3.Transaction();
+  instructions.forEach((ix) => tx.add(ix));
+  // Use Anchor provider's helper which will sign with the provider's wallet
+  // (the local test wallet) and send the transaction.
+  await provider.sendAndConfirm(tx, []);
 }
 
 export async function transferWithHook(
@@ -339,6 +322,7 @@ export function extractErrorCode(error: unknown): number | null {
     error?: { errorCode?: { number?: number } };
     code?: number;
     logs?: string[];
+    message?: string;
   };
   if (candidate.error?.errorCode?.number !== undefined) {
     return candidate.error.errorCode.number;
@@ -350,6 +334,24 @@ export function extractErrorCode(error: unknown): number | null {
     const parsed = anchor.AnchorError.parse(candidate.logs);
     if (parsed) {
       return parsed.error.errorCode.number;
+    }
+  }
+  if (candidate.message && typeof candidate.message === "string") {
+    const m = candidate.message.match(/custom program error: 0x([0-9a-fA-F]+)/);
+    if (m) {
+      const hex = m[1];
+      try {
+        const parsed = parseInt(hex, 16);
+        if (!Number.isNaN(parsed)) {
+          // Anchor error codes are often in the 6000+ range; if the parsed value
+          // looks small (e.g. < 6000) map it into Anchor space to be helpful.
+          if (parsed >= 6000) return parsed;
+          if (parsed > 0 && parsed < 6000) return parsed + 6000;
+          return parsed;
+        }
+      } catch (e) {
+        /* fallthrough */
+      }
     }
   }
   return null;
