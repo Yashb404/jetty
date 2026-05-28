@@ -1,4 +1,5 @@
 import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { Buffer } from "buffer";
 
 /**
  * Derive the HookConfig PDA for a given mint and program.

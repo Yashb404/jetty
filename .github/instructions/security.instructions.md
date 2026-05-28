@@ -1,39 +1,45 @@
 # Anchor / Solana Rust Best Practices
 
-Purpose: enforce project-wide on-chain best practices for Anchor + Solana Rust code. These are rules for authors and reviewers and should be followed for any change that touches `programs/`.
+Purpose: enforce project-wide on-chain best practices for Anchor + Solana Rust code. These guidelines are for authors and reviewers and should be followed for any change that touches `programs/`.
 
-Scope: applies to all on-chain Rust code in `programs/` and tests that exercise on-chain logic. Not prescriptive about off-chain tooling except where it affects on-chain safety (e.g., tests, CLIs).
+Scope: applies to all on-chain Rust code in `programs/` and tests that exercise on-chain logic. This file is not prescriptive about off-chain tooling except where it affects on-chain safety (for example, tests and CLIs).
 
--- ARITHMETIC --
+## Arithmetic
+
 - Never use raw `+`, `-`, `*`, `/` for financial or state math. Use checked ops: `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, `checked_pow`.
 - Convert checked failures into program errors (return `err!()`), never `unwrap()`.
 - Use wider intermediate types (e.g., `u128`) when multiplying to prevent overflow; multiply before divide to reduce precision loss.
 - Do not use floats on-chain. Use fixed-point integer math and basis points for fractions.
-- Enable overflow checks in release: add `overflow-checks = true` under `[profile.release]` in `Cargo.toml` or CI builds.
+- Enable overflow checks in release builds (add `overflow-checks = true` under `[profile.release]` in `Cargo.toml` or enable in CI).
 
--- ERROR HANDLING --
+## Error handling
+
 - Never use `unwrap()` or `expect()` in program code.
 - Use Anchor helpers and explicit propagation: `ok_or(...) ?`, `require!()`, `require_eq!()`, `require_keys_eq!()`, `err!()`.
 - Define explicit `#[error_code]` enums in `error.rs` for all domain failures.
 
--- ACCOUNT SECURITY --
+## Account security
+
 - Validate every account for ownership, PDA seeds, signer flags, authority, mint association, and token owner where relevant.
 - Prefer Anchor account constraints over raw `AccountInfo` where possible. Use `Program<'info, Token>` or `InterfaceAccount` types instead of unchecked access.
 - Never trust client-side validation; enforce invariants server-side.
 
--- PDA / AUTHORITY DESIGN --
+## PDA / authority design
+
 - Prefer PDA authorities over ephemeral wallet authorities for long-lived controllers.
 - Store seed constants in `constants.rs` and reuse them.
 - Verify signer seeds explicitly when performing CPI with `invoke_signed`.
-- Design seed namespaces to avoid collisions; document seed choices.
+- Design seed namespaces to avoid collisions; document seed choices in code and docs.
 
--- STATE MANAGEMENT --
+## State management
+
 - Minimize `mut` accounts in hot/execute paths.
 - Keep account structs small and use fixed-size fields; avoid unbounded `Vec` on-chain.
 - Use explicit `space` and `INIT_SPACE` constants; include an account `version` field to support migrations.
 - Prevent accidental reinitialization: prefer guarded `init` flows over `init_if_needed` unless fully audited.
 
--- PROGRAM STRUCTURE --
+## Program structure
+
 - Keep instructions single-purpose and small. Separate phases clearly:
   1. Validation (read-only checks)
   2. Computation (pure logic)
@@ -43,8 +49,9 @@ Scope: applies to all on-chain Rust code in `programs/` and tests that exercise 
 - Avoid deep CPI chains; prefer small, auditable calls.
 - Organize code into `instructions/`, `state/`, `errors.rs`, `events.rs`, `constants.rs`, and `utils/`.
 
--- TESTING --
-- Test failure paths more than happy paths. Required tests:
+## Testing
+
+- Test failure paths more than happy paths. Required tests include:
   - overflow/underflow
   - wrong PDA
   - wrong signer
@@ -55,18 +62,22 @@ Scope: applies to all on-chain Rust code in `programs/` and tests that exercise 
   - duplicate accounts and re-init guards
 - Keep test helpers minimal and deterministic; prefer explicit airdrops and deterministic keypairs.
 
--- RUST SAFETY --
+## Rust safety
+
 - Use explicit numeric types and avoid `panic!` in programs.
 - Minimize `unsafe` usage; prefer `?` for error propagation.
 - Use `unwrap()` only in tests where failure is provably impossible.
 
--- COMPUTE / PERFORMANCE --
+## Compute / performance
+
 - Avoid excessive logging in hot paths.
 - Avoid unnecessary `mut` or large account reallocations on transfers.
 - Use checked arithmetic but be mindful of compute cost; refactor heavy math into fewer operations.
 
--- SECURITY MINDSET CHECKLIST --
+## Security mindset checklist
+
 Add these as comments in each instruction's handler as applicable:
+
 - Can signer privileges be spoofed? Are signer keys asserted against owners?
 - Can accounts be substituted or reordered by a caller? Are seeds and ownership checked?
 - Can arithmetic overflow or underflow? Are intermediate widths chosen safely?
@@ -74,20 +85,23 @@ Add these as comments in each instruction's handler as applicable:
 - Can token accounts be swapped to change semantics? Are mints/owners validated?
 - Can this be replayed or frontrun? Are idempotency and ordering handled?
 
--- COMMON GOOD PATTERNS --
+## Common good patterns
+
 - Use `require!` macros liberally to encode invariants.
 - Emit events for indexers and monitoring.
 - Prefer deterministic, explicit error codes for calling clients.
 
--- COMMON BAD PATTERNS (avoid these) --
+## Common bad patterns (avoid these)
+
 - `unwrap()` / `expect()` in program code
 - Floating point math on-chain
 - Unchecked `AccountInfo` access without Anchor constraints
 - `init_if_needed` without authority and size guards
 - Giant monolithic instructions with many responsibilities
 
-Implementation notes:
+## Implementation notes
+
 - Add a `CONTRIBUTING.md` or incorporate these points into `README.md` for reviewers.
 - Run `cargo test` and `anchor test` in CI; add lint/format checks.
 
-If anything here should be stricter or scoped differently, reply with the focused section to iterate.
+

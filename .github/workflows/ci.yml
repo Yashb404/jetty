@@ -33,7 +33,7 @@ jobs:
   anchor-test:
     name: Anchor integration tests
     runs-on: ubuntu-latest
-    needs: cargo-test
+    needs: [cargo-test, security-scan, sdk-tests]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install JS deps
         working-directory: .
@@ -55,7 +55,7 @@ jobs:
 
       - name: Install Anchor CLI
         env:
-          CARGO_HOME: ${{ runner.home }}/.cargo
+          CARGO_HOME: $HOME/.cargo
         run: |
           rustup default stable
           cargo install --git https://github.com/coral-xyz/anchor --tag v0.27.0 --locked --bin anchor-cli || cargo install anchor-cli || true
@@ -71,3 +71,65 @@ jobs:
         run: |
           # Run Anchor tests (this will start a local validator)
           anchor test
+
+  security-scan:
+    name: Security & dependency scans
+    runs-on: ubuntu-latest
+    needs: cargo-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install cargo-audit
+        run: |
+          rustup component add rustfmt || true
+          cargo install cargo-audit || true
+
+      - name: Run cargo audit
+        run: |
+          cargo audit || true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: NPM audit for repo
+        run: |
+          if [ -f package-lock.json ]; then npm ci; fi
+          npm audit --audit-level=moderate || true
+
+      - name: NPM audit for sdk
+        working-directory: sdk
+        run: |
+          if [ -f package-lock.json ]; then npm ci; fi
+          npm audit --audit-level=moderate || true
+
+  sdk-tests:
+    name: SDK unit tests
+    runs-on: ubuntu-latest
+    needs: cargo-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install SDK deps
+        working-directory: sdk
+        run: |
+          npm ci
+
+      - name: Run SDK tests
+        working-directory: sdk
+        run: |
+          npm test
