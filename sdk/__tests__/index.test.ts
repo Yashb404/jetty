@@ -1,11 +1,12 @@
 import { test, expect } from '@jest/globals';
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, Keypair } from "@solana/web3.js";
 import { deriveHookConfigPda, deriveExtraAccountMetaListPda, deriveAllowlistEntryPda } from "../index";
 
 test('PDA derivation returns PublicKey and bump', () => {
-  const programId = new PublicKey("11111111111111111111111111111111");
-  const mint = new PublicKey("22222222222222222222222222222222");
-  const wallet = new PublicKey("33333333333333333333333333333333");
+  // Generate mathematically valid random public keys for testing
+  const programId = Keypair.generate().publicKey;
+  const mint = Keypair.generate().publicKey;
+  const wallet = Keypair.generate().publicKey;
 
   const [hookConfigPda, bump1] = deriveHookConfigPda(mint, programId);
   expect(hookConfigPda).toBeInstanceOf(PublicKey);
