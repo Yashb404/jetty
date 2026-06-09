@@ -55,7 +55,7 @@ jobs:
 
       - name: Install Anchor CLI
         env:
-          CARGO_HOME: $HOME/.cargo
+          CARGO_HOME: ${{ runner.home }}/.cargo
         run: |
           rustup default stable
           cargo install --git https://github.com/coral-xyz/anchor --tag v0.27.0 --locked --bin anchor-cli || cargo install anchor-cli || true
@@ -100,16 +100,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: NPM audit for repo
+      - name: Dependency audit for repo
         run: |
-          if [ -f package-lock.json ]; then npm ci; fi
-          npm audit --audit-level=moderate || true
+          if [ -f package-lock.json ]; then npm ci; npm audit --audit-level=moderate || true; elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; yarn audit || true; fi
 
-      - name: NPM audit for sdk
+      - name: Dependency audit for sdk
         working-directory: sdk
         run: |
-          if [ -f package-lock.json ]; then npm ci; fi
-          npm audit --audit-level=moderate || true
+          if [ -f package-lock.json ]; then npm ci; npm audit --audit-level=moderate || true; elif [ -f yarn.lock ] || [ -f ../yarn.lock ]; then yarn install --frozen-lockfile; yarn audit || true; fi
 
   sdk-tests:
     name: SDK unit tests
@@ -127,9 +125,9 @@ jobs:
       - name: Install SDK deps
         working-directory: sdk
         run: |
-          npm ci
+          if [ -f package-lock.json ]; then npm ci; else yarn install --frozen-lockfile; fi
 
       - name: Run SDK tests
         working-directory: sdk
         run: |
-          npm test
+          if [ -f package-lock.json ]; then npm test; else yarn test; fi
