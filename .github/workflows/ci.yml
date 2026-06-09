@@ -131,3 +131,8 @@ jobs:
         working-directory: sdk
         run: |
           if [ -f package-lock.json ]; then npm test; else yarn test; fi
+
+      - name: Install Solana CLI
+        run: |
+          curl -sSfL https://release.solana.com/v1.14.17/install | sh
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
