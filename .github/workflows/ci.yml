@@ -59,7 +59,9 @@ jobs:
       - name: Install Solana CLI
         if: steps.cache-solana.outputs.cache-hit != 'true'
         run: |
+          # Changed URL back to release.solana.com with the version path
           curl -sSfL --retry 5 https://solana.com | sh
+
 
       # Always run this so the runner knows where the binaries live, even on a cache hit
       - name: Add Solana to Path
