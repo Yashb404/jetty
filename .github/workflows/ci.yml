@@ -48,17 +48,55 @@ jobs:
         run: |
           if [ -f package-lock.json ]; then npm ci; elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; fi
 
+      # 1. Cache Solana CLI Installation (Saves ~1-2 minutes)
+      - name: Cache Solana CLI
+        id: cache-solana
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/solana
+          key: ${{ runner.os }}-solana-v1.14.17
+
       - name: Install Solana CLI
+        if: steps.cache-solana.outputs.cache-hit != 'true'
         run: |
-          curl -sSfL https://release.solana.com/v1.14.17/install | sh
-          echo "::add-path::$HOME/.local/share/solana/install/active_release/bin"
+          curl -sSfL --retry 5 https://solana.com | sh
+
+      # Always run this so the runner knows where the binaries live, even on a cache hit
+      - name: Add Solana to Path
+        run: echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      # 2. Cache Cargo Binaries for Anchor CLI (Saves ~3-5 minutes)
+      - name: Cache Anchor CLI Bin
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/anchor
+          key: ${{ runner.os }}-anchor-v0.27.0
 
       - name: Install Anchor CLI
-        env:
-          CARGO_HOME: ${{ runner.home }}/.cargo
+        id: cache-anchor
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/anchor
+          key: ${{ runner.os }}-anchor-v0.27.0
+
+      - name: Install Anchor CLI
+        if: steps.cache-anchor.outputs.cache-hit != 'true'
+        # Removed the invalid runner.home context assignment
         run: |
           rustup default stable
-          cargo install --git https://github.com/coral-xyz/anchor --tag v0.27.0 --locked --bin anchor-cli || cargo install anchor-cli || true
+          cargo install --git https://github.com --tag v0.27.0 --locked --bin anchor-cli || cargo install anchor-cli || true
+
+      # 3. Cache Solana Smart Contract target/ build artifacts (Saves ~2-4 minutes)
+      - name: Cache Solana Program Build Targets
+        uses: actions/cache@v4
+        with:
+          path: |
+            target
+            ~/.cache/solana
+          key: ${{ runner.os }}-program-target-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-program-target-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-program-target-
 
       - name: Show versions
         run: |
@@ -69,7 +107,6 @@ jobs:
         env:
           ANCHOR_WALLET: ${{ runner.temp }}/test-keypair.json
         run: |
-          # Run Anchor tests (this will start a local validator)
           anchor test
 
   security-scan:
@@ -131,8 +168,3 @@ jobs:
         working-directory: sdk
         run: |
           if [ -f package-lock.json ]; then npm test; else yarn test; fi
-
-      - name: Install Solana CLI
-        run: |
-          curl -sSfL https://release.solana.com/v1.14.17/install | sh
-          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
