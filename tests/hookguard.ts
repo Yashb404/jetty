@@ -39,7 +39,11 @@ async function expectJettyError(promise: Promise<unknown>, code: number): Promis
 describe("hookguard", function () {
   this.timeout(200_000);
 
-  const provider = anchor.AnchorProvider.env();
+    const provider = new anchor.AnchorProvider(
+  anchor.AnchorProvider.env().connection,
+  anchor.AnchorProvider.env().wallet,
+  { commitment: "confirmed", preflightCommitment: "confirmed" }
+  );
   anchor.setProvider(provider);
 
   const program = anchor.workspace.Jetty as anchor.Program<Jetty>;
