@@ -17,4 +17,7 @@ wallet = "~/.config/solana/id.json"
 [scripts]
 test = "yarn test"
 
+[test]
+startup_wait = 10000
+
 [hooks]
