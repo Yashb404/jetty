@@ -4,83 +4,127 @@ on:
   pull_request:
     branches: [ master ]
 
+# Cancel in-flight runs for the same PR
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # ── 1. Build & unit-test the Rust workspace ──────────────────────────────
+  # Produces a warmed cargo registry cache that every downstream job reuses.
   cargo-test:
     name: Rust tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache cargo registry
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Run cargo tests
-        run: cargo test --workspace --verbose
+      - run: cargo test --workspace --verbose
 
-  security-scan:
-    name: Security & dependency scans
+  # ── 2. Anchor integration tests ──────────────────────────────────────────
+  # Runs right after cargo-test — does NOT wait for security-scan or sdk-tests.
+  # Those are correctness/hygiene checks that don't gate integration testing.
+  anchor-test:
+    name: Anchor integration tests
     runs-on: ubuntu-latest
     needs: cargo-test
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Install cargo-audit
-        run: cargo install cargo-audit || true
-
-      - name: Run cargo audit
-        run: cargo audit || true
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Dependency audit for repo
-        run: |
-          if [ -f yarn.lock ]; then
-            yarn install --frozen-lockfile
-            yarn audit || true
-          elif [ -f package-lock.json ]; then
-            npm ci
-            npm audit --audit-level=moderate || true
-          fi
+      # Reuse the warmed cargo registry from cargo-test
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Dependency audit for sdk
-        working-directory: sdk
-        run: |
-          if [ -f yarn.lock ]; then
-            yarn install --frozen-lockfile
-            yarn audit || true
-          elif [ -f package-lock.json ]; then
-            npm ci
-            npm audit --audit-level=moderate || true
-          fi
+      # Agave/Solana CLI — pinned to exact version, cached by version string
+      - uses: actions/cache@v4
+        id: cache-solana
+        with:
+          path: ~/.local/share/solana
+          key: ${{ runner.os }}-agave-v3.1.10
 
+      - name: Install Agave/Solana CLI
+        if: steps.cache-solana.outputs.cache-hit != 'true'
+        run: curl -sSfL --retry 5 https://release.anza.xyz/v3.1.10/install | sh
+
+      - name: Add Solana to PATH
+        run: echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      # Anchor CLI — prebuilt binary, ~5 seconds vs ~8 minutes from source
+      - uses: actions/cache@v4
+        id: cache-anchor
+        with:
+          path: ~/.cargo/bin/anchor
+          key: ${{ runner.os }}-anchor-v1.0.2
+
+      - name: Install Anchor CLI
+        if: steps.cache-anchor.outputs.cache-hit != 'true'
+        run: |
+          curl -sSfL https://github.com/otter-sec/anchor/releases/download/v1.0.2/anchor-1.0.2-x86_64-unknown-linux-gnu \
+            -o ~/.cargo/bin/anchor
+          chmod +x ~/.cargo/bin/anchor
+
+      # JS deps — root workspace (yarn.lock at repo root)
+      - uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-yarn-root-${{ hashFiles('yarn.lock') }}
+
+      - name: Install root JS deps
+        run: yarn install --frozen-lockfile
+
+      # Keypair for the test validator
+      - name: Generate test keypair
+        run: |
+          mkdir -p ~/.config/solana
+          solana-keygen new --no-bip39-passphrase --outfile ~/.config/solana/id.json
+
+      - name: Show versions
+        run: |
+          solana --version
+          anchor --version
+          node --version
+
+      - name: Run anchor test
+        run: anchor test --validator legacy
+
+  # ── 3. SDK unit tests ────────────────────────────────────────────────────
+  # Runs in parallel with anchor-test — no Rust needed here at all.
   sdk-tests:
     name: SDK unit tests
     runs-on: ubuntu-latest
-    needs: cargo-test
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - uses: actions/cache@v4
+        with:
+          path: sdk/node_modules
+          key: ${{ runner.os }}-yarn-sdk-${{ hashFiles('sdk/yarn.lock') }}
 
       - name: Install SDK deps
         working-directory: sdk
@@ -90,75 +134,45 @@ jobs:
         working-directory: sdk
         run: yarn test
 
-  anchor-test:
-    name: Anchor integration tests
+  # ── 4. Security scans ────────────────────────────────────────────────────
+  # Runs in parallel with everything — purely informational, never blocks merge.
+  security-scan:
+    name: Security & dependency scans
     runs-on: ubuntu-latest
-    needs: [cargo-test, security-scan, sdk-tests]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit || true
+
+      - name: Run cargo audit
+        run: cargo audit || true
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install JS deps
-        run: yarn install --frozen-lockfile
-
-      - name: Cache Agave/Solana CLI
-        id: cache-solana
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/solana
-          key: ${{ runner.os }}-agave-v3.1.10
-
-      - name: Install Agave/Solana CLI
-        if: steps.cache-solana.outputs.cache-hit != 'true'
+      - name: Audit root deps
         run: |
-          curl -sSfL --retry 5 https://release.anza.xyz/v3.1.10/install | sh
+          if [ -f yarn.lock ]; then
+            yarn install --frozen-lockfile
+            yarn audit || true
+          fi
 
-      - name: Add Solana to PATH
-        run: echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
-
-      - name: Cache Anchor CLI
-        id: cache-anchor
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/bin/anchor
-          key: ${{ runner.os }}-anchor-cli-v1.0.2
-
-      - name: Install Anchor CLI
-        if: steps.cache-anchor.outputs.cache-hit != 'true'
+      - name: Audit SDK deps
+        working-directory: sdk
         run: |
-          cargo install --git https://github.com/coral-xyz/anchor \
-            --tag v1.0.2 \
-            --locked \
-            anchor-cli
-
-      - name: Cache program build artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            target
-            ~/.cache/solana
-          key: ${{ runner.os }}-program-target-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
-          restore-keys: |
-            ${{ runner.os }}-program-target-${{ hashFiles('**/Cargo.lock') }}-
-            ${{ runner.os }}-program-target-
-
-      - name: Show versions
-        run: |
-          solana --version
-          anchor --version
-
-      - name: Generate test keypair
-        run: |
-          mkdir -p ~/.config/solana
-          solana-keygen new --no-bip39-passphrase --outfile ~/.config/solana/id.json
-
-      - name: Run anchor test
-        run: anchor test --validator legacy
+          if [ -f yarn.lock ]; then
+            yarn install --frozen-lockfile
+            yarn audit || true
+          fi
