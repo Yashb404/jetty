@@ -161,4 +161,4 @@ jobs:
           solana-keygen new --no-bip39-passphrase --outfile ~/.config/solana/id.json
 
       - name: Run anchor test
-        run: anchor test
+        run: anchor test --validator legacy
