@@ -5,6 +5,11 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
+[test]
+validator = "solana-test-validator"
+startup_wait = 5000
+shutdown_wait = 2000
+
 [programs.localnet]
 jetty = "4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku"
 
