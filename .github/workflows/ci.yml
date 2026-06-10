@@ -59,13 +59,11 @@ jobs:
       - name: Install Solana CLI
         if: steps.cache-solana.outputs.cache-hit != 'true'
         run: |
-          curl -sSfL --retry 5 https://release.solana.com/v1.14.17/install | sh
+          curl -sSfL --retry 5 https://solana.com | sh
 
-
-      # Always run this so the runner knows where the binaries live, even on a cache hit
+      # CHANGED: Replaced "~" with "$HOME" so GitHub Actions correctly parses the absolute path
       - name: Add Solana to Path
         run: echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
-
       # 2. Cache Cargo Binaries for Anchor CLI (Saves ~3-5 minutes)
       - name: Cache Anchor CLI Bin
         uses: actions/cache@v4
