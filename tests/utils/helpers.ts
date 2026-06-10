@@ -30,7 +30,6 @@ import {
 import type { Jetty } from "../../target/types/jetty";
 
 type JettyProgram = anchor.Program<Jetty>;
-type LocalWallet = anchor.Wallet & { payer: anchor.web3.Keypair };
 
 export type HookFixture = {
   mint: anchor.web3.Keypair;
@@ -51,8 +50,8 @@ export function getProvider(): anchor.AnchorProvider {
   return anchor.getProvider() as anchor.AnchorProvider;
 }
 
-export function getPayer(provider: anchor.AnchorProvider): anchor.web3.Keypair {
-  return (provider.wallet as LocalWallet).payer;
+export function getPayer(provider: anchor.AnchorProvider): anchor.web3.PublicKey {
+  return provider.wallet.publicKey;
 }
 
 export function deriveHookConfigPda(
@@ -113,7 +112,7 @@ export async function createTransferHookMint(
 
   const transaction = new anchor.web3.Transaction().add(
     anchor.web3.SystemProgram.createAccount({
-      fromPubkey: payer.publicKey,
+      fromPubkey: payer,
       newAccountPubkey: mint.publicKey,
       space: mintSpace,
       lamports,
@@ -121,14 +120,14 @@ export async function createTransferHookMint(
     }),
     createInitializeTransferHookInstruction(
       mint.publicKey,
-      payer.publicKey,
+      payer,
       transferHookProgramId,
       TOKEN_2022_PROGRAM_ID
     ),
     createInitializeMintInstruction(
       mint.publicKey,
       decimals,
-      payer.publicKey,
+      payer,
       null,
       TOKEN_2022_PROGRAM_ID
     )
@@ -143,7 +142,8 @@ export async function getOrCreateToken2022Ata(
   mint: anchor.web3.PublicKey,
   owner: anchor.web3.PublicKey
 ): Promise<anchor.web3.PublicKey> {
-  const payer = getPayer(provider);
+  const payer = (provider.wallet as { payer?: anchor.web3.Keypair }).payer;
+  if (!payer) throw new Error("Provider wallet does not expose a payer keypair");
   const account = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     payer,
@@ -164,7 +164,8 @@ export async function mintToken2022To(
   amount: bigint,
   decimals: number
 ): Promise<void> {
-  const payer = getPayer(provider);
+  const payer = (provider.wallet as { payer?: anchor.web3.Keypair }).payer;
+  if (!payer) throw new Error("Provider wallet does not expose a payer keypair");
   await mintToChecked(
     provider.connection,
     payer,
@@ -189,13 +190,8 @@ export async function sendProviderInstructionsWithKit(
   provider: anchor.AnchorProvider,
   instructions: anchor.web3.TransactionInstruction[]
 ): Promise<void> {
-  // Simpler, more-compatible path: build a legacy Transaction and use Anchor
-  // provider.sendAndConfirm which avoids encoding issues in the newer
-  // transaction-message/codecs route when tests run in different environments.
   const tx = new anchor.web3.Transaction();
   instructions.forEach((ix) => tx.add(ix));
-  // Use Anchor provider's helper which will sign with the provider's wallet
-  // (the local test wallet) and send the transaction.
   await provider.sendAndConfirm(tx, []);
 }
 
@@ -242,8 +238,8 @@ export async function createHookFixture(
   await program.methods
     .initializeHookConfig()
     .accounts({
-      payer: payer.publicKey,
-      policyAuthority: payer.publicKey,
+      payer: payer,
+      policyAuthority: payer,
       mint: mint.publicKey,
     })
     .rpc();
@@ -251,8 +247,8 @@ export async function createHookFixture(
   await program.methods
     .initExtraAccountMetaList()
     .accounts({
-      payer: payer.publicKey,
-      policyAuthority: payer.publicKey,
+      payer: payer,
+      policyAuthority: payer,
       mint: mint.publicKey,
       tokenProgram: TOKEN_2022_PROGRAM_ID,
     })
@@ -261,7 +257,7 @@ export async function createHookFixture(
   const sourceTokenAccount = await getOrCreateToken2022Ata(
     provider,
     mint.publicKey,
-    payer.publicKey
+    payer
   );
   const destinationOwner = await createFundedUser(provider);
   const destinationTokenAccount = await getOrCreateToken2022Ata(
@@ -285,7 +281,7 @@ export async function createHookFixture(
     hookConfigBump,
     extraAccountMetaListPda,
     extraAccountMetaListBump,
-    sourceOwner: payer.publicKey,
+    sourceOwner: payer,
     sourceTokenAccount,
     destinationOwner,
     destinationTokenAccount,
@@ -343,8 +339,6 @@ export function extractErrorCode(error: unknown): number | null {
       try {
         const parsed = parseInt(hex, 16);
         if (!Number.isNaN(parsed)) {
-          // Anchor error codes are often in the 6000+ range; if the parsed value
-          // looks small (e.g. < 6000) map it into Anchor space to be helpful.
           if (parsed >= 6000) return parsed;
           if (parsed > 0 && parsed < 6000) return parsed + 6000;
           return parsed;

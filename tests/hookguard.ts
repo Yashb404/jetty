@@ -31,7 +31,6 @@ async function expectJettyError(promise: Promise<unknown>, code: number): Promis
     await promise;
     expect.fail(`expected Jetty error ${code}`);
   } catch (error) {
-    // Debug: surface the raw error for failing assertions.
     // eslint-disable-next-line no-console
     console.error("caught error:", error);
     expect(extractErrorCode(error)).to.equal(code);
@@ -55,15 +54,15 @@ describe("hookguard", function () {
       await program.methods
         .initializeHookConfig()
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: mint.publicKey,
         })
         .rpc();
 
       const hookConfig = await program.account.hookConfig.fetch(hookConfigPda);
       expect(hookConfig.mint.equals(mint.publicKey)).to.equal(true);
-      expect(hookConfig.policyAuthority.equals(payer.publicKey)).to.equal(true);
+      expect(hookConfig.policyAuthority.equals(payer)).to.equal(true);
       expect(hookConfig.bump).to.equal(hookConfigBump);
       expect(hookConfig.paused).to.equal(false);
       expect(hookConfig.allowlistEnabled).to.equal(false);
@@ -77,8 +76,8 @@ describe("hookguard", function () {
       await program.methods
         .initializeHookConfig()
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: mint.publicKey,
         })
         .rpc();
@@ -87,8 +86,8 @@ describe("hookguard", function () {
         await program.methods
           .initializeHookConfig()
           .accounts({
-            payer: payer.publicKey,
-            policyAuthority: payer.publicKey,
+            payer: payer,
+            policyAuthority: payer,
             mint: mint.publicKey,
           })
           .rpc();
@@ -108,8 +107,8 @@ describe("hookguard", function () {
       await program.methods
         .initializeHookConfig()
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: mint.publicKey,
         })
         .rpc();
@@ -117,8 +116,8 @@ describe("hookguard", function () {
       await program.methods
         .initExtraAccountMetaList()
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: mint.publicKey,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
         })
@@ -139,8 +138,8 @@ describe("hookguard", function () {
       await program.methods
         .initializeHookConfig()
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: mint.publicKey,
         })
         .rpc();
@@ -149,7 +148,7 @@ describe("hookguard", function () {
         program.methods
           .initExtraAccountMetaList()
           .accounts({
-            payer: payer.publicKey,
+            payer: payer,
             policyAuthority: wrongAuthority.publicKey,
             mint: mint.publicKey,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -172,7 +171,7 @@ describe("hookguard", function () {
           maxTransferAmount: new anchor.BN(25),
         })
         .accounts({
-          policyAuthority: payer.publicKey,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
         })
         .rpc();
@@ -217,8 +216,8 @@ describe("hookguard", function () {
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
           wallet: fixture.destinationOwner.publicKey,
         })
@@ -244,7 +243,7 @@ describe("hookguard", function () {
         program.methods
           .updateAllowlist(true)
           .accounts({
-            payer: payer.publicKey,
+            payer: payer,
             policyAuthority: wrongAuthority.publicKey,
             mint: fixture.mint.publicKey,
             wallet: fixture.destinationOwner.publicKey,
@@ -267,7 +266,7 @@ describe("hookguard", function () {
             sourceTokenAccount: fixture.sourceTokenAccount,
             mint: fixture.mint.publicKey,
             destinationTokenAccount: fixture.destinationTokenAccount,
-            authority: payer.publicKey,
+            authority: payer,
           })
           .rpc(),
         JETTY_ERROR.NotTransferring,
@@ -284,7 +283,7 @@ describe("hookguard", function () {
           maxTransferAmount: null,
         })
         .accounts({
-          policyAuthority: payer.publicKey,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
         })
         .rpc();
@@ -294,7 +293,7 @@ describe("hookguard", function () {
           source: fixture.sourceTokenAccount,
           mint: fixture.mint.publicKey,
           destination: fixture.destinationTokenAccount,
-          owner: payer.publicKey,
+          owner: payer,
           amount: 10n,
           decimals: fixture.decimals,
         }),
@@ -312,7 +311,7 @@ describe("hookguard", function () {
           maxTransferAmount: new anchor.BN(5),
         })
         .accounts({
-          policyAuthority: payer.publicKey,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
         })
         .rpc();
@@ -322,7 +321,7 @@ describe("hookguard", function () {
           source: fixture.sourceTokenAccount,
           mint: fixture.mint.publicKey,
           destination: fixture.destinationTokenAccount,
-          owner: payer.publicKey,
+          owner: payer,
           amount: 10n,
           decimals: fixture.decimals,
         }),
@@ -341,8 +340,8 @@ describe("hookguard", function () {
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
           wallet: fixture.destinationOwner.publicKey,
         })
@@ -355,7 +354,7 @@ describe("hookguard", function () {
           maxTransferAmount: null,
         })
         .accounts({
-          policyAuthority: payer.publicKey,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
         })
         .rpc();
@@ -365,7 +364,7 @@ describe("hookguard", function () {
           source: fixture.sourceTokenAccount,
           mint: fixture.mint.publicKey,
           destination: fixture.destinationTokenAccount,
-          owner: payer.publicKey,
+          owner: payer,
           amount: 10n,
           decimals: fixture.decimals,
         }),
@@ -384,8 +383,8 @@ describe("hookguard", function () {
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
           wallet: fixture.sourceOwner,
         })
@@ -398,7 +397,7 @@ describe("hookguard", function () {
           maxTransferAmount: null,
         })
         .accounts({
-          policyAuthority: payer.publicKey,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
         })
         .rpc();
@@ -408,7 +407,7 @@ describe("hookguard", function () {
           source: fixture.sourceTokenAccount,
           mint: fixture.mint.publicKey,
           destination: fixture.destinationTokenAccount,
-          owner: payer.publicKey,
+          owner: payer,
           amount: 10n,
           decimals: fixture.decimals,
         }),
@@ -432,8 +431,8 @@ describe("hookguard", function () {
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
           wallet: fixture.sourceOwner,
         })
@@ -442,8 +441,8 @@ describe("hookguard", function () {
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: payer.publicKey,
-          policyAuthority: payer.publicKey,
+          payer: payer,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
           wallet: fixture.destinationOwner.publicKey,
         })
@@ -456,7 +455,7 @@ describe("hookguard", function () {
           maxTransferAmount: null,
         })
         .accounts({
-          policyAuthority: payer.publicKey,
+          policyAuthority: payer,
           mint: fixture.mint.publicKey,
         })
         .rpc();
@@ -465,7 +464,7 @@ describe("hookguard", function () {
         source: fixture.sourceTokenAccount,
         mint: fixture.mint.publicKey,
         destination: fixture.destinationTokenAccount,
-        owner: payer.publicKey,
+        owner: payer,
         amount: 10n,
         decimals: fixture.decimals,
       });
