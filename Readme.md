@@ -10,7 +10,9 @@ Token issuers point their mint's Transfer Hook at the Jetty program ID and confi
 
 Every SPL Token-2022 transfer is atomically intercepted by Jetty and evaluated against the issuer's active policy:
 
-| Module | Behavior |
+Three policy modules are available, each independently toggleable per mint:
+
+| Module | What it does |
 |---|---|
 | **Global Pause** | Rejects all transfers when active |
 | **Volume Limit** | Rejects transfers exceeding a configured `u64` threshold |
@@ -20,7 +22,7 @@ One deployed program. Many mints. Each issuer owns and controls their own policy
 
 ---
 
-## Architecture
+## Project structure
 
 ```
 programs/jetty/src/
@@ -79,7 +81,7 @@ Transfer triggered
 
 ---
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
@@ -90,21 +92,16 @@ node --version     # 20+
 yarn --version     # any
 ```
 
-### Install
+### Install and build
 
 ```bash
 git clone https://github.com/yourusername/jetty
 cd jetty
 yarn install
-```
-
-### Build
-
-```bash
 anchor build
 ```
 
-### Test
+### Run tests
 
 ```bash
 anchor test
@@ -112,7 +109,9 @@ anchor test
 
 ---
 
-## Usage
+## Integration guide
+
+### 1. Create your mint with Transfer Hook pointing at Jetty
 
 ### 1. Initialize policy for a mint
 
@@ -127,7 +126,9 @@ await program.methods
   .rpc();
 ```
 
-### 2. Register extra accounts with Token-2022
+This creates the `HookConfig` PDA for your mint with all policies inactive by default.
+
+### 3. Register the extra accounts
 
 Must be called after `initializeHookConfig`. This writes the `ExtraAccountMetaList` account that Token-2022 reads to pass the right accounts to `execute` on every transfer.
 
@@ -148,6 +149,19 @@ await program.methods
 All fields are `Option<T>` — omit any field you don't want to change by passing `null`.
 
 ```ts
+// Pause all transfers
+await program.methods
+  .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null })
+  .accounts({ mint, policyAuthority, hookConfig })
+  .rpc();
+
+// Set a volume limit of 1,000 tokens (assuming 6 decimals)
+await program.methods
+  .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new BN(1_000_000_000) })
+  .accounts({ mint, policyAuthority, hookConfig })
+  .rpc();
+
+// Enable allowlist enforcement
 await program.methods
   .updatePolicy({
     paused: false,
@@ -164,6 +178,7 @@ await program.methods
 ### 4. Manage allowlist
 
 ```ts
+// Approve a wallet
 await program.methods
   .updateAllowlist(true)   // false to deactivate
   .accounts({
@@ -175,11 +190,11 @@ await program.methods
   .rpc();
 ```
 
----
+Revoking a wallet marks its `AllowlistEntry` as inactive but keeps the account open. Re-approving it later is a single update, not a reallocation.
 
 ## Error Reference
 
-| Code | Name | Trigger |
+| Error | Code | When it's thrown |
 |---|---|---|
 | 6000 | `TransferPaused` | `hook_config.paused` is true |
 | 6001 | `ExceedsVolumeLimit` | `amount > hook_config.max_transfer_amount` |
@@ -196,9 +211,9 @@ await program.methods
 - Only the `policy_authority` stored in `HookConfig` can mutate policy or allowlist state.
 - Program upgrade authority should be moved to a multisig before mainnet deployment.
 
----
+**Authority model.** The `policy_authority` stored in `HookConfig` is the only signer allowed to call `update_policy` and `update_allowlist`. It defaults to whoever initialized the config, but can be rotated to a separate compliance wallet so the mint authority and policy management keys are isolated.
 
-## Roadmap
+**No unsafe code.** The program contains no `unsafe` blocks, no `unwrap()` or `expect()` in instruction handlers, and no heap allocations in the `execute` hot path.
 
 - [x] Global pause
 - [x] Volume limit
@@ -209,7 +224,6 @@ await program.methods
 - [ ] Governance timelock for program upgrades
 - [ ] Mainnet audit
 
----
 
 ## License
 
