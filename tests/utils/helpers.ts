@@ -1,20 +1,5 @@
 import * as anchor from "@anchor-lang/core";
 import {
-  fromLegacyKeypair,
-  fromLegacyTransactionInstruction,
-} from "@solana/compat";
-import {
-  appendTransactionMessageInstructions,
-  createSolanaRpc,
-  createSolanaRpcSubscriptions,
-  createTransactionMessage,
-  pipe,
-  sendAndConfirmTransactionFactory,
-  setTransactionMessageFeePayerSigner,
-  setTransactionMessageLifetimeUsingBlockhash,
-  signTransactionMessageWithSigners,
-} from "@solana/kit";
-import {
   ExtensionType,
   TOKEN_2022_PROGRAM_ID,
   createInitializeMintInstruction,
@@ -30,7 +15,15 @@ import {
 import type { Jetty } from "../../target/types/jetty";
 
 type JettyProgram = anchor.Program<Jetty>;
-type LocalWallet = anchor.Wallet & { payer: anchor.web3.Keypair };
+
+// The provider wallet as a keypair — only used where @solana/spl-token
+// requires a raw Keypair (getOrCreateAssociatedTokenAccount, mintToChecked).
+// Never used to derive a pubkey; use provider.wallet.publicKey for that.
+function getWalletKeypair(provider: anchor.AnchorProvider): anchor.web3.Keypair {
+  const wallet = provider.wallet as anchor.Wallet & { payer?: anchor.web3.Keypair };
+  if (!wallet.payer) throw new Error("Provider wallet does not expose a payer keypair");
+  return wallet.payer;
+}
 
 export type HookFixture = {
   mint: anchor.web3.Keypair;
@@ -51,8 +44,10 @@ export function getProvider(): anchor.AnchorProvider {
   return anchor.getProvider() as anchor.AnchorProvider;
 }
 
-export function getPayer(provider: anchor.AnchorProvider): anchor.web3.Keypair {
-  return (provider.wallet as LocalWallet).payer;
+// Returns the provider wallet's public key — the key Anchor uses to sign
+// all .rpc() calls. Always consistent with what gets stored on-chain.
+export function getPayer(provider: anchor.AnchorProvider): anchor.web3.PublicKey {
+  return provider.wallet.publicKey;
 }
 
 export function deriveHookConfigPda(
@@ -88,32 +83,34 @@ export function deriveAllowlistEntryPda(
 
 export async function createFundedUser(
   provider: anchor.AnchorProvider,
-  lamports = 1_000_000_000
+  lamports = 2_000_000_000
 ): Promise<anchor.web3.Keypair> {
   const user = anchor.web3.Keypair.generate();
-  const signature = await provider.connection.requestAirdrop(
-    user.publicKey,
-    lamports
+  const signature = await provider.connection.requestAirdrop(user.publicKey, lamports);
+  const latestBlockhash = await provider.connection.getLatestBlockhash("confirmed");
+  await provider.connection.confirmTransaction(
+    { signature, ...latestBlockhash },
+    "confirmed"
   );
-  await provider.connection.confirmTransaction(signature, "confirmed");
   return user;
 }
 
+// Creates a Token-2022 mint with a TransferHook extension pointing at programId.
+// provider.sendAndConfirm signs with the provider wallet — consistent with
+// provider.wallet.publicKey used everywhere else.
 export async function createTransferHookMint(
   provider: anchor.AnchorProvider,
   transferHookProgramId: anchor.web3.PublicKey,
   decimals = 2
 ): Promise<anchor.web3.Keypair> {
-  const payer = getPayer(provider);
+  const payerPubkey = provider.wallet.publicKey;
   const mint = anchor.web3.Keypair.generate();
   const mintSpace = getMintLen([ExtensionType.TransferHook]);
-  const lamports = await provider.connection.getMinimumBalanceForRentExemption(
-    mintSpace
-  );
+  const lamports = await provider.connection.getMinimumBalanceForRentExemption(mintSpace);
 
   const transaction = new anchor.web3.Transaction().add(
     anchor.web3.SystemProgram.createAccount({
-      fromPubkey: payer.publicKey,
+      fromPubkey: payerPubkey,
       newAccountPubkey: mint.publicKey,
       space: mintSpace,
       lamports,
@@ -121,14 +118,14 @@ export async function createTransferHookMint(
     }),
     createInitializeTransferHookInstruction(
       mint.publicKey,
-      payer.publicKey,
+      payerPubkey,
       transferHookProgramId,
       TOKEN_2022_PROGRAM_ID
     ),
     createInitializeMintInstruction(
       mint.publicKey,
       decimals,
-      payer.publicKey,
+      payerPubkey,
       null,
       TOKEN_2022_PROGRAM_ID
     )
@@ -143,7 +140,7 @@ export async function getOrCreateToken2022Ata(
   mint: anchor.web3.PublicKey,
   owner: anchor.web3.PublicKey
 ): Promise<anchor.web3.PublicKey> {
-  const payer = getPayer(provider);
+  const payer = getWalletKeypair(provider);
   const account = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     payer,
@@ -151,7 +148,7 @@ export async function getOrCreateToken2022Ata(
     owner,
     false,
     "confirmed",
-    undefined,
+    { commitment: "confirmed" },
     TOKEN_2022_PROGRAM_ID
   );
   return account.address;
@@ -164,7 +161,7 @@ export async function mintToken2022To(
   amount: bigint,
   decimals: number
 ): Promise<void> {
-  const payer = getPayer(provider);
+  const payer = getWalletKeypair(provider);
   await mintToChecked(
     provider.connection,
     payer,
@@ -177,43 +174,6 @@ export async function mintToken2022To(
     { commitment: "confirmed" },
     TOKEN_2022_PROGRAM_ID
   );
-}
-
-function getWsUrl(httpUrl: string): string {
-  const url = new URL(httpUrl);
-  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-  return url.toString();
-}
-
-export async function sendProviderInstructionsWithKit(
-  provider: anchor.AnchorProvider,
-  instructions: anchor.web3.TransactionInstruction[]
-): Promise<void> {
-  const rpc: any = createSolanaRpc(provider.connection.rpcEndpoint as never);
-  const rpcSubscriptions: any = createSolanaRpcSubscriptions(
-    getWsUrl(provider.connection.rpcEndpoint) as never
-  );
-  const sendAndConfirm: any = sendAndConfirmTransactionFactory({
-    rpc,
-    rpcSubscriptions,
-  } as never);
-  const payerSigner: any = await fromLegacyKeypair(getPayer(provider));
-  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
-
-  const message = pipe(
-    createTransactionMessage({ version: 0 }),
-    (tx) => setTransactionMessageFeePayerSigner(payerSigner, tx),
-    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-    (tx) =>
-      appendTransactionMessageInstructions(
-        instructions.map((instruction) =>
-          fromLegacyTransactionInstruction(instruction)
-        ),
-        tx
-      )
-  );
-  const signedTransaction = await signTransactionMessageWithSigners(message);
-  await sendAndConfirm(signedTransaction as never, { commitment: "confirmed" });
 }
 
 export async function transferWithHook(
@@ -239,47 +199,53 @@ export async function transferWithHook(
     "confirmed",
     TOKEN_2022_PROGRAM_ID
   );
-  await sendProviderInstructionsWithKit(provider, [instruction]);
+  const tx = new anchor.web3.Transaction().add(instruction);
+  await provider.sendAndConfirm(tx, []);
 }
 
+// Creates a full fixture: mint → HookConfig → ExtraAccountMetaList → ATAs → minted tokens.
+// All authority accounts use provider.wallet.publicKey so they match what
+// Anchor signs with in every subsequent .rpc() call.
 export async function createHookFixture(
   program: JettyProgram,
   initialAmount = 1_000n
 ): Promise<HookFixture> {
   const provider = program.provider as anchor.AnchorProvider;
-  const payer = getPayer(provider);
+  const authority = provider.wallet.publicKey;
+
   const mint = await createTransferHookMint(provider, program.programId);
-  const [hookConfigPda, hookConfigBump] = deriveHookConfigPda(
+
+  const [hookConfigPda, hookConfigBump] = deriveHookConfigPda(mint.publicKey, program.programId);
+  const [extraAccountMetaListPda, extraAccountMetaListBump] = deriveExtraAccountMetaListPda(
     mint.publicKey,
     program.programId
   );
-  const [extraAccountMetaListPda, extraAccountMetaListBump] =
-    deriveExtraAccountMetaListPda(mint.publicKey, program.programId);
 
   await program.methods
     .initializeHookConfig()
     .accounts({
-      payer: payer.publicKey,
-      policyAuthority: payer.publicKey,
+      payer: authority,
+      policyAuthority: authority,
       mint: mint.publicKey,
     })
-    .rpc();
+    .rpc({ commitment: "confirmed" });
 
   await program.methods
     .initExtraAccountMetaList()
     .accounts({
-      payer: payer.publicKey,
-      policyAuthority: payer.publicKey,
+      payer: authority,
+      policyAuthority: authority,
       mint: mint.publicKey,
       tokenProgram: TOKEN_2022_PROGRAM_ID,
     })
-    .rpc();
+    .rpc({ commitment: "confirmed" });
 
   const sourceTokenAccount = await getOrCreateToken2022Ata(
     provider,
     mint.publicKey,
-    payer.publicKey
+    authority
   );
+
   const destinationOwner = await createFundedUser(provider);
   const destinationTokenAccount = await getOrCreateToken2022Ata(
     provider,
@@ -287,13 +253,7 @@ export async function createHookFixture(
     destinationOwner.publicKey
   );
 
-  await mintToken2022To(
-    provider,
-    mint.publicKey,
-    sourceTokenAccount,
-    initialAmount,
-    2
-  );
+  await mintToken2022To(provider, mint.publicKey, sourceTokenAccount, initialAmount, 2);
 
   return {
     mint,
@@ -302,7 +262,7 @@ export async function createHookFixture(
     hookConfigBump,
     extraAccountMetaListPda,
     extraAccountMetaListBump,
-    sourceOwner: payer.publicKey,
+    sourceOwner: authority,
     sourceTokenAccount,
     destinationOwner,
     destinationTokenAccount,
@@ -326,12 +286,7 @@ export function expectedAta(
   mint: anchor.web3.PublicKey,
   owner: anchor.web3.PublicKey
 ): anchor.web3.PublicKey {
-  return getAssociatedTokenAddressSync(
-    mint,
-    owner,
-    false,
-    TOKEN_2022_PROGRAM_ID
-  );
+  return getAssociatedTokenAddressSync(mint, owner, false, TOKEN_2022_PROGRAM_ID);
 }
 
 export function extractErrorCode(error: unknown): number | null {
@@ -339,18 +294,33 @@ export function extractErrorCode(error: unknown): number | null {
     error?: { errorCode?: { number?: number } };
     code?: number;
     logs?: string[];
+    message?: string;
   };
+
   if (candidate.error?.errorCode?.number !== undefined) {
     return candidate.error.errorCode.number;
   }
+
   if (candidate.code !== undefined && candidate.code >= 6000) {
     return candidate.code;
   }
+
   if (candidate.logs) {
     const parsed = anchor.AnchorError.parse(candidate.logs);
-    if (parsed) {
-      return parsed.error.errorCode.number;
+    if (parsed) return parsed.error.errorCode.number;
+  }
+
+  if (candidate.message && typeof candidate.message === "string") {
+    const m = candidate.message.match(/custom program error: 0x([0-9a-fA-F]+)/);
+    if (m) {
+      const parsed = parseInt(m[1], 16);
+      if (!Number.isNaN(parsed)) {
+        if (parsed >= 6000) return parsed;
+        if (parsed > 0) return parsed + 6000;
+        return parsed;
+      }
     }
   }
+
   return null;
 }
