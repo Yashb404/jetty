@@ -13,7 +13,7 @@ pub use instructions::{
     UpdatePolicyArgs,
 };
 
-declare_id!("4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku");
+declare_id!("ACaZ8PavSWsp5vaQgvjH5zhkTU6oWzCMo8SNAfJY5Bks");
 
 #[program]
 pub mod jetty {
