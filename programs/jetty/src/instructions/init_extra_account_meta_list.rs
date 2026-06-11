@@ -7,6 +7,7 @@ use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
 };
 use spl_transfer_hook_interface::instruction::ExecuteInstruction;
+use anchor_spl::token_2022::ID as TOKEN_2022_PROGRAM_ID;
 
 use crate::{error::JettyError, state::HookConfig};
 
@@ -42,6 +43,13 @@ pub fn handler(ctx: Context<InitExtraAccountMetaList>) -> Result<()> {
         ctx.accounts.policy_authority.key(),
         ctx.accounts.hook_config.policy_authority,
         JettyError::Unauthorized
+    );
+
+    // Ensure the provided token program is the Token-2022 program.
+    require_keys_eq!(
+        ctx.accounts.token_program.key(),
+        TOKEN_2022_PROGRAM_ID,
+        JettyError::InvalidTokenProgram
     );
 
     let account_metas = [

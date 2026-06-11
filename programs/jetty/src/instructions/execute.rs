@@ -19,7 +19,11 @@ pub struct Execute<'info> {
     pub source_token_account: InterfaceAccount<'info, TokenAccount>,
     pub mint: InterfaceAccount<'info, Mint>,
     pub destination_token_account: InterfaceAccount<'info, TokenAccount>,
-    pub authority: Signer<'info>,
+    /// The authority (source owner). Not a signer for CPIs from the token program.
+    /// CHECK: We only compare this account's pubkey to the source owner; do not
+    /// require it to be a signer because the token program will invoke this
+    /// instruction during transfers without the authority flagged as a signer.
+    pub authority: UncheckedAccount<'info>,
 
     /// CHECK: Validation PDA for transfer-hook interface.
     #[account(
@@ -52,6 +56,17 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         JettyError::MintMismatch
     );
 
+    // Bind the signer authority to the canonical source owner.
+    require_keys_eq!(
+        ctx.accounts.source_token_account.owner,
+        ctx.accounts.authority.key(),
+        JettyError::InvalidAuthority
+    );
+
+    // Ensure the extra-account meta list is owned by this program (defensive check).
+    let meta_owner = ctx.accounts.extra_account_meta_list.to_account_info().owner;
+    require_keys_eq!(*meta_owner, crate::ID, JettyError::InvalidMetaListOwner);
+
     if hook_config.paused {
         return err!(JettyError::TransferPaused);
     }
@@ -61,15 +76,25 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
     }
 
     if hook_config.allowlist_enabled {
-        let sender_entry_info = ctx
-            .remaining_accounts
-            .first()
-            .ok_or_else(|| error!(JettyError::SourceNotAllowlisted))?;
-        let receiver_entry_info = ctx
-            .remaining_accounts
-            .get(1)
-            .ok_or_else(|| error!(JettyError::DestinationNotAllowlisted))?;
+        // Expect the caller (Token-2022) to provide two allowlist PDAs in remaining accounts.
 
+        // Note: We intentionally do NOT perform owner checks on the allowlist PDAs
+        // found in `ctx.remaining_accounts` before attempting to parse them.
+        // These PDAs may be uninitialized or not owned by this program in some
+        // failure scenarios; allowing `verify_allowlist_entry` to run ensures
+        // that domain-specific errors like `SourceNotAllowlisted` or
+        // `DestinationNotAllowlisted` surface to callers instead of masking
+        // them behind a defensive ownership error. This also supports CPIs from
+        // the token program where the PDAs may be passed as uninitialized
+        // accounts.
+        if ctx.remaining_accounts.len() < 2 {
+            return Err(error!(JettyError::SourceNotAllowlisted));
+        }
+
+        let sender_entry_info = &ctx.remaining_accounts[0];
+        let receiver_entry_info = &ctx.remaining_accounts[1];
+
+        // Verify the PDAs themselves and their stored bump/owner fields.
         verify_allowlist_entry(
             sender_entry_info,
             &ctx.accounts.mint.key(),
