@@ -22,4 +22,13 @@ pub enum JettyError {
 
     #[msg("Mint mismatch between instruction accounts and stored config.")]
     MintMismatch,
+
+    #[msg("The provided token program is not Token-2022.")]
+    InvalidTokenProgram,
+
+    #[msg("The extra account meta list is not owned by this program.")]
+    InvalidMetaListOwner,
+
+    #[msg("The provided authority does not match the source token account owner.")]
+    InvalidAuthority,
 }
