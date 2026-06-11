@@ -5,10 +5,8 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-
-
 [programs.localnet]
-jetty = "4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku"
+jetty = "ACaZ8PavSWsp5vaQgvjH5zhkTU6oWzCMo8SNAfJY5Bks"
 
 [provider]
 cluster = "localnet"
@@ -16,8 +14,5 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn test"
-
-[test]
-startup_wait = 10000
 
 [hooks]

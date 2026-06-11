@@ -29,31 +29,20 @@ const JETTY_ERROR = {
 async function expectJettyError(promise: Promise<unknown>, code: number): Promise<void> {
   try {
     await promise;
-    expect.fail(`Expected Jetty error ${code} but instruction succeeded`);
+    expect.fail(`expected Jetty error ${code}`);
   } catch (error) {
-    const actual = extractErrorCode(error);
-    expect(actual, `Expected error ${code}, got ${actual}\n${String(error)}`).to.equal(code);
+    expect(extractErrorCode(error)).to.equal(code);
   }
 }
 
 describe("hookguard", function () {
   this.timeout(200_000);
 
-    const provider = new anchor.AnchorProvider(
-  anchor.AnchorProvider.env().connection,
-  anchor.AnchorProvider.env().wallet,
-  { commitment: "confirmed", preflightCommitment: "confirmed" }
-  );
+  const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.Jetty as anchor.Program<Jetty>;
-
-  // authority === provider.wallet.publicKey — the key Anchor signs every
-  // .rpc() call with. Using this consistently ensures on-chain stored keys
-  // always match the signer Anchor presents.
-  const authority = getPayer(provider);
-
-  // ─── initialize_hook_config ───────────────────────────────────────────────
+  const payer = getPayer(provider);
 
   describe("initialize_hook_config", () => {
     it("should initialize HookConfig with correct defaults", async () => {
@@ -63,117 +52,114 @@ describe("hookguard", function () {
       await program.methods
         .initializeHookConfig()
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: mint.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
-      const hookConfig = await program.account.hookConfig.fetch(hookConfigPda, "confirmed");
+      const hookConfig = await program.account.hookConfig.fetch(hookConfigPda);
       expect(hookConfig.mint.equals(mint.publicKey)).to.equal(true);
-      expect(hookConfig.policyAuthority.equals(authority)).to.equal(true);
+      expect(hookConfig.policyAuthority.equals(payer.publicKey)).to.equal(true);
       expect(hookConfig.bump).to.equal(hookConfigBump);
       expect(hookConfig.paused).to.equal(false);
       expect(hookConfig.allowlistEnabled).to.equal(false);
       expect(hookConfig.maxTransferAmount.toString()).to.equal("0");
     });
 
-    it("should fail if called twice for the same mint", async () => {
+    it("should fail if called twice for same mint", async () => {
       const mint = await createTransferHookMint(provider, program.programId);
+      const [hookConfigPda] = deriveHookConfigPda(mint.publicKey, program.programId);
 
       await program.methods
         .initializeHookConfig()
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: mint.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
       try {
         await program.methods
           .initializeHookConfig()
           .accounts({
-            payer: authority,
-            policyAuthority: authority,
+            payer: payer.publicKey,
+            policyAuthority: payer.publicKey,
             mint: mint.publicKey,
           })
-          .rpc({ commitment: "confirmed" });
-        expect.fail("Second initialize_hook_config should have failed");
+          .rpc();
+        expect.fail("second initialize should fail");
       } catch (error) {
         expect(String(error)).to.match(/already in use/i);
       }
     });
   });
 
-  // ─── init_extra_account_meta_list ─────────────────────────────────────────
-
   describe("init_extra_account_meta_list", () => {
     it("should create ExtraAccountMetaList with correct size and owner", async () => {
       const mint = await createTransferHookMint(provider, program.programId);
+      const [hookConfigPda] = deriveHookConfigPda(mint.publicKey, program.programId);
       const [extraAccountMetaListPda] = deriveExtraAccountMetaListPda(mint.publicKey, program.programId);
 
       await program.methods
         .initializeHookConfig()
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: mint.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
       await program.methods
         .initExtraAccountMetaList()
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: mint.publicKey,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
-      const accountInfo = await provider.connection.getAccountInfo(
-        extraAccountMetaListPda,
-        "confirmed"
-      );
-      expect(accountInfo, "ExtraAccountMetaList account must exist").to.not.equal(null);
-      expect(accountInfo!.owner.equals(program.programId)).to.equal(true);
-      expect(accountInfo!.data.length).to.equal(EXTRA_ACCOUNT_META_LIST_SIZE);
+      const accountInfo = await provider.connection.getAccountInfo(extraAccountMetaListPda, "confirmed");
+      expect(accountInfo).to.not.equal(null);
+      expect(accountInfo?.owner.equals(program.programId)).to.equal(true);
+      expect(accountInfo?.data.length).to.equal(EXTRA_ACCOUNT_META_LIST_SIZE);
     });
 
     it("should fail with Unauthorized when wrong signer initializes list", async () => {
       const mint = await createTransferHookMint(provider, program.programId);
       const wrongAuthority = await createFundedUser(provider);
+      const [hookConfigPda] = deriveHookConfigPda(mint.publicKey, program.programId);
+      const [extraAccountMetaListPda] = deriveExtraAccountMetaListPda(mint.publicKey, program.programId);
 
       await program.methods
         .initializeHookConfig()
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: mint.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
       await expectJettyError(
         program.methods
           .initExtraAccountMetaList()
           .accounts({
-            payer: authority,
+            payer: payer.publicKey,
             policyAuthority: wrongAuthority.publicKey,
             mint: mint.publicKey,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
           })
           .signers([wrongAuthority])
-          .rpc({ commitment: "confirmed" }),
-        JETTY_ERROR.Unauthorized
+          .rpc(),
+        JETTY_ERROR.Unauthorized,
       );
     });
   });
 
-  // ─── update_policy ────────────────────────────────────────────────────────
-
   describe("update_policy", () => {
-    it("should update only the requested policy fields", async () => {
+    it("should update only requested policy fields", async () => {
       const fixture = await createHookFixture(program);
 
       await program.methods
@@ -183,12 +169,12 @@ describe("hookguard", function () {
           maxTransferAmount: new anchor.BN(25),
         })
         .accounts({
-          policyAuthority: authority,
+          policyAuthority: payer.publicKey,
           mint: fixture.mint.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
-      const hookConfig = await program.account.hookConfig.fetch(fixture.hookConfigPda, "confirmed");
+      const hookConfig = await program.account.hookConfig.fetch(fixture.hookConfigPda);
       expect(hookConfig.paused).to.equal(true);
       expect(hookConfig.allowlistEnabled).to.equal(true);
       expect(hookConfig.maxTransferAmount.toString()).to.equal("25");
@@ -210,34 +196,32 @@ describe("hookguard", function () {
             mint: fixture.mint.publicKey,
           })
           .signers([wrongAuthority])
-          .rpc({ commitment: "confirmed" }),
-        JETTY_ERROR.Unauthorized
+          .rpc(),
+        JETTY_ERROR.Unauthorized,
       );
     });
   });
 
-  // ─── update_allowlist ─────────────────────────────────────────────────────
-
   describe("update_allowlist", () => {
-    it("should create and update an allowlist entry", async () => {
+    it("should create and update allowlist entry", async () => {
       const fixture = await createHookFixture(program);
       const [allowlistEntryPda, allowlistBump] = deriveAllowlistEntryPda(
         fixture.mint.publicKey,
         fixture.destinationOwner.publicKey,
-        program.programId
+        program.programId,
       );
 
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: fixture.mint.publicKey,
           wallet: fixture.destinationOwner.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
-      const entry = await program.account.allowlistEntry.fetch(allowlistEntryPda, "confirmed");
+      const entry = await program.account.allowlistEntry.fetch(allowlistEntryPda);
       expect(entry.mint.equals(fixture.mint.publicKey)).to.equal(true);
       expect(entry.wallet.equals(fixture.destinationOwner.publicKey)).to.equal(true);
       expect(entry.active).to.equal(true);
@@ -247,24 +231,27 @@ describe("hookguard", function () {
     it("should fail with Unauthorized when wrong signer calls update_allowlist", async () => {
       const fixture = await createHookFixture(program);
       const wrongAuthority = await createFundedUser(provider);
+      const [allowlistEntryPda] = deriveAllowlistEntryPda(
+        fixture.mint.publicKey,
+        fixture.destinationOwner.publicKey,
+        program.programId,
+      );
 
       await expectJettyError(
         program.methods
           .updateAllowlist(true)
           .accounts({
-            payer: authority,
+            payer: payer.publicKey,
             policyAuthority: wrongAuthority.publicKey,
             mint: fixture.mint.publicKey,
             wallet: fixture.destinationOwner.publicKey,
           })
           .signers([wrongAuthority])
-          .rpc({ commitment: "confirmed" }),
-        JETTY_ERROR.Unauthorized
+          .rpc(),
+        JETTY_ERROR.Unauthorized,
       );
     });
   });
-
-  // ─── execute ──────────────────────────────────────────────────────────────
 
   describe("execute", () => {
     it("should fail with NotTransferring on direct invocation", async () => {
@@ -277,10 +264,10 @@ describe("hookguard", function () {
             sourceTokenAccount: fixture.sourceTokenAccount,
             mint: fixture.mint.publicKey,
             destinationTokenAccount: fixture.destinationTokenAccount,
-            authority: authority,
+            authority: payer.publicKey,
           })
-          .rpc({ commitment: "confirmed" }),
-        JETTY_ERROR.NotTransferring
+          .rpc(),
+        JETTY_ERROR.NotTransferring,
       );
     });
 
@@ -288,20 +275,27 @@ describe("hookguard", function () {
       const fixture = await createHookFixture(program);
 
       await program.methods
-        .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null })
-        .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
-        .rpc({ commitment: "confirmed" });
+        .updatePolicy({
+          paused: true,
+          allowlistEnabled: null,
+          maxTransferAmount: null,
+        })
+        .accounts({
+          policyAuthority: payer.publicKey,
+          mint: fixture.mint.publicKey,
+        })
+        .rpc();
 
       await expectJettyError(
         transferWithHook(provider, {
           source: fixture.sourceTokenAccount,
           mint: fixture.mint.publicKey,
           destination: fixture.destinationTokenAccount,
-          owner: authority,
+          owner: payer.publicKey,
           amount: 10n,
           decimals: fixture.decimals,
         }),
-        JETTY_ERROR.TransferPaused
+        JETTY_ERROR.TransferPaused,
       );
     });
 
@@ -309,120 +303,166 @@ describe("hookguard", function () {
       const fixture = await createHookFixture(program);
 
       await program.methods
-        .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(5) })
-        .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
-        .rpc({ commitment: "confirmed" });
+        .updatePolicy({
+          paused: null,
+          allowlistEnabled: null,
+          maxTransferAmount: new anchor.BN(5),
+        })
+        .accounts({
+          policyAuthority: payer.publicKey,
+          mint: fixture.mint.publicKey,
+        })
+        .rpc();
 
       await expectJettyError(
         transferWithHook(provider, {
           source: fixture.sourceTokenAccount,
           mint: fixture.mint.publicKey,
           destination: fixture.destinationTokenAccount,
-          owner: authority,
+          owner: payer.publicKey,
           amount: 10n,
           decimals: fixture.decimals,
         }),
-        JETTY_ERROR.ExceedsVolumeLimit
+        JETTY_ERROR.ExceedsVolumeLimit,
       );
     });
 
     it("should reject transfer when sender not allowlisted", async () => {
       const fixture = await createHookFixture(program);
+      const [receiverAllowlistPda] = deriveAllowlistEntryPda(
+        fixture.mint.publicKey,
+        fixture.destinationOwner.publicKey,
+        program.programId,
+      );
 
-      // Only allowlist the receiver — sender must be rejected
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: fixture.mint.publicKey,
           wallet: fixture.destinationOwner.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
       await program.methods
-        .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null })
-        .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
-        .rpc({ commitment: "confirmed" });
+        .updatePolicy({
+          paused: null,
+          allowlistEnabled: true,
+          maxTransferAmount: null,
+        })
+        .accounts({
+          policyAuthority: payer.publicKey,
+          mint: fixture.mint.publicKey,
+        })
+        .rpc();
 
       await expectJettyError(
         transferWithHook(provider, {
           source: fixture.sourceTokenAccount,
           mint: fixture.mint.publicKey,
           destination: fixture.destinationTokenAccount,
-          owner: authority,
+          owner: payer.publicKey,
           amount: 10n,
           decimals: fixture.decimals,
         }),
-        JETTY_ERROR.SourceNotAllowlisted
+        JETTY_ERROR.SourceNotAllowlisted,
       );
     });
 
     it("should reject transfer when receiver not allowlisted", async () => {
       const fixture = await createHookFixture(program);
+      const [senderAllowlistPda] = deriveAllowlistEntryPda(
+        fixture.mint.publicKey,
+        fixture.sourceOwner,
+        program.programId,
+      );
 
-      // Only allowlist the sender — receiver must be rejected
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: fixture.mint.publicKey,
           wallet: fixture.sourceOwner,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
       await program.methods
-        .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null })
-        .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
-        .rpc({ commitment: "confirmed" });
+        .updatePolicy({
+          paused: null,
+          allowlistEnabled: true,
+          maxTransferAmount: null,
+        })
+        .accounts({
+          policyAuthority: payer.publicKey,
+          mint: fixture.mint.publicKey,
+        })
+        .rpc();
 
       await expectJettyError(
         transferWithHook(provider, {
           source: fixture.sourceTokenAccount,
           mint: fixture.mint.publicKey,
           destination: fixture.destinationTokenAccount,
-          owner: authority,
+          owner: payer.publicKey,
           amount: 10n,
           decimals: fixture.decimals,
         }),
-        JETTY_ERROR.DestinationNotAllowlisted
+        JETTY_ERROR.DestinationNotAllowlisted,
       );
     });
 
     it("should allow transfer when both sender and receiver are allowlisted", async () => {
       const fixture = await createHookFixture(program);
+      const [senderAllowlistPda] = deriveAllowlistEntryPda(
+        fixture.mint.publicKey,
+        fixture.sourceOwner,
+        program.programId,
+      );
+      const [receiverAllowlistPda] = deriveAllowlistEntryPda(
+        fixture.mint.publicKey,
+        fixture.destinationOwner.publicKey,
+        program.programId,
+      );
 
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: fixture.mint.publicKey,
           wallet: fixture.sourceOwner,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
       await program.methods
         .updateAllowlist(true)
         .accounts({
-          payer: authority,
-          policyAuthority: authority,
+          payer: payer.publicKey,
+          policyAuthority: payer.publicKey,
           mint: fixture.mint.publicKey,
           wallet: fixture.destinationOwner.publicKey,
         })
-        .rpc({ commitment: "confirmed" });
+        .rpc();
 
       await program.methods
-        .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null })
-        .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
-        .rpc({ commitment: "confirmed" });
+        .updatePolicy({
+          paused: null,
+          allowlistEnabled: true,
+          maxTransferAmount: null,
+        })
+        .accounts({
+          policyAuthority: payer.publicKey,
+          mint: fixture.mint.publicKey,
+        })
+        .rpc();
 
       await transferWithHook(provider, {
         source: fixture.sourceTokenAccount,
         mint: fixture.mint.publicKey,
         destination: fixture.destinationTokenAccount,
-        owner: authority,
+        owner: payer.publicKey,
         amount: 10n,
         decimals: fixture.decimals,
       });
