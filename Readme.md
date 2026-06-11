@@ -1,22 +1,22 @@
 # Jetty
 
-> Universal on-chain compliance program for SPL Token-2022 Transfer Hooks on Solana.
+> Universal on-chain compliance layer for SPL Token-2022 Transfer Hooks on Solana.
 
-Token issuers point their mint's Transfer Hook authority at the Jetty program ID and configure modular compliance policies via a dashboard — no Rust required.
+Token issuers point their mint's Transfer Hook at the Jetty program ID and configure modular compliance policies — no custom Rust required.
 
 ---
 
-## What It Does
+## Overview
 
-Every SPL Token-2022 transfer is intercepted by Jetty and evaluated against the issuer's active policy modules:
+Every SPL Token-2022 transfer is atomically intercepted by Jetty and evaluated against the issuer's active policy:
 
 | Module | Behavior |
 |---|---|
-| **Global Pause** | Rejects all transfers when enabled |
-| **Volume Limit** | Rejects transfers exceeding a configured `u64` amount |
-| **Allowlist** | Rejects transfers where sender or receiver lacks a valid allowlist PDA |
+| **Global Pause** | Rejects all transfers when active |
+| **Volume Limit** | Rejects transfers exceeding a configured `u64` threshold |
+| **Allowlist** | Rejects transfers where sender or receiver lacks a valid on-chain allowlist entry |
 
-One deployed program. Many mints. Each issuer owns their own policy PDA.
+One deployed program. Many mints. Each issuer owns and controls their own policy PDA — isolated by design.
 
 ---
 
@@ -27,34 +27,55 @@ programs/jetty/src/
 ├── lib.rs
 ├── error.rs
 ├── instructions/
-│   ├── mod.rs
 │   ├── initialize_hook_config.rs       # Create policy PDA for a mint
 │   ├── init_extra_account_meta_list.rs # Register extra accounts with Token-2022
-│   ├── execute.rs                      # Core hook — called on every transfer
-│   ├── update_policy.rs                # Toggle pause, set volume limit, toggle allowlist
-│   └── update_allowlist.rs             # Add/remove wallets from allowlist registry
+│   ├── execute.rs                      # Core hook — invoked on every transfer
+│   ├── update_policy.rs                # Pause, volume limit, allowlist toggle
+│   └── update_allowlist.rs             # Per-wallet allowlist management
 └── state/
-    ├── mod.rs
     ├── hook_config.rs                  # HookConfig PDA — policy flags + params
     └── allowlist.rs                    # AllowlistEntry PDA — per-wallet status
 ```
 
-**Key PDAs:**
+### PDAs
 
 | Account | Seeds | Purpose |
 |---|---|---|
 | `HookConfig` | `["policy", mint]` | Per-mint policy configuration |
-| `ExtraAccountMetaList` | `["extra-account-metas", mint]` | Tells Token-2022 which extra accounts Jetty needs |
+| `ExtraAccountMetaList` | `["extra-account-metas", mint]` | Declares extra accounts Token-2022 must pass to Jetty |
 | `AllowlistEntry` | `["allowlist", mint, wallet]` | Per-wallet allowlist status |
+
+### Execute Flow
+
+```
+Transfer triggered
+      │
+      ▼
+ Load HookConfig
+      │
+      ├─ paused? ──────────────────────────► TransferPaused
+      │
+      ├─ amount > maxTransferAmount? ──────► ExceedsVolumeLimit
+      │
+      └─ allowlistEnabled?
+              │
+              ├─ sender entry missing/inactive? ──► SourceNotAllowlisted
+              │
+              └─ receiver entry missing/inactive? ─► DestinationNotAllowlisted
+                        │
+                        ▼
+                   Transfer passes
+```
 
 ---
 
-## Tech Stack
+## Stack
 
-- **Program:** Rust, Anchor 0.31+, SPL Token-2022
-- **Client/Tests:** TypeScript, `@solana/kit` (web3.js v2), `@solana/spl-token`
-- **Dashboard:** Next.js, Tailwind CSS
-- **Testing:** Anchor TS test suite + `solana-test-validator`
+| Layer | Tech |
+|---|---|
+| Program | Rust, Anchor 1.x, SPL Token-2022 |
+| Tests | TypeScript, `@anchor-lang/core`, `@solana/spl-token` |
+| CI | GitHub Actions — `solana-test-validator` |
 
 ---
 
@@ -63,9 +84,10 @@ programs/jetty/src/
 ### Prerequisites
 
 ```bash
-anchor --version   # 0.31+
-solana --version   # 1.18+
-node --version     # 18+
+anchor --version   # 1.0.2+
+solana --version   # 3.x (Agave)
+node --version     # 20+
+yarn --version     # any
 ```
 
 ### Install
@@ -88,35 +110,42 @@ anchor build
 anchor test
 ```
 
-### Deploy (devnet)
-
-```bash
-anchor deploy --provider.cluster devnet
-```
-
 ---
 
 ## Usage
 
-### 1. Initialize policy for your mint
+### 1. Initialize policy for a mint
 
 ```ts
 await program.methods
   .initializeHookConfig()
-  .accounts({ mint, authority })
+  .accounts({
+    payer: wallet.publicKey,
+    policyAuthority: wallet.publicKey,
+    mint: mintPubkey,
+  })
   .rpc();
 ```
 
 ### 2. Register extra accounts with Token-2022
 
+Must be called after `initializeHookConfig`. This writes the `ExtraAccountMetaList` account that Token-2022 reads to pass the right accounts to `execute` on every transfer.
+
 ```ts
 await program.methods
   .initExtraAccountMetaList()
-  .accounts({ mint, authority })
+  .accounts({
+    payer: wallet.publicKey,
+    policyAuthority: wallet.publicKey,
+    mint: mintPubkey,
+    tokenProgram: TOKEN_2022_PROGRAM_ID,
+  })
   .rpc();
 ```
 
-### 3. Configure policies
+### 3. Configure policy
+
+All fields are `Option<T>` — omit any field you don't want to change by passing `null`.
 
 ```ts
 await program.methods
@@ -125,58 +154,58 @@ await program.methods
     allowlistEnabled: true,
     maxTransferAmount: new BN(1_000_000),
   })
-  .accounts({ mint, authority })
+  .accounts({
+    policyAuthority: wallet.publicKey,
+    mint: mintPubkey,
+  })
   .rpc();
 ```
 
-### 4. Add wallets to allowlist
+### 4. Manage allowlist
 
 ```ts
 await program.methods
-  .updateAllowlist({ wallet: userPubkey, active: true })
-  .accounts({ mint, authority })
+  .updateAllowlist(true)   // false to deactivate
+  .accounts({
+    payer: wallet.publicKey,
+    policyAuthority: wallet.publicKey,
+    mint: mintPubkey,
+    wallet: userPubkey,
+  })
   .rpc();
 ```
 
 ---
 
-## Policy Logic (Execute)
-
-Called automatically by Token-2022 on every transfer:
-
-```
-1. Load HookConfig PDA for mint
-2. If paused → TransferPaused error
-3. If amount > maxTransferAmount → ExceedsVolumeLimit error
-4. If allowlistEnabled → verify sender + receiver AllowlistEntry PDAs → NotAllowlisted error
-```
-
----
-
-## Custom Errors
+## Error Reference
 
 | Code | Name | Trigger |
 |---|---|---|
-| 6000 | `TransferPaused` | Global pause is active |
-| 6001 | `ExceedsVolumeLimit` | Transfer amount > configured limit |
-| 6002 | `NotAllowlisted` | Sender or receiver not in allowlist |
-| 6003 | `Unauthorized` | Caller is not policy authority |
+| 6000 | `TransferPaused` | `hook_config.paused` is true |
+| 6001 | `ExceedsVolumeLimit` | `amount > hook_config.max_transfer_amount` |
+| 6002 | `SourceNotAllowlisted` | Sender has no active `AllowlistEntry` |
+| 6003 | `DestinationNotAllowlisted` | Receiver has no active `AllowlistEntry` |
+| 6004 | `Unauthorized` | Caller is not `policy_authority` |
+| 6005 | `NotTransferring` | `execute` called outside a real Token-2022 transfer |
 
 ---
 
-## Security Notes
+## Security
 
-- Only `mint_authority` or designated `policy_authority` can modify `HookConfig`.
-- `execute` verifies the `transferring` flag on the source token account — prevents direct invocation without a real Token-2022 transfer.
-- Program upgrade authority should be moved to a multisig before mainnet use.
+- `execute` checks the `transferring` flag on the source token account — direct invocation without an active Token-2022 transfer is rejected.
+- Only the `policy_authority` stored in `HookConfig` can mutate policy or allowlist state.
+- Program upgrade authority should be moved to a multisig before mainnet deployment.
 
 ---
 
 ## Roadmap
 
-- [x] MVP: Pause, Volume Limit, Allowlist
-- [ ] On-chain audit trail / event logging
-- [ ] Off-chain KYC provider integration (identity oracle)
+- [x] Global pause
+- [x] Volume limit
+- [x] Allowlist
+- [x] Atomic ATA initialization via `init_if_needed`
+- [ ] On-chain audit log via events
+- [ ] Off-chain KYC oracle integration
 - [ ] Governance timelock for program upgrades
 - [ ] Mainnet audit
 
