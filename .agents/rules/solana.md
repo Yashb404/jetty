@@ -11,6 +11,8 @@ Explicit Account Validation: Every UncheckedAccount<'info> used must be accompan
 
 Domain Error Precision: Ensure custom program errors are granular. Do not fallback to generic errors; bubble up specific domain errors (e.g., allowlist, volume metrics, or state pauses) to ensure full trace visibility.
 
+Initialization Authority Checks: Always verify that the caller initializing a configuration PDA is explicitly authorized (e.g., via `mint.mint_authority == COption::Some(payer.key())` or an equivalent check). Do not assume that any signer can initialize program state, even if the PDA seeds ensure uniqueness, to prevent front-running griefing attacks.
+
 Defensive Boundary Checks: When parsing account data via StateWithExtensions, validate program ownership boundaries and configuration constants before processing internal state mutations.
 
 The frontend and SDK explicitly use Yarn. When running dependency steps or workspace actions via the agent, strictly invoke yarn install --frozen-lockfile or yarn test. Do not mix package managers without asking.

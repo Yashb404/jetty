@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::Mint;
 
-use crate::state::HookConfig;
+use crate::{error::JettyError, state::HookConfig};
 
 #[event]
 pub struct HookConfigInitialized {
@@ -31,6 +31,11 @@ pub struct InitializeHookConfig<'info> {
 }
 
 pub fn handler(ctx: Context<InitializeHookConfig>) -> Result<()> {
+    require!(
+        ctx.accounts.mint.mint_authority == anchor_lang::solana_program::program_option::COption::Some(ctx.accounts.policy_authority.key()),
+        JettyError::Unauthorized
+    );
+
     let hook_config = &mut ctx.accounts.hook_config;
     hook_config.mint = ctx.accounts.mint.key();
     hook_config.policy_authority = ctx.accounts.policy_authority.key();

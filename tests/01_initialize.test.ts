@@ -55,6 +55,20 @@ describe("initialize_hook_config", function () {
     }
   });
 
+  it("rejects initialize_hook_config if caller is not the mint authority", async () => {
+    const mint = await createTransferHookMint(provider, program.programId);
+    const wrongAuthority = await createFundedUser(provider);
+
+    await expectJettyError(
+      program.methods
+        .initializeHookConfig()
+        .accounts({ payer: wrongAuthority.publicKey, policyAuthority: wrongAuthority.publicKey, mint: mint.publicKey })
+        .signers([wrongAuthority])
+        .rpc({ commitment: "confirmed" }),
+      JETTY_ERROR.Unauthorized
+    );
+  });
+
   // ── init_extra_account_meta_list ───────────────────────────────────────────
 
   it("creates ExtraAccountMetaList with correct size and owner", async () => {

@@ -33,7 +33,8 @@ programs/jetty/src/
 │   ├── init_extra_account_meta_list.rs # Register extra accounts with Token-2022
 │   ├── execute.rs                      # Core hook — invoked on every transfer
 │   ├── update_policy.rs                # Pause, volume limit, allowlist toggle
-│   └── update_allowlist.rs             # Per-wallet allowlist management
+│   ├── update_allowlist.rs             # Per-wallet allowlist management
+│   └── assign_policy_authority.rs      # Rotate the policy authority
 └── state/
     ├── hook_config.rs                  # HookConfig PDA — policy flags + params
     └── allowlist.rs                    # AllowlistEntry PDA — per-wallet status
@@ -45,7 +46,7 @@ programs/jetty/src/
 |---|---|---|
 | `HookConfig` | `["policy", mint]` | Per-mint policy configuration |
 | `ExtraAccountMetaList` | `["extra-account-metas", mint]` | Declares extra accounts Token-2022 must pass to Jetty |
-| `AllowlistEntry` | `["allowlist", mint, wallet]` | Per-wallet allowlist status |
+| `AllowlistEntry` | `["allowlist", mint, token_account]` | Per-wallet allowlist status |
 
 ### Execute Flow
 
@@ -110,6 +111,10 @@ anchor test
 ---
 
 ## Integration guide
+
+### Devnet Deployment Info
+- **Program ID**: `[TO_BE_ADDED_AFTER_DEPLOYMENT]`
+- **Passing Tests**: `[SCREENSHOT_TO_BE_ADDED_AFTER_DEPLOYMENT]`
 
 ### 1. Create your mint with Transfer Hook pointing at Jetty
 
@@ -185,12 +190,12 @@ await program.methods
     payer: wallet.publicKey,
     policyAuthority: wallet.publicKey,
     mint: mintPubkey,
-    wallet: userPubkey,
+    tokenAccount: userTokenAccountPubkey,
   })
   .rpc();
 ```
 
-Revoking a wallet marks its `AllowlistEntry` as inactive but keeps the account open. Re-approving it later is a single update, not a reallocation.
+Revoking a wallet closes its `AllowlistEntry` account completely, removing it from the ledger and returning the rent to the payer. Re-approving it later is a reallocation via `init_if_needed`.
 
 ## Error Reference
 
