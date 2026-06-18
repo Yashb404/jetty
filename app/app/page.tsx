@@ -14,7 +14,7 @@ export default function Home() {
   const [activeMint, setActiveMint] = useState<string | null>(null);
 
   const { policy, isInitialized, metaListExists, refetch } = useMintPolicy(activeMint);
-  const { initializeHookConfig, initExtraAccountMetaList, assignPolicyAuthority, loading } = useJettyProgram();
+  const { initializeHookConfig, initExtraAccountMetaList, assignPolicyAuthority, createToken2022Mint, loading } = useJettyProgram();
 
   const [newAuthInput, setNewAuthInput] = useState("");
 
@@ -58,11 +58,24 @@ export default function Home() {
     }
   };
 
+  const handleCreateMint = async () => {
+    try {
+      const newMintStr = await createToken2022Mint();
+      if (newMintStr) {
+        setMintInput(newMintStr);
+        setActiveMint(newMintStr);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to create mint. Ensure wallet is connected and has SOL.");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-full">
       <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Localnet</span>
+          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Localnet / Devnet</span>
         </div>
         <div className="flex items-center gap-4">
           <WalletConnect />
@@ -77,17 +90,33 @@ export default function Home() {
           </p>
         </div>
 
-        <Card>
-          <label className="block text-sm font-bold uppercase tracking-widest mb-2">Select Target Mint</label>
-          <div className="flex gap-4">
-            <Input 
-              placeholder="Enter SPL Token Mint Address..." 
-              value={mintInput} 
-              onChange={(e) => setMintInput(e.target.value)} 
-            />
-            <Button onClick={handleSetMint} disabled={loading}>Load</Button>
-          </div>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <label className="block text-sm font-bold uppercase tracking-widest mb-2">Select Target Mint</label>
+            <div className="flex gap-4">
+              <Input 
+                placeholder="Enter SPL Token Mint Address..." 
+                value={mintInput} 
+                onChange={(e) => setMintInput(e.target.value)} 
+              />
+              <Button onClick={handleSetMint} disabled={loading}>Load</Button>
+            </div>
+          </Card>
+
+          <Card className="flex flex-col justify-center">
+            <label className="block text-sm font-bold uppercase tracking-widest mb-2">Create New Mint</label>
+            <p className="text-xs text-[#5C4E4E] uppercase tracking-widest mb-4">
+              Generate a Token-2022 Mint initialized with the Jetty Transfer Hook.
+            </p>
+            <Button 
+              onClick={handleCreateMint} 
+              disabled={loading}
+              variant="secondary"
+            >
+              Create Token-2022 Mint
+            </Button>
+          </Card>
+        </div>
 
         {activeMint && (
           <div className="space-y-6">

@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
-import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { PublicKey, SystemProgram, Keypair, Transaction } from "@solana/web3.js";
+import { 
+  TOKEN_2022_PROGRAM_ID, 
+  ExtensionType, 
+  getMintLen, 
+  createInitializeTransferHookInstruction, 
+  createInitializeMintInstruction 
+} from "@solana/spl-token";
 import { BN } from "@coral-xyz/anchor";
 import { useAnchorWorkspace } from "../../contexts/AnchorProvider";
 import {
@@ -125,6 +131,47 @@ export function useJettyProgram() {
     }, "assignPolicyAuthority");
   };
 
+  const createToken2022Mint = async () => {
+    return executeAction(async () => {
+      const mint = Keypair.generate();
+      const mintSpace = getMintLen([ExtensionType.TransferHook]);
+      const lamports = await program.provider.connection.getMinimumBalanceForRentExemption(mintSpace);
+      
+      const transaction = new Transaction().add(
+        SystemProgram.createAccount({
+          fromPubkey: program.provider.publicKey,
+          newAccountPubkey: mint.publicKey,
+          space: mintSpace,
+          lamports,
+          programId: TOKEN_2022_PROGRAM_ID,
+        }),
+        createInitializeTransferHookInstruction(
+          mint.publicKey,
+          program.provider.publicKey,
+          program.programId,
+          TOKEN_2022_PROGRAM_ID
+        ),
+        createInitializeMintInstruction(
+          mint.publicKey,
+          2,
+          program.provider.publicKey,
+          program.provider.publicKey,
+          TOKEN_2022_PROGRAM_ID
+        )
+      );
+      
+      const latestBlockhash = await program.provider.connection.getLatestBlockhash("confirmed");
+      transaction.recentBlockhash = latestBlockhash.blockhash;
+      transaction.feePayer = program.provider.publicKey;
+      
+      transaction.sign(mint);
+      
+      await program.provider.sendAndConfirm(transaction, [mint]);
+      
+      return mint.publicKey.toBase58();
+    }, "createToken2022Mint");
+  };
+
   return {
     loading,
     error,
@@ -133,5 +180,6 @@ export function useJettyProgram() {
     updatePolicy,
     updateAllowlist,
     assignPolicyAuthority,
+    createToken2022Mint,
   };
 }

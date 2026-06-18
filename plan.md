@@ -79,24 +79,13 @@ Last updated: 2026-06-18 (session 2)
 
 ### 🟡 Medium Priority (Frontend)
 
-2. **Implement `contexts/ClientWalletProvider.tsx`** — Wire up `ConnectionProvider`, `WalletProvider`, and `WalletModalProvider` from `@solana/wallet-adapter-react`.
-
-3. **Implement `contexts/AnchorProvider.tsx`** — Create a real `AnchorProvider` instance from the connected wallet and expose the `Program` instance via context.
-
-4. **Implement `lib/hooks/useJettyProgram.ts`** — Real instruction call wrappers: `initializeHookConfig`, `initExtraAccountMetaList`, `updatePolicy`, `updateAllowlist`.
-
-5. **Implement `lib/hooks/useMintPolicy.ts`** — Fetch the `HookConfig` PDA for a given mint address and expose `policy`, `isInitialized`, `metaListExists`.
-
-6. **Implement `lib/hooks/useAllowlist.ts`** — Fetch all `AllowlistEntry` accounts filtered by mint using `program.account.allowlistEntry.all([memcmp])`.
-
-7. **Implement all page views** (`app/page.tsx`, `app/(routes)/policy/page.tsx`, `app/(routes)/activity/page.tsx`) per the 4 user story Epics:
-    - Epic 1: Wallet connect + Mint address input + KPI summary cards.
-    - Epic 2: Policy toggles (pause, volume cap, allowlist) + Save button.
-    - Epic 3: Allowlist approve/revoke roster.
-    - Epic 4: Onboarding wizard if mint is uninitialized.
-
-8. **Implement UI components** with the "Moody Sophisticate" design from `Design.md` (palette: `#000000`, `#D1D1D0`, `#988686`, `#5C4E4E`). Apply to `button.tsx`, `card.tsx`, `input.tsx`, `sidebar.tsx`, `empty-state.tsx`, `wallet-connect.tsx`.
-
+2. ✅ **Implement `contexts/ClientWalletProvider.tsx`** — Completed.
+3. ✅ **Implement `contexts/AnchorProvider.tsx`** — Completed.
+4. ✅ **Implement `lib/hooks/useJettyProgram.ts`** — Completed (also added `createToken2022Mint`!).
+5. ✅ **Implement `lib/hooks/useMintPolicy.ts`** — Completed.
+6. ✅ **Implement `lib/hooks/useAllowlist.ts`** — Completed.
+7. ✅ **Implement all page views** (`app/page.tsx`, `app/(routes)/policy/page.tsx`, `app/(routes)/activity/page.tsx`) — Completed.
+8. ✅ **Implement UI components** with the "Moody Sophisticate" design — Completed.
 9. **Resolve the dual `yarn.lock` warning** in Next.js build — set `turbopack.root` in `next.config.ts` to silence the workspace root detection issue.
 
 ### 🟢 Lower Priority (Pre-Mainnet)
