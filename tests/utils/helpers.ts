@@ -98,6 +98,31 @@ export async function createFundedUser(
 // Creates a Token-2022 mint with a TransferHook extension pointing at programId.
 // provider.sendAndConfirm signs with the provider wallet — consistent with
 // provider.wallet.publicKey used everywhere else.
+export async function sendAndConfirmWithRetry(
+  provider: anchor.AnchorProvider,
+  transaction: anchor.web3.Transaction,
+  signers: anchor.web3.Signer[]
+): Promise<void> {
+  let retries = 5;
+  while (retries > 0) {
+    try {
+      const latestBlockhash = await provider.connection.getLatestBlockhash("confirmed");
+      transaction.recentBlockhash = latestBlockhash.blockhash;
+      transaction.feePayer = signers[0]?.publicKey || (provider.wallet as any).payer?.publicKey || provider.wallet.publicKey;
+      await provider.sendAndConfirm(transaction, signers, { commitment: "confirmed" });
+      return;
+    } catch (err: any) {
+      if (err.message && err.message.includes("Blockhash not found")) {
+        retries--;
+        await new Promise(resolve => setTimeout(resolve, 500));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error("Transaction failed after retries due to blockhash issues.");
+}
+
 export async function createTransferHookMint(
   provider: anchor.AnchorProvider,
   transferHookProgramId: anchor.web3.PublicKey,
@@ -131,7 +156,8 @@ export async function createTransferHookMint(
     )
   );
 
-  await provider.sendAndConfirm(transaction, [mint]);
+  const payer = getWalletKeypair(provider);
+  await sendAndConfirmWithRetry(provider, transaction, [payer, mint]);
   return mint;
 }
 
@@ -156,7 +182,7 @@ export async function getOrCreateToken2022Ata(
   );
   
   const transaction = new anchor.web3.Transaction().add(instruction);
-  await provider.sendAndConfirm(transaction, [payer], { commitment: "confirmed" });
+  await sendAndConfirmWithRetry(provider, transaction, [payer]);
   
   return ata;
 }
@@ -169,18 +195,20 @@ export async function mintToken2022To(
   decimals: number
 ): Promise<void> {
   const payer = getWalletKeypair(provider);
-  await mintToChecked(
-    provider.connection,
-    payer,
+  const { createMintToCheckedInstruction } = require("@solana/spl-token");
+  
+  const instruction = createMintToCheckedInstruction(
     mint,
     destination,
-    payer,
+    payer.publicKey,
     amount,
     decimals,
     [],
-    { commitment: "confirmed" },
     TOKEN_2022_PROGRAM_ID
   );
+
+  const transaction = new anchor.web3.Transaction().add(instruction);
+  await sendAndConfirmWithRetry(provider, transaction, [payer]);
 }
 
 export async function transferWithHook(
@@ -206,8 +234,9 @@ export async function transferWithHook(
     "confirmed",
     TOKEN_2022_PROGRAM_ID
   );
-  const tx = new anchor.web3.Transaction().add(instruction);
-  await provider.sendAndConfirm(tx, []);
+  const transaction = new anchor.web3.Transaction().add(instruction);
+  const payer = getWalletKeypair(provider);
+  await sendAndConfirmWithRetry(provider, transaction, [payer]);
 }
 
 // Creates a full fixture: mint → HookConfig → ExtraAccountMetaList → ATAs → minted tokens.
