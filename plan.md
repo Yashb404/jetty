@@ -1,6 +1,6 @@
 # Jetty — Handoff Plan
 
-Last updated: 2026-06-18
+Last updated: 2026-06-18 (session 2)
 
 **Purpose:** Comprehensive handoff document summarizing current status, completed work, divergences from the original `context.md` spec, and what remains to ship.
 
@@ -32,15 +32,26 @@ Last updated: 2026-06-18
 | Spec Requirement | Actual State | Impact |
 |---|---|---|
 | `assign_policy_authority` instruction | ✅ Implemented | Both current and new authority must co-sign the rotation. No-op same-key rotation rejected. Event emitted. 3 tests added. |
-| `AllowlistEntry` seeded by **token account** address | ⚠️ Seeded by **wallet owner** (`wallet.key()`) not token account | Breaks the spec's atomic same-tx ATA initialization design. The live test suite passes because it uses wallet addresses, but this diverges from `context.md` design rationale. |
-| Allowlist revoke must **close** the PDA (rent recovery) | ⚠️ Not implemented — entry is updated to `active=false` but account stays open | SOL permanently locked in inactive entries. |
+| `AllowlistEntry` seeded by **token account** address | ✅ Aligned | PDA seeds now use `token_account.key()`. Struct field renamed to `token_account`. `execute.rs` passes source/destination token account keys to verify function. SDK + test helpers updated. |
+| Allowlist revoke must **close** the PDA (rent recovery) | ✅ Aligned | Manual closure logic added in `update_allowlist.rs` handler: when `active=false`, lamports drained to payer and data zeroed. `checked_add` overflow guard added. |
 | `ExtraAccountMetaList` seeded with `program_id` as 3rd seed | ⚠️ Actual seeds: `["extra-account-metas", mint]` only | Minor deviation; works correctly but differs from spec seeds. |
 
-### ✅ Test Suite — Completed
+### ✅ Test Suite — Refactored & Expanded
 
-- 14 integration tests passing in CI (`tests/hookguard.ts`).
-- Full rejection scenarios covered: pause, volume limit, allowlist, unauthorized, direct invocation.
-- SDK unit tests (`sdk/__tests__/index.test.ts`) wired into CI on Node 20.
+**Monolithic `tests/hookguard.ts` split into per-instruction modules** (deprecated with banner, excluded from test runner glob).
+
+| File | Covers | New cases added |
+|---|---|---|
+| `tests/01_initialize.test.ts` | `initialize_hook_config`, `init_extra_account_meta_list` | — |
+| `tests/02_update_policy.test.ts` | `update_policy` | Null-field partial updates preserve untouched fields; `maxTransferAmount=0` deactivates volume check |
+| `tests/03_update_allowlist.test.ts` | `update_allowlist` | Revoke marks `active=false`; full revoke→re-activate lifecycle |
+| `tests/04_execute.test.ts` | `execute` (transfer hook) | Exact-at-limit transfer passes; pause→unpause cycle resumes transfers; revoked sender blocked |
+| `tests/05_assign_policy_authority.test.ts` | `assign_policy_authority` | Rotation succeeds; new authority can call `update_policy`; **old authority cannot** (regression integration test) |
+
+- `tests/utils/setup.ts` added — shared `makeProvider`, `makeProgram`, `JETTY_ERROR` map, `expectJettyError` helper.
+- `package.json` test script updated to `'tests/*.test.ts'` glob.
+- `tsconfig.json` scoped to `tests/**/*` + `target/types/**/*`; `app/` explicitly excluded; `resolveJsonModule: true` added.
+- SDK unit tests (`sdk/__tests__/index.test.ts`) remain CI-integrated on Node 20.
 
 ### ✅ TypeScript SDK (`sdk/`) — Completed
 
@@ -68,14 +79,11 @@ Last updated: 2026-06-18
 
 1. **Remove `|| true` from security audit steps** in `.github/workflows/ci.yml` after resolving dependency vulnerabilities so CI blocks on critical CVEs.
 
-2. **Fix `AllowlistEntry` seeding strategy** (if correctness with `context.md` spec matters):
-   - Currently: `["allowlist", mint, wallet]` using wallet owner pubkey.
-   - Spec: `["allowlist", mint, token_account]` using the token account pubkey.
-   - Decision required: accept divergence or migrate to the spec's seeding to unlock atomic ATA support.
+2. ~~**Fix `AllowlistEntry` seeding strategy**~~ — ✅ **DONE.** Seeds now use `token_account.key()` (not wallet owner). Struct field renamed, `init_extra_account_meta_list.rs` uses `Seed::AccountKey` for source (index 0) and destination (index 2), `execute.rs` passes token account keys to `verify_allowlist_entry`. SDK and all test files updated.
 
-3. **Implement `assign_policy_authority` instruction** — on-chain authority rotation. Without this, the `policy_authority` is permanently locked to whoever initialized the config.
+3. ~~**Implement `assign_policy_authority` instruction**~~ — ✅ **DONE.** Both current and new authority must co-sign. No-op same-key rotation rejected. `PolicyAuthorityAssigned` event emitted. 5 tests in `05_assign_policy_authority.test.ts`.
 
-4. **Implement AllowlistEntry closure on revoke** — close the PDA when `active=false` to return rent to the payer and prevent permanent SOL lock-up.
+4. ~~**Implement AllowlistEntry closure on revoke**~~ — ✅ **DONE.** Manual closure logic in `update_allowlist.rs`: when `active=false`, lamports drained back to payer using `checked_add` overflow guard, data zeroed. Test asserts PDA becomes `null` and payer balance recovers.
 
 ### 🟡 Medium Priority (Frontend)
 
@@ -129,9 +137,10 @@ cd ../sdk && yarn audit
 ## Architecture Reference (Current State)
 
 ### On-Chain Program (`programs/jetty`)
-- 5 live instructions: `initialize_hook_config`, `init_extra_account_meta_list`, `update_policy`, `update_allowlist`, `execute`
+- **6 live instructions**: `initialize_hook_config`, `init_extra_account_meta_list`, `update_policy`, `update_allowlist`, `execute`, `assign_policy_authority`
 - 3 PDAs: `HookConfig ["policy", mint]`, `AllowlistEntry ["allowlist", mint, wallet]`, `ExtraAccountMetaList ["extra-account-metas", mint]`
 - 10 error codes (6000–6009)
+- `PolicyAuthorityAssigned` event added to IDL
 
 ### TypeScript SDK (`sdk/`)
 - PDA derivation helpers + `appendExtraAccounts` transaction helper

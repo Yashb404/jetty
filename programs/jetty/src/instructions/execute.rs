@@ -98,13 +98,13 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         verify_allowlist_entry(
             sender_entry_info,
             &ctx.accounts.mint.key(),
-            &ctx.accounts.source_token_account.owner,
+            &ctx.accounts.source_token_account.key(),
             JettyError::SourceNotAllowlisted,
         )?;
         verify_allowlist_entry(
             receiver_entry_info,
             &ctx.accounts.mint.key(),
-            &ctx.accounts.destination_token_account.owner,
+            &ctx.accounts.destination_token_account.key(),
             JettyError::DestinationNotAllowlisted,
         )?;
     }
@@ -115,7 +115,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
 fn verify_allowlist_entry<'info>(
     account_info: &'info AccountInfo<'info>,
     mint: &Pubkey,
-    wallet: &Pubkey,
+    token_account: &Pubkey,
     error_code: JettyError,
 ) -> Result<()> {
     let allowlist_entry =
@@ -124,11 +124,11 @@ fn verify_allowlist_entry<'info>(
         return Err(error!(error_code));
     }
     require_keys_eq!(allowlist_entry.mint, *mint, error_code);
-    require_keys_eq!(allowlist_entry.wallet, *wallet, error_code);
+    require_keys_eq!(allowlist_entry.token_account, *token_account, error_code);
 
     let bump_seed = [allowlist_entry.bump];
     let expected_address = Pubkey::create_program_address(
-        &[b"allowlist", mint.as_ref(), wallet.as_ref(), &bump_seed],
+        &[b"allowlist", mint.as_ref(), token_account.as_ref(), &bump_seed],
         &crate::ID,
     )
     .map_err(|_| error!(error_code))?;

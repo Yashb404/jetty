@@ -16,10 +16,12 @@ export function deriveExtraAccountMetaListPda(mint: PublicKey, programId: Public
 }
 
 /**
- * Derive the AllowlistEntry PDA for a given mint and wallet and program.
+ * Derive the AllowlistEntry PDA for a given mint and token account (ATA or any Token-2022 account).
+ * Note: The seed uses the token account address, NOT the wallet owner pubkey.
+ * This enables atomic same-transaction ATA initialization and allowlisting.
  */
-export function deriveAllowlistEntryPda(mint: PublicKey, wallet: PublicKey, programId: PublicKey): [PublicKey, number] {
-  return PublicKey.findProgramAddressSync([Buffer.from("allowlist"), mint.toBuffer(), wallet.toBuffer()], programId);
+export function deriveAllowlistEntryPda(mint: PublicKey, tokenAccount: PublicKey, programId: PublicKey): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync([Buffer.from("allowlist"), mint.toBuffer(), tokenAccount.toBuffer()], programId);
 }
 
 /**

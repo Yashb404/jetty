@@ -6,6 +6,9 @@
     "module": "commonjs",
     "target": "es2020",
     "esModuleInterop": true,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "include": ["tests/**/*", "target/types/**/*"],
+  "exclude": ["app/**/*", "node_modules/**/*", "tests/hookguard.ts"]
 }

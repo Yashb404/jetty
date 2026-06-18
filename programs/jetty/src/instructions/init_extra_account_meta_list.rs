@@ -69,11 +69,10 @@ pub fn handler(ctx: Context<InitExtraAccountMetaList>) -> Result<()> {
                     bytes: b"allowlist".to_vec(),
                 },
                 Seed::AccountKey { index: 1 },
-                Seed::AccountData {
-                    account_index: 0,
-                    data_index: 32,
-                    length: 32,
-                },
+                // Source token account key (index 0 in the execute instruction).
+                // The allowlist PDA is seeded by the token account address itself
+                // (not the wallet owner), enabling atomic same-tx ATA allowlisting.
+                Seed::AccountKey { index: 0 },
             ],
             false,
             false,
@@ -84,11 +83,8 @@ pub fn handler(ctx: Context<InitExtraAccountMetaList>) -> Result<()> {
                     bytes: b"allowlist".to_vec(),
                 },
                 Seed::AccountKey { index: 1 },
-                Seed::AccountData {
-                    account_index: 2,
-                    data_index: 32,
-                    length: 32,
-                },
+                // Destination token account key (index 2 in the execute instruction).
+                Seed::AccountKey { index: 2 },
             ],
             false,
             false,

@@ -1,6 +1,21 @@
+/**
+ * @deprecated  This monolithic file has been split into per-instruction suites.
+ *
+ * Canonical test files (run via `yarn test`):
+ *   tests/01_initialize.test.ts          – initialize_hook_config, init_extra_account_meta_list
+ *   tests/02_update_policy.test.ts       – update_policy (including null-field and volume=0 cases)
+ *   tests/03_update_allowlist.test.ts    – update_allowlist (create / revoke / re-activate)
+ *   tests/04_execute.test.ts             – execute transfer hook (all policy paths + boundary cases)
+ *   tests/05_assign_policy_authority.ts  – assign_policy_authority (rotation, functional integration)
+ *
+ * This file is preserved for historical reference only and is NOT included in the
+ * test runner glob ('tests/*.test.ts'). Do not add new tests here.
+ */
+
 import * as anchor from "@anchor-lang/core";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { expect } from "chai";
+
 
 import type { Jetty } from "../target/types/jetty";
 import {

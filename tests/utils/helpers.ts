@@ -72,11 +72,11 @@ export function deriveExtraAccountMetaListPda(
 
 export function deriveAllowlistEntryPda(
   mint: anchor.web3.PublicKey,
-  wallet: anchor.web3.PublicKey,
+  tokenAccount: anchor.web3.PublicKey,
   programId: anchor.web3.PublicKey
 ): [anchor.web3.PublicKey, number] {
   return anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("allowlist"), mint.toBuffer(), wallet.toBuffer()],
+    [Buffer.from("allowlist"), mint.toBuffer(), tokenAccount.toBuffer()],
     programId
   );
 }
@@ -141,17 +141,24 @@ export async function getOrCreateToken2022Ata(
   owner: anchor.web3.PublicKey
 ): Promise<anchor.web3.PublicKey> {
   const payer = getWalletKeypair(provider);
-  const account = await getOrCreateAssociatedTokenAccount(
-    provider.connection,
-    payer,
-    mint,
+  const ata = getAssociatedTokenAddressSync(mint, owner, false, TOKEN_2022_PROGRAM_ID);
+  
+  const info = await provider.connection.getAccountInfo(ata, "confirmed");
+  if (info) return ata;
+
+  const { createAssociatedTokenAccountInstruction } = require("@solana/spl-token");
+  const instruction = createAssociatedTokenAccountInstruction(
+    payer.publicKey,
+    ata,
     owner,
-    false,
-    "confirmed",
-    { commitment: "confirmed" },
+    mint,
     TOKEN_2022_PROGRAM_ID
   );
-  return account.address;
+  
+  const transaction = new anchor.web3.Transaction().add(instruction);
+  await provider.sendAndConfirm(transaction, [payer], { commitment: "confirmed" });
+  
+  return ata;
 }
 
 export async function mintToken2022To(
@@ -210,63 +217,72 @@ export async function createHookFixture(
   program: JettyProgram,
   initialAmount = 1_000n
 ): Promise<HookFixture> {
-  const provider = program.provider as anchor.AnchorProvider;
-  const authority = provider.wallet.publicKey;
+  try {
+    const provider = program.provider as anchor.AnchorProvider;
+    const authority = provider.wallet.publicKey;
 
-  const mint = await createTransferHookMint(provider, program.programId);
+    const mint = await createTransferHookMint(provider, program.programId);
 
-  const [hookConfigPda, hookConfigBump] = deriveHookConfigPda(mint.publicKey, program.programId);
-  const [extraAccountMetaListPda, extraAccountMetaListBump] = deriveExtraAccountMetaListPda(
-    mint.publicKey,
-    program.programId
-  );
+    const [hookConfigPda, hookConfigBump] = deriveHookConfigPda(mint.publicKey, program.programId);
+    const [extraAccountMetaListPda, extraAccountMetaListBump] = deriveExtraAccountMetaListPda(
+      mint.publicKey,
+      program.programId
+    );
 
-  await program.methods
-    .initializeHookConfig()
-    .accounts({
-      payer: authority,
-      policyAuthority: authority,
-      mint: mint.publicKey,
-    })
-    .rpc({ commitment: "confirmed" });
+    await program.methods
+      .initializeHookConfig()
+      .accounts({
+        payer: authority,
+        policyAuthority: authority,
+        mint: mint.publicKey,
+      })
+      .rpc({ commitment: "confirmed" });
 
-  await program.methods
-    .initExtraAccountMetaList()
-    .accounts({
-      payer: authority,
-      policyAuthority: authority,
-      mint: mint.publicKey,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
-    })
-    .rpc({ commitment: "confirmed" });
+    await program.methods
+      .initExtraAccountMetaList()
+      .accounts({
+        payer: authority,
+        policyAuthority: authority,
+        mint: mint.publicKey,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+      })
+      .rpc({ commitment: "confirmed" });
 
-  const sourceTokenAccount = await getOrCreateToken2022Ata(
-    provider,
-    mint.publicKey,
-    authority
-  );
+    const sourceTokenAccount = await getOrCreateToken2022Ata(
+      provider,
+      mint.publicKey,
+      authority
+    );
 
-  const destinationOwner = await createFundedUser(provider);
-  const destinationTokenAccount = await getOrCreateToken2022Ata(
-    provider,
-    mint.publicKey,
-    destinationOwner.publicKey
-  );
+    const destinationOwner = await createFundedUser(provider);
+    console.log("destinationOwner generated");
+    
+    const destinationTokenAccount = await getOrCreateToken2022Ata(
+      provider,
+      mint.publicKey,
+      destinationOwner.publicKey
+    );
+    console.log("destinationTokenAccount generated");
 
-  await mintToken2022To(provider, mint.publicKey, sourceTokenAccount, initialAmount, 2);
+    await mintToken2022To(provider, mint.publicKey, sourceTokenAccount, initialAmount, 2);
+    console.log("mintToken2022To succeeded");
 
-  return {
-    mint,
-    decimals: 2,
-    hookConfigPda,
-    hookConfigBump,
-    extraAccountMetaListPda,
-    extraAccountMetaListBump,
-    sourceOwner: authority,
-    sourceTokenAccount,
-    destinationOwner,
-    destinationTokenAccount,
-  };
+    return {
+      mint,
+      decimals: 2,
+      hookConfigPda,
+      hookConfigBump,
+      extraAccountMetaListPda,
+      extraAccountMetaListBump,
+      sourceOwner: authority,
+      sourceTokenAccount,
+      destinationOwner,
+      destinationTokenAccount,
+    };
+  } catch (err) {
+    console.error("createHookFixture failed at some step:", err);
+    throw err;
+  }
 }
 
 export async function getTokenAmount(
