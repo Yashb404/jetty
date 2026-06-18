@@ -12,7 +12,7 @@ export interface HookConfig {
 
 export interface AllowlistEntry {
   mint: PublicKey;
-  wallet: PublicKey;
+  tokenAccount: PublicKey;
   active: boolean;
   bump: number;
 }

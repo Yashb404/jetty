@@ -1,7 +1,10 @@
 import React from "react";
 
-export default function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+export default function Input({ className = "", ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <input className="border-2 border-white bg-black text-white font-mono p-2" {...props} />
+    <input 
+      className={`w-full bg-[#D1D1D0] border-2 border-black rounded-none px-4 py-3 font-mono text-black placeholder-[#988686] focus:outline-none focus:ring-0 focus:border-black transition-all ${className}`} 
+      {...props} 
+    />
   );
 }

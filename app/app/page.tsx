@@ -1,9 +1,158 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
+import WalletConnect from "../components/web3/wallet-connect";
+import Card from "../components/ui/card";
+import Input from "../components/ui/input";
+import Button from "../components/ui/button";
+import { useMintPolicy } from "../lib/hooks/useMintPolicy";
+import { useJettyProgram } from "../lib/hooks/useJettyProgram";
+import { PublicKey } from "@solana/web3.js";
 
 export default function Home() {
+  const [mintInput, setMintInput] = useState("");
+  const [activeMint, setActiveMint] = useState<string | null>(null);
+
+  const { policy, isInitialized, metaListExists, refetch } = useMintPolicy(activeMint);
+  const { initializeHookConfig, initExtraAccountMetaList, assignPolicyAuthority, loading } = useJettyProgram();
+
+  const [newAuthInput, setNewAuthInput] = useState("");
+
+  const handleSetMint = () => {
+    try {
+      new PublicKey(mintInput);
+      setActiveMint(mintInput);
+    } catch {
+      alert("Invalid PublicKey");
+    }
+  };
+
+  const handleInit = async () => {
+    if (!activeMint) return;
+    try {
+      await initializeHookConfig(new PublicKey(activeMint));
+      refetch();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleInitMeta = async () => {
+    if (!activeMint) return;
+    try {
+      await initExtraAccountMetaList(new PublicKey(activeMint));
+      refetch();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleRotateAuthority = async () => {
+    if (!activeMint || !newAuthInput) return;
+    try {
+      await assignPolicyAuthority(new PublicKey(activeMint), new PublicKey(newAuthInput));
+      refetch();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to rotate authority. Ensure both keys are signers.");
+    }
+  };
+
   return (
-    <div>
-      <h1>Jetty Compliance Dashboard</h1>
+    <div className="flex flex-col min-h-full">
+      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Localnet</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <WalletConnect />
+        </div>
+      </header>
+
+      <div className="flex-1 p-8 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
+        <div>
+          <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Dashboard Overview</h2>
+          <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
+            Manage your Transfer Hook Compliance Engine
+          </p>
+        </div>
+
+        <Card>
+          <label className="block text-sm font-bold uppercase tracking-widest mb-2">Select Target Mint</label>
+          <div className="flex gap-4">
+            <Input 
+              placeholder="Enter SPL Token Mint Address..." 
+              value={mintInput} 
+              onChange={(e) => setMintInput(e.target.value)} 
+            />
+            <Button onClick={handleSetMint} disabled={loading}>Load</Button>
+          </div>
+        </Card>
+
+        {activeMint && (
+          <div className="space-y-6">
+            {!isInitialized && (
+              <Card className="bg-[#5C4E4E] text-white">
+                <h3 className="text-xl font-bold uppercase mb-2">Initialize Policy</h3>
+                <p className="mb-4 text-sm">This mint has not been initialized with Jetty yet.</p>
+                <Button variant="secondary" onClick={handleInit} disabled={loading}>
+                  {loading ? "Loading..." : "Initialize Hook Config"}
+                </Button>
+              </Card>
+            )}
+
+            {isInitialized && !metaListExists && (
+              <Card className="bg-[#5C4E4E] text-white">
+                <h3 className="text-xl font-bold uppercase mb-2">Initialize Account Meta List</h3>
+                <p className="mb-4 text-sm">Required for Token-2022 Transfer Hook CPI resolution.</p>
+                <Button variant="secondary" onClick={handleInitMeta} disabled={loading}>
+                  {loading ? "Loading..." : "Create Meta List"}
+                </Button>
+              </Card>
+            )}
+
+            {isInitialized && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card>
+                    <div className="text-[#5C4E4E] font-bold uppercase tracking-widest text-xs mb-1">Global Pause</div>
+                    <div className="text-2xl font-bold uppercase">
+                      {policy?.paused ? "Active" : "Inactive"}
+                    </div>
+                  </Card>
+                  <Card>
+                    <div className="text-[#5C4E4E] font-bold uppercase tracking-widest text-xs mb-1">Allowlist Enforcement</div>
+                    <div className="text-2xl font-bold uppercase">
+                      {policy?.allowlistEnabled ? "Active" : "Inactive"}
+                    </div>
+                  </Card>
+                  <Card>
+                    <div className="text-[#5C4E4E] font-bold uppercase tracking-widest text-xs mb-1">Max Transfer Volume</div>
+                    <div className="text-2xl font-bold uppercase truncate">
+                      {policy?.maxTransferAmount.toString() === "0" ? "Unlimited" : policy?.maxTransferAmount.toString()}
+                    </div>
+                  </Card>
+                </div>
+
+                <Card>
+                  <h3 className="text-lg font-bold uppercase mb-4">Rotate Policy Authority</h3>
+                  <div className="flex gap-4">
+                    <Input 
+                      placeholder="New Authority Address..." 
+                      value={newAuthInput} 
+                      onChange={(e) => setNewAuthInput(e.target.value)} 
+                    />
+                    <Button onClick={handleRotateAuthority} disabled={loading}>Rotate</Button>
+                  </div>
+                  <p className="mt-2 text-xs text-[#5C4E4E] uppercase tracking-widest">
+                    Current: {policy?.policyAuthority.toBase58()}
+                  </p>
+                </Card>
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

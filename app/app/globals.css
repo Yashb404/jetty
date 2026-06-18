@@ -1,44 +1,44 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
-  --card-bg: #000000;
-  --card-border: #ffffff;
+  --background: #D1D1D0;
+  --foreground: #000000;
+  --card-bg: #D1D1D0;
+  --card-border: #000000;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), monospace;
+  font-family: "JetBrains Mono", var(--font-geist-sans), monospace;
   overflow-x: hidden;
 }
 
 /* Wallet adapter styles override to fit neo-brutalist theme */
 .wallet-adapter-modal-wrapper {
-  background: #000000 !important;
-  border: 2px solid #ffffff !important;
+  background: #D1D1D0 !important;
+  border: 2px solid #000000 !important;
   border-radius: 0px !important;
-  font-family: var(--font-geist-mono), monospace !important;
+  font-family: "JetBrains Mono", var(--font-geist-mono), monospace !important;
 }
 
 .wallet-adapter-modal-title {
-  color: #ffffff !important;
-  font-weight: 900 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.1em !important;
 }
 
 .wallet-adapter-modal-button-close {
-  background: #000000 !important;
-  border: 1px solid #ffffff !important;
+  background: #D1D1D0 !important;
+  border: 2px solid #000000 !important;
   border-radius: 0px !important;
-  color: #ffffff !important;
+  color: #000000 !important;
 }
 
 .wallet-adapter-modal-button-close:hover {
-  background: #ffffff !important;
-  color: #000000 !important;
+  background: #000000 !important;
+  color: #ffffff !important;
 }
 
 .wallet-adapter-modal-list {
@@ -46,20 +46,19 @@ body {
 }
 
 .wallet-adapter-modal-list .wallet-adapter-button {
-  background: #000000 !important;
-  color: #ffffff !important;
-  border: 1px solid #27272a !important;
+  background: #D1D1D0 !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
   border-radius: 0px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   letter-spacing: 0.05em !important;
 }
 
 .wallet-adapter-modal-list .wallet-adapter-button:hover {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border-color: #ffffff !important;
+  background: #000000 !important;
+  color: #ffffff !important;
 }
 
 .wallet-adapter-modal-middle {

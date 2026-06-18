@@ -8,6 +8,64 @@
   },
   "instructions": [
     {
+      "name": "assign_policy_authority",
+      "discriminator": [
+        12,
+        50,
+        127,
+        32,
+        159,
+        70,
+        248,
+        154
+      ],
+      "accounts": [
+        {
+          "name": "current_authority",
+          "docs": [
+            "The current policy authority. Must sign to authorise the rotation."
+          ],
+          "signer": true
+        },
+        {
+          "name": "new_authority",
+          "docs": [
+            "The incoming policy authority. Must also sign so that we prove the new",
+            "key is live and the operator is not accidentally locking the config to",
+            "an unreachable address."
+          ],
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "hook_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "execute",
       "discriminator": [
         105,
@@ -298,7 +356,11 @@
           }
         },
         {
-          "name": "wallet"
+          "name": "token_account",
+          "docs": [
+            "It does not need to be initialized yet — enabling allowlisting an ATA",
+            "atomically in the same transaction as its creation."
+          ]
         },
         {
           "name": "allowlist_entry",
@@ -325,7 +387,7 @@
               },
               {
                 "kind": "account",
-                "path": "wallet"
+                "path": "token_account"
               }
             ]
           }
@@ -441,6 +503,19 @@
       ]
     },
     {
+      "name": "PolicyAuthorityAssigned",
+      "discriminator": [
+        236,
+        211,
+        74,
+        227,
+        164,
+        171,
+        133,
+        132
+      ]
+    },
+    {
       "name": "PolicyUpdated",
       "discriminator": [
         225,
@@ -517,7 +592,12 @@
             "type": "pubkey"
           },
           {
-            "name": "wallet",
+            "name": "token_account",
+            "docs": [
+              "The token account address used as the allowlist seed.",
+              "This is the ATA (or any Token-2022 account) for the wallet,",
+              "NOT the wallet owner pubkey — enabling atomic same-tx ATA initialization."
+            ],
             "type": "pubkey"
           },
           {
@@ -574,6 +654,29 @@
           },
           {
             "name": "policy_authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PolicyAuthorityAssigned",
+      "docs": [
+        "Emitted when the policy authority for a mint is rotated."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_authority",
             "type": "pubkey"
           }
         ]
