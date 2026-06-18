@@ -431,4 +431,62 @@ describe("hookguard", function () {
       expect(await getTokenAmount(provider, fixture.destinationTokenAccount)).to.equal(10n);
     });
   });
+
+  // ─── assign_policy_authority ──────────────────────────────────────────────
+
+  describe("assign_policy_authority", () => {
+    it("should rotate policy_authority when both signers are present", async () => {
+      const fixture = await createHookFixture(program);
+      const newAuthority = await createFundedUser(provider);
+      const [hookConfigPda] = deriveHookConfigPda(fixture.mint.publicKey, program.programId);
+
+      await program.methods
+        .assignPolicyAuthority()
+        .accounts({
+          currentAuthority: authority,
+          newAuthority: newAuthority.publicKey,
+          mint: fixture.mint.publicKey,
+        })
+        .signers([newAuthority])
+        .rpc({ commitment: "confirmed" });
+
+      const hookConfig = await program.account.hookConfig.fetch(hookConfigPda, "confirmed");
+      expect(hookConfig.policyAuthority.equals(newAuthority.publicKey)).to.equal(true);
+    });
+
+    it("should fail with Unauthorized when wrong current authority signs", async () => {
+      const fixture = await createHookFixture(program);
+      const wrongCurrent = await createFundedUser(provider);
+      const newAuthority = await createFundedUser(provider);
+
+      await expectJettyError(
+        program.methods
+          .assignPolicyAuthority()
+          .accounts({
+            currentAuthority: wrongCurrent.publicKey,
+            newAuthority: newAuthority.publicKey,
+            mint: fixture.mint.publicKey,
+          })
+          .signers([wrongCurrent, newAuthority])
+          .rpc({ commitment: "confirmed" }),
+        JETTY_ERROR.Unauthorized
+      );
+    });
+
+    it("should fail with Unauthorized when rotating to the same key", async () => {
+      const fixture = await createHookFixture(program);
+
+      await expectJettyError(
+        program.methods
+          .assignPolicyAuthority()
+          .accounts({
+            currentAuthority: authority,
+            newAuthority: authority,
+            mint: fixture.mint.publicKey,
+          })
+          .rpc({ commitment: "confirmed" }),
+        JETTY_ERROR.Unauthorized
+      );
+    });
+  });
 });

@@ -13,4 +13,8 @@ Domain Error Precision: Ensure custom program errors are granular. Do not fallba
 
 Defensive Boundary Checks: When parsing account data via StateWithExtensions, validate program ownership boundaries and configuration constants before processing internal state mutations.
 
-The frontend and SDK explicitly use Yarn. When running dependency steps or workspace actions via the agent, strictly invoke yarn install --frozen-lockfile or yarn test. Do not mix package managers without asking
+The frontend and SDK explicitly use Yarn. When running dependency steps or workspace actions via the agent, strictly invoke yarn install --frozen-lockfile or yarn test. Do not mix package managers without asking.
+
+Utilize the solana MCP to gain the context of the latest transfer hooks and solana anchor syntax.
+
+Definitely write happy path tests . The project will be uploaded to devnet so keep that in context aswell. 

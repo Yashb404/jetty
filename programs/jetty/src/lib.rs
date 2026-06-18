@@ -3,14 +3,15 @@ pub mod instructions;
 pub mod state;
 
 use anchor_lang::prelude::*;
+pub(crate) use instructions::assign_policy_authority::__client_accounts_assign_policy_authority;
 pub(crate) use instructions::execute::__client_accounts_execute;
 pub(crate) use instructions::init_extra_account_meta_list::__client_accounts_init_extra_account_meta_list;
 pub(crate) use instructions::initialize_hook_config::__client_accounts_initialize_hook_config;
 pub(crate) use instructions::update_allowlist::__client_accounts_update_allowlist;
 pub(crate) use instructions::update_policy::__client_accounts_update_policy;
 pub use instructions::{
-    Execute, InitExtraAccountMetaList, InitializeHookConfig, UpdateAllowlist, UpdatePolicy,
-    UpdatePolicyArgs,
+    AssignPolicyAuthority, Execute, InitExtraAccountMetaList, InitializeHookConfig, UpdateAllowlist,
+    UpdatePolicy, UpdatePolicyArgs,
 };
 
 declare_id!("4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku");
@@ -38,5 +39,9 @@ pub mod jetty {
 
     pub fn update_allowlist(ctx: Context<UpdateAllowlist>, active: bool) -> Result<()> {
         instructions::update_allowlist::handler(ctx, active)
+    }
+
+    pub fn assign_policy_authority(ctx: Context<AssignPolicyAuthority>) -> Result<()> {
+        instructions::assign_policy_authority::handler(ctx)
     }
 }
