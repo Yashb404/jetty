@@ -135,7 +135,7 @@ jobs:
         run: yarn test
 
   # ── 4. Security scans ────────────────────────────────────────────────────
-  # Runs in parallel with everything — purely informational, never blocks merge.
+  # Runs in parallel with everything — blocks merge on critical CVEs.
   security-scan:
     name: Security & dependency scans
     runs-on: ubuntu-latest
@@ -153,10 +153,10 @@ jobs:
           restore-keys: ${{ runner.os }}-cargo-
 
       - name: Install cargo-audit
-        run: cargo install cargo-audit || true
+        run: cargo install cargo-audit
 
       - name: Run cargo audit
-        run: cargo audit || true
+        run: cargo audit
 
       - uses: actions/setup-node@v4
         with:
@@ -166,7 +166,7 @@ jobs:
         run: |
           if [ -f yarn.lock ]; then
             yarn install --frozen-lockfile
-            yarn audit || true
+            yarn audit
           fi
 
       - name: Audit SDK deps
@@ -174,5 +174,5 @@ jobs:
         run: |
           if [ -f yarn.lock ]; then
             yarn install --frozen-lockfile
-            yarn audit || true
+            yarn audit
           fi

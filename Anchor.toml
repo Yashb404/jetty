@@ -10,9 +10,12 @@ skip-lint = false
 [programs.localnet]
 jetty = "4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku"
 
+[programs.devnet]
+jetty = "4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku"
+
 [provider]
 cluster = "localnet"
-wallet = "~/.config/solana/id.json"
+wallet = "~/.config/solana/solflare.json"
 
 [scripts]
 test = "yarn test"
