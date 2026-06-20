@@ -90,10 +90,10 @@ Last updated: 2026-06-18 (session 2)
 
 ### 🟢 Lower Priority (Pre-Mainnet)
 
-10. **Devnet deployment** — Deploy program, run end-to-end transfer success + failure flows, record transaction signatures.
+10. ✅ **Devnet deployment** — Deploy program, run end-to-end transfer success + failure flows, record transaction signatures.
 11. **Upgrade authority multisig** — Rotate program upgrade authority to a multisig before mainnet.
 12. **On-chain audit log** — Emit events (`HookConfigInitialized`, `PolicyUpdated`) and wire `activity/page.tsx` to display them.
-13. **Context.md Readme alignment** — Update `context.md` or add a formal ADR documenting the three deviations (seeding strategy, no authority rotation, no PDA closure) so future contributors understand the intentional divergence.
+13. ✅ **Context.md Readme alignment** — Update `context.md` or add a formal ADR documenting the three deviations (seeding strategy, no authority rotation, no PDA closure) so future contributors understand the intentional divergence.
 
 ---
 
