@@ -113,8 +113,18 @@ anchor test
 ## Integration guide
 
 ### Devnet Deployment Info
-- **Program ID**: `[TO_BE_ADDED_AFTER_DEPLOYMENT]`
-- **Passing Tests**: `[SCREENSHOT_TO_BE_ADDED_AFTER_DEPLOYMENT]`
+- **Program ID**: `4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku`
+- **Passing Tests**: 
+  ![Devnet Tests Passing](./docs/tests-passing.png)
+
+*(Note: Replace `./docs/tests-passing.png` with your actual screenshot path once captured)*
+
+### Testing against Devnet
+To run the test suite against the deployed Devnet program, simply use the Anchor test command and ensure you skip the local validator so it targets Devnet directly (ensure `Anchor.toml` is pointed to `devnet`):
+
+```bash
+anchor test --skip-local-validator
+```
 
 ### 1. Create your mint with Transfer Hook pointing at Jetty
 
@@ -224,6 +234,8 @@ Revoking a wallet closes its `AllowlistEntry` account completely, removing it fr
 - [x] Volume limit
 - [x] Allowlist
 - [x] Atomic ATA initialization via `init_if_needed`
+- [x] Devnet Deployment
+- [x] React Web Frontend Integration
 - [ ] On-chain audit log via events
 - [ ] Off-chain KYC oracle integration
 - [ ] Governance timelock for program upgrades
