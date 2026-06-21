@@ -115,9 +115,7 @@ anchor test
 ### Devnet Deployment Info
 - **Program ID**: `4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku`
 - **Passing Tests**: 
-  ![Devnet Tests Passing](./docs/tests-passing.png)
-
-*(Note: Replace `./docs/tests-passing.png` with your actual screenshot path once captured)*
+   <img width="1038" height="797" alt="jetty_tests" src="https://github.com/user-attachments/assets/2c3662b2-6217-48df-b48e-1c2a76a8cd02" />
 
 ### Testing against Devnet
 To run the test suite against the deployed Devnet program, simply use the Anchor test command and ensure you skip the local validator so it targets Devnet directly (ensure `Anchor.toml` is pointed to `devnet`):
