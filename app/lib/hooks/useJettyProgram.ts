@@ -9,8 +9,9 @@ import {
   createInitializeTransferHookInstruction, 
   createInitializeMintInstruction 
 } from "@solana/spl-token";
-import { BN } from "@coral-xyz/anchor";
+import { Program, BN } from "@coral-xyz/anchor";
 import { useAnchorWorkspace } from "../../contexts/AnchorProvider";
+import { Jetty } from "../anchor/jetty";
 import {
   deriveHookConfigPda,
   deriveExtraAccountMetaListPda,
@@ -22,17 +23,17 @@ export function useJettyProgram() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const executeAction = async (action: () => Promise<string>, actionName: string) => {
+  const executeAction = async (action: (prog: Program<Jetty>) => Promise<string>, actionName: string) => {
     if (!program) throw new Error("Anchor program is not initialized");
     setLoading(true);
     setError(null);
     try {
-      const tx = await action();
+      const tx = await action(program);
       console.log(`[${actionName}] Success: ${tx}`);
       return tx;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`[${actionName}] Error:`, err);
-      setError(err.message || String(err));
+      setError(err instanceof Error ? err.message : String(err));
       throw err;
     } finally {
       setLoading(false);
@@ -40,35 +41,30 @@ export function useJettyProgram() {
   };
 
   const initializeHookConfig = async (mint: PublicKey) => {
-    return executeAction(async () => {
+    return executeAction(async (prog) => {
       const [hookConfig] = deriveHookConfigPda(mint);
-      return program.methods
+      return prog.methods
         .initializeHookConfig()
         .accounts({
-          payer: program.provider.publicKey,
-          policyAuthority: program.provider.publicKey,
+          payer: prog.provider.publicKey!,
+          policyAuthority: prog.provider.publicKey!,
           mint,
-          hookConfig,
-          systemProgram: SystemProgram.programId,
         })
         .rpc();
     }, "initializeHookConfig");
   };
 
   const initExtraAccountMetaList = async (mint: PublicKey) => {
-    return executeAction(async () => {
+    return executeAction(async (prog) => {
       const [hookConfig] = deriveHookConfigPda(mint);
       const [extraAccountMetaList] = deriveExtraAccountMetaListPda(mint);
-      return program.methods
+      return prog.methods
         .initExtraAccountMetaList()
         .accounts({
-          payer: program.provider.publicKey,
-          policyAuthority: program.provider.publicKey,
+          payer: prog.provider.publicKey!,
+          policyAuthority: prog.provider.publicKey!,
           mint,
-          hookConfig,
-          extraAccountMetaList,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
         })
         .rpc();
     }, "initExtraAccountMetaList");
@@ -80,66 +76,61 @@ export function useJettyProgram() {
     allowlistEnabled: boolean | null,
     maxTransferAmount: BN | null
   ) => {
-    return executeAction(async () => {
+    return executeAction(async (prog) => {
       const [hookConfig] = deriveHookConfigPda(mint);
-      return program.methods
+      return prog.methods
         .updatePolicy({ paused, allowlistEnabled, maxTransferAmount })
         .accounts({
-          policyAuthority: program.provider.publicKey,
+          policyAuthority: prog.provider.publicKey!,
           mint,
-          hookConfig,
         })
         .rpc();
     }, "updatePolicy");
   };
 
   const updateAllowlist = async (mint: PublicKey, tokenAccount: PublicKey, active: boolean) => {
-    return executeAction(async () => {
+    return executeAction(async (prog) => {
       const [hookConfig] = deriveHookConfigPda(mint);
       const [allowlistEntry] = deriveAllowlistEntryPda(mint, tokenAccount);
-      return program.methods
+      return prog.methods
         .updateAllowlist(active)
         .accounts({
-          payer: program.provider.publicKey,
-          policyAuthority: program.provider.publicKey,
+          payer: prog.provider.publicKey!,
+          policyAuthority: prog.provider.publicKey!,
           mint,
-          hookConfig,
           tokenAccount,
-          allowlistEntry,
-          systemProgram: SystemProgram.programId,
         })
         .rpc();
     }, "updateAllowlist");
   };
 
   const assignPolicyAuthority = async (mint: PublicKey, newAuthority: PublicKey) => {
-    return executeAction(async () => {
+    return executeAction(async (prog) => {
       const [hookConfig] = deriveHookConfigPda(mint);
       // NOTE: This instruction requires both current and new authority to sign.
       // Assuming this is handled via a multi-sig or extra signers if necessary.
       // For now, if the new authority is not a signer here, it will fail unless passed in `.signers()`.
       // The frontend might need adjustment to handle multiple signers.
-      return program.methods
+      return prog.methods
         .assignPolicyAuthority()
         .accounts({
-          currentAuthority: program.provider.publicKey,
+          currentAuthority: prog.provider.publicKey!,
           newAuthority,
           mint,
-          hookConfig,
         })
         .rpc();
     }, "assignPolicyAuthority");
   };
 
   const createToken2022Mint = async () => {
-    return executeAction(async () => {
+    return executeAction(async (prog) => {
       const mint = Keypair.generate();
       const mintSpace = getMintLen([ExtensionType.TransferHook]);
-      const lamports = await program.provider.connection.getMinimumBalanceForRentExemption(mintSpace);
+      const lamports = await prog.provider.connection.getMinimumBalanceForRentExemption(mintSpace);
       
       const transaction = new Transaction().add(
         SystemProgram.createAccount({
-          fromPubkey: program.provider.publicKey,
+          fromPubkey: prog.provider.publicKey!,
           newAccountPubkey: mint.publicKey,
           space: mintSpace,
           lamports,
@@ -147,26 +138,26 @@ export function useJettyProgram() {
         }),
         createInitializeTransferHookInstruction(
           mint.publicKey,
-          program.provider.publicKey,
-          program.programId,
+          prog.provider.publicKey!,
+          prog.programId,
           TOKEN_2022_PROGRAM_ID
         ),
         createInitializeMintInstruction(
           mint.publicKey,
           2,
-          program.provider.publicKey,
-          program.provider.publicKey,
+          prog.provider.publicKey!,
+          prog.provider.publicKey!,
           TOKEN_2022_PROGRAM_ID
         )
       );
       
-      const latestBlockhash = await program.provider.connection.getLatestBlockhash("confirmed");
+      const latestBlockhash = await prog.provider.connection.getLatestBlockhash("confirmed");
       transaction.recentBlockhash = latestBlockhash.blockhash;
-      transaction.feePayer = program.provider.publicKey;
+      transaction.feePayer = prog.provider.publicKey!;
       
       transaction.sign(mint);
       
-      await program.provider.sendAndConfirm(transaction, [mint]);
+      await prog.provider.sendAndConfirm!(transaction, [mint]);
       
       return mint.publicKey.toBase58();
     }, "createToken2022Mint");

@@ -2,10 +2,16 @@
 
 import React, { createContext, useContext, useMemo } from "react";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import { AnchorProvider } from "@coral-xyz/anchor";
+import { AnchorProvider, Program } from "@coral-xyz/anchor";
+import { Jetty } from "../lib/anchor/jetty";
 import { getJettyProgram } from "../lib/anchor/program";
 
-const AnchorContext = createContext<any>(null);
+interface AnchorWorkspace {
+  provider: AnchorProvider | null;
+  program: Program<Jetty> | null;
+}
+
+const AnchorContext = createContext<AnchorWorkspace>({ provider: null, program: null });
 
 export function useAnchorWorkspace() {
   return useContext(AnchorContext);

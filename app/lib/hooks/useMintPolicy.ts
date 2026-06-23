@@ -33,7 +33,7 @@ export function useMintPolicy(mintAddressString: string | null) {
         const fetchedPolicy = await program.account.hookConfig.fetch(hookConfigPda);
         setPolicy(fetchedPolicy as unknown as HookConfig);
         setIsInitialized(true);
-      } catch (e: any) {
+      } catch {
         // Account does not exist
         setPolicy(null);
         setIsInitialized(false);
@@ -41,15 +41,16 @@ export function useMintPolicy(mintAddressString: string | null) {
 
       const metaListAccountInfo = await program.provider.connection.getAccountInfo(metaListPda);
       setMetaListExists(metaListAccountInfo !== null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("useMintPolicy error:", err);
-      setError(err.message || String(err));
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
   }, [program, mintAddressString]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refetch();
   }, [refetch]);
 

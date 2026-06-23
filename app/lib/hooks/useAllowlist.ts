@@ -38,15 +38,16 @@ export function useAllowlist(mintAddressString: string | null) {
 
       // Sort or transform if needed
       setEntries(accounts as unknown as AllowlistAccountData[]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("useAllowlist error:", err);
-      setError(err.message || String(err));
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
   }, [program, mintAddressString]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refetch();
   }, [refetch]);
 

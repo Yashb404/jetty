@@ -23,6 +23,7 @@ export default function PolicyPage() {
 
   useEffect(() => {
     if (policy) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPaused(policy.paused);
       setAllowlistEnabled(policy.allowlistEnabled);
       setMaxTransferAmount(policy.maxTransferAmount.toString());
