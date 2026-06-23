@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import WalletConnect from "../components/web3/wallet-connect";
 import Card from "../components/ui/card";
 import Input from "../components/ui/input";
@@ -8,10 +8,18 @@ import Button from "../components/ui/button";
 import { useMintPolicy } from "../lib/hooks/useMintPolicy";
 import { useJettyProgram } from "../lib/hooks/useJettyProgram";
 import { PublicKey } from "@solana/web3.js";
+import { useMintContext } from "../contexts/MintProvider";
 
 export default function Home() {
-  const [mintInput, setMintInput] = useState("");
-  const [activeMint, setActiveMint] = useState<string | null>(null);
+  const { activeMint, setActiveMint } = useMintContext();
+  const [mintInput, setMintInput] = useState(activeMint || "");
+
+  useEffect(() => {
+    if (activeMint) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMintInput(activeMint);
+    }
+  }, [activeMint]);
 
   const { policy, isInitialized, metaListExists, refetch } = useMintPolicy(activeMint);
   const { initializeHookConfig, initExtraAccountMetaList, assignPolicyAuthority, createToken2022Mint, loading } = useJettyProgram();

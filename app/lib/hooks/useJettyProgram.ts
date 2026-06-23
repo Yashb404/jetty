@@ -42,7 +42,6 @@ export function useJettyProgram() {
 
   const initializeHookConfig = async (mint: PublicKey) => {
     return executeAction(async (prog) => {
-      const [hookConfig] = deriveHookConfigPda(mint);
       return prog.methods
         .initializeHookConfig()
         .accounts({
@@ -56,8 +55,6 @@ export function useJettyProgram() {
 
   const initExtraAccountMetaList = async (mint: PublicKey) => {
     return executeAction(async (prog) => {
-      const [hookConfig] = deriveHookConfigPda(mint);
-      const [extraAccountMetaList] = deriveExtraAccountMetaListPda(mint);
       return prog.methods
         .initExtraAccountMetaList()
         .accounts({
@@ -77,7 +74,6 @@ export function useJettyProgram() {
     maxTransferAmount: BN | null
   ) => {
     return executeAction(async (prog) => {
-      const [hookConfig] = deriveHookConfigPda(mint);
       return prog.methods
         .updatePolicy({ paused, allowlistEnabled, maxTransferAmount })
         .accounts({
@@ -90,8 +86,6 @@ export function useJettyProgram() {
 
   const updateAllowlist = async (mint: PublicKey, tokenAccount: PublicKey, active: boolean) => {
     return executeAction(async (prog) => {
-      const [hookConfig] = deriveHookConfigPda(mint);
-      const [allowlistEntry] = deriveAllowlistEntryPda(mint, tokenAccount);
       return prog.methods
         .updateAllowlist(active)
         .accounts({
@@ -106,7 +100,6 @@ export function useJettyProgram() {
 
   const assignPolicyAuthority = async (mint: PublicKey, newAuthority: PublicKey) => {
     return executeAction(async (prog) => {
-      const [hookConfig] = deriveHookConfigPda(mint);
       // NOTE: This instruction requires both current and new authority to sign.
       // Assuming this is handled via a multi-sig or extra signers if necessary.
       // For now, if the new authority is not a signer here, it will fail unless passed in `.signers()`.

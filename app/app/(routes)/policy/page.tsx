@@ -9,10 +9,18 @@ import Input from "../../../components/ui/input";
 import Button from "../../../components/ui/button";
 import { useMintPolicy } from "../../../lib/hooks/useMintPolicy";
 import { useJettyProgram } from "../../../lib/hooks/useJettyProgram";
+import { useMintContext } from "../../../contexts/MintProvider";
 
 export default function PolicyPage() {
-  const [mintInput, setMintInput] = useState("");
-  const [activeMint, setActiveMint] = useState<string | null>(null);
+  const { activeMint, setActiveMint } = useMintContext();
+  const [mintInput, setMintInput] = useState(activeMint || "");
+
+  useEffect(() => {
+    if (activeMint) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMintInput(activeMint);
+    }
+  }, [activeMint]);
 
   const { policy, isInitialized, refetch } = useMintPolicy(activeMint);
   const { updatePolicy, loading } = useJettyProgram();

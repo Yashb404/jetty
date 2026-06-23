@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PublicKey } from "@solana/web3.js";
 import WalletConnect from "../../../components/web3/wallet-connect";
 import Card from "../../../components/ui/card";
@@ -9,10 +9,18 @@ import Button from "../../../components/ui/button";
 import { useMintPolicy } from "../../../lib/hooks/useMintPolicy";
 import { useJettyProgram } from "../../../lib/hooks/useJettyProgram";
 import { useAllowlist } from "../../../lib/hooks/useAllowlist";
+import { useMintContext } from "../../../contexts/MintProvider";
 
 export default function AllowlistManagerPage() {
-  const [mintInput, setMintInput] = useState("");
-  const [activeMint, setActiveMint] = useState<string | null>(null);
+  const { activeMint, setActiveMint } = useMintContext();
+  const [mintInput, setMintInput] = useState(activeMint || "");
+
+  useEffect(() => {
+    if (activeMint) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMintInput(activeMint);
+    }
+  }, [activeMint]);
 
   const { isInitialized } = useMintPolicy(activeMint);
   const { entries, refetch: refetchAllowlist } = useAllowlist(activeMint);
