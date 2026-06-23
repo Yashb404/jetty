@@ -4,7 +4,7 @@ import { LayoutDashboard, Settings2, Activity, BookOpen } from "lucide-react";
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 border-r-2 border-black bg-[#D1D1D0] flex flex-col font-mono min-h-screen">
+    <aside className="w-64 border-r-2 border-black bg-[#D1D1D0] flex flex-col font-mono h-full shrink-0">
       <div className="p-6 border-b-2 border-black">
         <h1 className="text-2xl font-bold uppercase tracking-tighter text-black">Jetty</h1>
         <p className="text-xs uppercase tracking-widest text-[#5C4E4E] mt-1 font-semibold">Compliance Controller</p>
