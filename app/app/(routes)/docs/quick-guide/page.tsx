@@ -63,7 +63,7 @@ export default function QuickGuideDocs() {
               (Policy, Activity) so you don&apos;t have to keep pasting it.
             </p>
             <p className="text-sm leading-relaxed text-[#5C4E4E] font-bold">
-              Tip: If you don&apos;t have a mint yet, you can create one instantly by clicking &quot;Create Test Mint&quot; on the Dashboard!
+              Tip: If you don&apos;t have a mint yet, you can create one instantly by clicking &quot;Create Token-2022 Mint&quot; on the Dashboard!
             </p>
           </Card>
 

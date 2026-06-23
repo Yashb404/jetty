@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutDashboard, Settings2, Activity, BookOpen } from "lucide-react";
+import { LayoutDashboard, Settings2, Activity, BookOpen, LifeBuoy } from "lucide-react";
 
 export default function Sidebar() {
   return (
@@ -25,7 +25,11 @@ export default function Sidebar() {
         </Link>
       </nav>
 
-      <div className="p-4 border-t-2 border-black">
+      <div className="p-4 border-t-2 border-black flex flex-col gap-2">
+        <Link href="/support" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
+          <LifeBuoy className="w-5 h-5" />
+          Support
+        </Link>
         <Link href="/docs" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
           <BookOpen className="w-5 h-5" />
           Docs
