@@ -83,7 +83,7 @@ export default function Home() {
     <div className="flex flex-col min-h-full">
       <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Localnet / Devnet</span>
+          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
         </div>
         <div className="flex items-center gap-4">
           <WalletConnect />
@@ -94,7 +94,7 @@ export default function Home() {
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Dashboard Overview</h2>
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
-            Manage your Transfer Hook Compliance Engine
+            Manage your Transfer Hook Compliance Controller
           </p>
         </div>
 

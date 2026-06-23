@@ -16,7 +16,7 @@ const payer = anchor.web3.Keypair.fromSecretKey(secretKey);
 // Connect to Localnet
 const connection = new anchor.web3.Connection("http://127.0.0.1:8899", "confirmed");
 
-// The Jetty Compliance Engine Program ID
+// The Jetty Compliance Controller Program ID
 const JETTY_PROGRAM_ID = new anchor.web3.PublicKey("4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku");
 
 async function main() {
