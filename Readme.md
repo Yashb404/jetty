@@ -1,5 +1,7 @@
 # Jetty
 
+**Live Demo**: [https://jetty-mu.vercel.app/](https://jetty-mu.vercel.app/)
+
 > Universal on-chain compliance layer for SPL Token-2022 Transfer Hooks on Solana.
 
 Token issuers point their mint's Transfer Hook at the Jetty program ID and configure modular compliance policies — no custom Rust required.
@@ -204,6 +206,13 @@ await program.methods
 ```
 
 Revoking a wallet closes its `AllowlistEntry` account completely, removing it from the ledger and returning the rent to the payer. Re-approving it later is a reallocation via `init_if_needed`.
+
+## Screenshots 
+
+### Global Pause 
+![Global Pause works as expected](jett_global_pause.png)
+
+![Global Pause turned off](image.png)
 
 ## Error Reference
 
