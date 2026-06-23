@@ -237,7 +237,7 @@ Revoking a wallet closes its `AllowlistEntry` account completely, removing it fr
 - [ ] On-chain audit log via events
 - [ ] Off-chain KYC oracle integration
 - [ ] Governance timelock for program upgrades
-- [ ] Mainnet audit
+- [ ] Audit
 
 
 ## License
