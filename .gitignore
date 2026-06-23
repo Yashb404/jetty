@@ -6,4 +6,4 @@ node_modules
 test-ledger
 .yarn
 .surfpool
-.archive_md/
+/old_docs

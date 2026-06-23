@@ -210,9 +210,9 @@ Revoking a wallet closes its `AllowlistEntry` account completely, removing it fr
 ## Screenshots 
 
 ### Global Pause 
-![Global Pause works as expected](jett_global_pause.png)
+![Global Pause works as expected](assets/dashboard_global_pause_on.png)
 
-![Global Pause turned off](image.png)
+![Global Pause turned off](assets/dashboard_global_pause_off.png)
 
 ## Error Reference
 
