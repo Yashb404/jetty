@@ -146,6 +146,27 @@ export function useJettyProgram() {
           TOKEN_2022_PROGRAM_ID
         )
       );
+
+      const initHookIx = await prog.methods
+        .initializeHookConfig()
+        .accounts({
+          payer: prog.provider.publicKey!,
+          policyAuthority: prog.provider.publicKey!,
+          mint: mint.publicKey,
+        })
+        .instruction();
+
+      const initMetaIx = await prog.methods
+        .initExtraAccountMetaList()
+        .accounts({
+          payer: prog.provider.publicKey!,
+          policyAuthority: prog.provider.publicKey!,
+          mint: mint.publicKey,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .instruction();
+
+      transaction.add(initHookIx, initMetaIx);
       
       const latestBlockhash = await prog.provider.connection.getLatestBlockhash("confirmed");
       transaction.recentBlockhash = latestBlockhash.blockhash;
@@ -156,7 +177,7 @@ export function useJettyProgram() {
       await prog.provider.sendAndConfirm!(transaction, [mint]);
       
       return mint.publicKey.toBase58();
-    }, "Create Mint");
+    }, "Create and Initialize Mint");
   };
 
   return {
