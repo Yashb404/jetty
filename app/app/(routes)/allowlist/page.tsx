@@ -6,14 +6,17 @@ import WalletConnect from "../../../components/web3/wallet-connect";
 import Card from "../../../components/ui/card";
 import Input from "../../../components/ui/input";
 import Button from "../../../components/ui/button";
+import MintCombobox from "../../../components/ui/mint-combobox";
 import { useMintPolicy } from "../../../lib/hooks/useMintPolicy";
 import { useJettyProgram } from "../../../lib/hooks/useJettyProgram";
 import { useAllowlist } from "../../../lib/hooks/useAllowlist";
 import { useMintContext } from "../../../contexts/MintProvider";
+import { useRecentMints } from "../../../lib/hooks/useRecentMints";
 
 export default function AllowlistManagerPage() {
   const { activeMint, setActiveMint } = useMintContext();
   const [mintInput, setMintInput] = useState(activeMint || "");
+  const { addMint } = useRecentMints();
 
   useEffect(() => {
     if (activeMint) {
@@ -32,6 +35,7 @@ export default function AllowlistManagerPage() {
     try {
       new PublicKey(mintInput);
       setActiveMint(mintInput);
+      addMint(mintInput);
     } catch {
       alert("Invalid PublicKey");
     }
@@ -82,10 +86,10 @@ export default function AllowlistManagerPage() {
         <Card>
           <label className="block text-sm font-bold uppercase tracking-widest mb-2">Target Mint</label>
           <div className="flex gap-4">
-            <Input 
+            <MintCombobox 
               placeholder="Enter SPL Token Mint Address..." 
               value={mintInput} 
-              onChange={(e) => setMintInput(e.target.value)} 
+              onChange={(val) => setMintInput(val)} 
             />
             <Button onClick={handleSetMint} disabled={loading}>Load</Button>
           </div>

@@ -23,7 +23,10 @@ export function useJettyProgram() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const executeAction = async (action: (prog: Program<Jetty>) => Promise<string>, actionName: string) => {
+  const executeAction = async (
+    action: (prog: Program<Jetty>) => Promise<string>, 
+    actionName: string
+  ) => {
     if (!program) throw new Error("Anchor program is not initialized");
     setLoading(true);
     setError(null);
@@ -50,7 +53,7 @@ export function useJettyProgram() {
           mint,
         })
         .rpc();
-    }, "initializeHookConfig");
+    }, "Initialize Config");
   };
 
   const initExtraAccountMetaList = async (mint: PublicKey) => {
@@ -64,7 +67,7 @@ export function useJettyProgram() {
           tokenProgram: TOKEN_2022_PROGRAM_ID,
         })
         .rpc();
-    }, "initExtraAccountMetaList");
+    }, "Register Extra Accounts");
   };
 
   const updatePolicy = async (
@@ -81,7 +84,7 @@ export function useJettyProgram() {
           mint,
         })
         .rpc();
-    }, "updatePolicy");
+    }, "Update Policy");
   };
 
   const updateAllowlist = async (mint: PublicKey, tokenAccount: PublicKey, active: boolean) => {
@@ -95,7 +98,7 @@ export function useJettyProgram() {
           tokenAccount,
         })
         .rpc();
-    }, "updateAllowlist");
+    }, "Update Allowlist");
   };
 
   const assignPolicyAuthority = async (mint: PublicKey, newAuthority: PublicKey) => {
@@ -112,7 +115,7 @@ export function useJettyProgram() {
           mint,
         })
         .rpc();
-    }, "assignPolicyAuthority");
+    }, "Assign Policy Authority");
   };
 
   const createToken2022Mint = async () => {
@@ -153,7 +156,7 @@ export function useJettyProgram() {
       await prog.provider.sendAndConfirm!(transaction, [mint]);
       
       return mint.publicKey.toBase58();
-    }, "createToken2022Mint");
+    }, "Create Mint");
   };
 
   return {

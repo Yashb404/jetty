@@ -19,9 +19,15 @@ export default function Sidebar() {
           <Settings2 className="w-5 h-5" />
           Policy
         </Link>
-        <Link href="/activity" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
+        <Link href="/allowlist" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
           <Activity className="w-5 h-5" />
-          Activity
+          Allowlist
+        </Link>
+        <Link href="/history" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          History
         </Link>
       </nav>
 
@@ -37,7 +43,7 @@ export default function Sidebar() {
       </div>
 
       <div className="p-6 border-t-2 border-black text-xs text-[#5C4E4E] font-semibold uppercase tracking-widest text-center">
-        V 0.1.0-BETA
+        V 0.1.1-BETA
       </div>
     </aside>
   );
