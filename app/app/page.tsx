@@ -22,7 +22,7 @@ export default function Home() {
   }, [activeMint]);
 
   const { policy, isInitialized, metaListExists, refetch } = useMintPolicy(activeMint);
-  const { initializeHookConfig, initExtraAccountMetaList, assignPolicyAuthority, createToken2022Mint, demoSetupMintTokens, loading } = useJettyProgram();
+  const { initializeHookConfig, initExtraAccountMetaList, assignPolicyAuthority, createToken2022Mint, loading } = useJettyProgram();
 
   const [newAuthInput, setNewAuthInput] = useState("");
 
@@ -134,35 +134,6 @@ export default function Home() {
                 <p className="mb-4 text-sm">This mint has not been initialized with Jetty yet.</p>
                 <Button variant="secondary" onClick={handleInit} disabled={loading}>
                   {loading ? "Loading..." : "Initialize Hook Config"}
-                </Button>
-              </Card>
-            )}
-
-            {isInitialized && (
-              <Card className="border-4 border-dashed border-red-500 bg-red-50">
-                <h3 className="text-xl font-bold uppercase text-red-700 mb-2">⚡ DEMO PREP: MINT TOKENS</h3>
-                <p className="mb-4 text-sm text-red-600 font-bold">
-                  Click this button ONCE before your presentation. It will instantly create the ATAs for your Receiver & Burner wallets and mint 1,000,000 tokens to your connected wallet!
-                </p>
-                <Button 
-                  variant="secondary" 
-                  onClick={async () => {
-                    if (!activeMint) return;
-                    try {
-                      await demoSetupMintTokens(
-                        new PublicKey(activeMint),
-                        new PublicKey("DWqwTpNC917wW8d13k9JHwmeLBHaaPbP5u8MK7htgF8e"),
-                        new PublicKey("BJTGDVZUhEU4K1ZPj97Z2vpPwomSJ3sjN9nvUHVVbDnH")
-                      );
-                      alert("Demo Prep Complete! 1,000,000 tokens minted and ATAs created.");
-                    } catch (e) {
-                      console.error(e);
-                      alert("Demo Prep Failed! See console.");
-                    }
-                  }} 
-                  disabled={loading}
-                >
-                  {loading ? "Preparing..." : "RUN DEMO SETUP"}
                 </Button>
               </Card>
             )}

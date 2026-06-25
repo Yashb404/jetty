@@ -7,10 +7,7 @@ import {
   ExtensionType, 
   getMintLen, 
   createInitializeTransferHookInstruction,
-  createInitializeMintInstruction,
-  getAssociatedTokenAddressSync,
-  createAssociatedTokenAccountInstruction,
-  createMintToInstruction
+  createInitializeMintInstruction
 } from "@solana/spl-token";
 import { Program, BN } from "@coral-xyz/anchor";
 import { useAnchorWorkspace } from "../../contexts/AnchorProvider";
@@ -183,57 +180,6 @@ export function useJettyProgram() {
     }, "Create and Initialize Mint");
   };
 
-  const demoSetupMintTokens = async (mint: PublicKey, receiver: PublicKey, burner: PublicKey) => {
-    return executeAction(async (prog) => {
-      const transaction = new Transaction();
-      
-      const wallets = [
-        { pubkey: prog.provider.publicKey!, label: "Owner" },
-        { pubkey: receiver, label: "Receiver" },
-        { pubkey: burner, label: "Burner" }
-      ];
-
-      for (const w of wallets) {
-        const ata = getAssociatedTokenAddressSync(mint, w.pubkey, false, TOKEN_2022_PROGRAM_ID);
-        const accountInfo = await prog.provider.connection.getAccountInfo(ata);
-        
-        if (!accountInfo) {
-          transaction.add(
-            createAssociatedTokenAccountInstruction(
-              prog.provider.publicKey!,
-              ata,
-              w.pubkey,
-              mint,
-              TOKEN_2022_PROGRAM_ID
-            )
-          );
-        }
-
-        if (w.label === "Owner") {
-          transaction.add(
-            createMintToInstruction(
-              mint,
-              ata,
-              prog.provider.publicKey!,
-              1_000_000 * 100, // Assuming 2 decimals
-              [],
-              TOKEN_2022_PROGRAM_ID
-            )
-          );
-        }
-      }
-
-      if (transaction.instructions.length > 0) {
-        const latestBlockhash = await prog.provider.connection.getLatestBlockhash("confirmed");
-        transaction.recentBlockhash = latestBlockhash.blockhash;
-        transaction.feePayer = prog.provider.publicKey!;
-        await prog.provider.sendAndConfirm!(transaction, []);
-      }
-      
-      return "Success! Accounts created and tokens minted.";
-    }, "Demo Setup");
-  };
-
   return {
     loading,
     error,
@@ -243,6 +189,5 @@ export function useJettyProgram() {
     updateAllowlist,
     assignPolicyAuthority,
     createToken2022Mint,
-    demoSetupMintTokens
   };
 }
