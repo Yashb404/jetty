@@ -104,6 +104,26 @@ export default function DocsPage() {
           </div>
         </div>
 
+        <Card className="space-y-4 border-yellow-400">
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-yellow-400 pb-2 mb-4 text-yellow-900">
+              Security Architecture: Authority Rotation
+            </h3>
+            <p className="text-sm leading-relaxed mb-4">
+              To prevent catastrophic human error, the Jetty smart contract enforces a strict <strong>"Handshake Rule"</strong> when transferring policy ownership (Policy Authority) to a new wallet address.
+            </p>
+            <p className="text-sm leading-relaxed mb-4">
+              If an administrator accidentally misspells a public key when assigning a new authority, control of the compliance rules would be lost forever. To prevent this, the underlying Rust contract strictly requires <strong>both</strong> the current authority and the new incoming authority to cryptographically sign the rotation transaction. 
+            </p>
+            <div className="bg-yellow-50 p-4 border-2 border-yellow-400 rounded-none text-yellow-800">
+              <p className="text-sm font-bold mb-2 uppercase tracking-wide">Multi-Sig Workflows</p>
+              <p className="text-sm leading-relaxed">
+                Currently, rotating authority to a cold wallet or a second administrator requires executing a multi-sig partially signed transaction (PSBT). While the smart contract strictly enforces this safety measure today, full UI support for generating and sharing partially signed transactions directly through this Dashboard will be implemented in a future update.
+              </p>
+            </div>
+          </div>
+        </Card>
+
         <Card>
           <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4">
             Relevant Resources

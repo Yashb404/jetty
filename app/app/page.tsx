@@ -173,17 +173,25 @@ export default function Home() {
 
                 <Card>
                   <h3 className="text-lg font-bold uppercase mb-4">Rotate Policy Authority</h3>
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 mb-2">
                     <Input 
                       placeholder="New Authority Address..." 
                       value={newAuthInput} 
                       onChange={(e) => setNewAuthInput(e.target.value)} 
                     />
-                    <Button onClick={handleRotateAuthority} disabled={loading}>Rotate</Button>
+                    <Button onClick={handleRotateAuthority} disabled={loading} variant="secondary">Rotate</Button>
                   </div>
                   <p className="mt-2 text-xs text-[#5C4E4E] uppercase tracking-widest">
                     Current: {policy?.policyAuthority.toBase58()}
                   </p>
+                  <div className="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-sm">
+                    <p className="text-[10px] text-yellow-800 uppercase tracking-wider font-bold mb-1">
+                       Action Requires Multi-Sig
+                    </p>
+                    <p className="text-xs text-yellow-700">
+                      Smart contract strictly enforces the "Handshake Rule" requiring both current and new authority to sign. Full support for partially signed transactions via this frontend will be added in a future update.
+                    </p>
+                  </div>
                 </Card>
               </>
             )}
