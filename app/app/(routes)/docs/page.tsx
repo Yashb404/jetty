@@ -18,7 +18,7 @@ export default function DocsPage() {
 
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>
-          <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Documentation Hub</h2>
+          <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Documentation</h2>
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
             Understanding the Jetty Compliance Controller
           </p>

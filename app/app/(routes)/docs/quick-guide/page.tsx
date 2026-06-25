@@ -72,20 +72,20 @@ export default function QuickGuideDocs() {
               Step 3: Initialize Policy & Meta List
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Before you can enforce rules, you must initialize the on-chain structures. If you load a brand new mint, 
-              you will see two critical setup buttons on your Dashboard:
+              Before you can enforce rules, the on-chain structures must be initialized. 
+              <strong> If you used the "Create Token-2022 Mint" button on the Dashboard, this is already done for you!</strong> Our system automatically batches the Mint Creation, Policy Initialization, and Meta List generation into a single transaction to save you compute units and base fees.
+            </p>
+            <p className="text-sm leading-relaxed mb-4">
+              However, if you loaded a pre-existing Token-2022 mint generated from a CLI or external tool, you will see two critical setup buttons on your Dashboard:
             </p>
             <ul className="list-disc pl-5 space-y-4 text-sm leading-relaxed">
               <li>
-                <strong>Initialize Policy:</strong> This allocates the <code>HookConfig</code> PDA for your mint. 
-                This account stores your actual rules (like whether your token is globally paused).
+                <strong>Initialize Policy:</strong> Allocates the <code>HookConfig</code> PDA to store your rules.
               </li>
               <li>
-                <strong>Initialize Meta List:</strong> This allocates the <code>ExtraAccountMetaList</code> PDA. 
-                The Solana Token-2022 program strictly requires this list to know which additional accounts to forward to Jetty during a transfer.
+                <strong>Initialize Meta List:</strong> Allocates the <code>ExtraAccountMetaList</code> PDA so the Token-2022 program knows how to route accounts during transfers.
               </li>
             </ul>
-            <p className="text-sm font-bold mt-4">You must complete both steps sequentially before managing rules.</p>
           </Card>
 
           <Card>
