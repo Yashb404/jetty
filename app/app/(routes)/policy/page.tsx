@@ -11,7 +11,7 @@ import MintCombobox from "../../../components/ui/mint-combobox";
 import { useMintPolicy } from "../../../lib/hooks/useMintPolicy";
 import { useJettyProgram } from "../../../lib/hooks/useJettyProgram";
 import { useMintContext } from "../../../contexts/MintProvider";
-import { useRecentMints } from "../../../lib/hooks/useRecentMints";
+
 
 export default function PolicyPage() {
   const { activeMint, setActiveMint } = useMintContext();
@@ -44,7 +44,6 @@ export default function PolicyPage() {
     try {
       new PublicKey(mintInput);
       setActiveMint(mintInput);
-      addMint(mintInput);
     } catch {
       alert("Invalid PublicKey");
     }
