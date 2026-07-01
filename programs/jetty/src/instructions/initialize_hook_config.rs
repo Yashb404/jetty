@@ -1,5 +1,13 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::Mint;
+use anchor_spl::token_interface::{
+    spl_token_2022::{
+        extension::{
+            transfer_hook::TransferHook, BaseStateWithExtensions, StateWithExtensions,
+        },
+        state::Mint as SplMint,
+    },
+    Mint,
+};
 
 use crate::{error::JettyError, state::HookConfig};
 
@@ -19,7 +27,7 @@ pub struct InitializeHookConfig<'info> {
     pub mint: InterfaceAccount<'info, Mint>,
 
     #[account(
-        init,
+        init_if_needed,
         payer = payer,
         seeds = [b"policy", mint.key().as_ref()],
         bump,
@@ -31,8 +39,14 @@ pub struct InitializeHookConfig<'info> {
 }
 
 pub fn handler(ctx: Context<InitializeHookConfig>) -> Result<()> {
+    let mint_info = ctx.accounts.mint.to_account_info();
+    let mint_data = mint_info.data.borrow();
+    let mint_state = StateWithExtensions::<SplMint>::unpack(&mint_data)?;
+    let transfer_hook = mint_state.get_extension::<TransferHook>()?;
+    let transfer_hook_authority: Option<Pubkey> = transfer_hook.authority.into();
+
     require!(
-        ctx.accounts.mint.mint_authority == anchor_lang::solana_program::program_option::COption::Some(ctx.accounts.policy_authority.key()),
+        transfer_hook_authority == Some(ctx.accounts.policy_authority.key()),
         JettyError::Unauthorized
     );
 

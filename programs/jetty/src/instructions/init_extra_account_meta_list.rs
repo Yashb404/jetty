@@ -96,22 +96,51 @@ pub fn handler(ctx: Context<InitExtraAccountMetaList>) -> Result<()> {
     let mint_key = ctx.accounts.mint.key();
     let signer_seeds: &[&[u8]] = &[b"extra-account-metas", mint_key.as_ref(), &[bump]];
 
-    let create_account_ix = system_instruction::create_account(
-        &ctx.accounts.payer.key(),
-        &ctx.accounts.extra_account_meta_list.key(),
-        lamports,
-        account_size as u64,
-        &crate::ID,
-    );
-    invoke_signed(
-        &create_account_ix,
-        &[
-            ctx.accounts.payer.to_account_info(),
-            ctx.accounts.extra_account_meta_list.to_account_info(),
-        ],
-        &[signer_seeds],
-    )?;
-    let mut data = ctx.accounts.extra_account_meta_list.try_borrow_mut_data()?;
+    let extra_meta_info = ctx.accounts.extra_account_meta_list.to_account_info();
+
+    if extra_meta_info.lamports() == 0 {
+        let create_account_ix = system_instruction::create_account(
+            &ctx.accounts.payer.key(),
+            &extra_meta_info.key(),
+            lamports,
+            account_size as u64,
+            &crate::ID,
+        );
+        invoke_signed(
+            &create_account_ix,
+            &[
+                ctx.accounts.payer.to_account_info(),
+                extra_meta_info.clone(),
+            ],
+            &[signer_seeds],
+        )?;
+    } else {
+        // Handle pre-funded or re-initialized accounts
+        let required_lamports = lamports.saturating_sub(extra_meta_info.lamports());
+        if required_lamports > 0 {
+            let transfer_ix = system_instruction::transfer(
+                &ctx.accounts.payer.key(),
+                &extra_meta_info.key(),
+                required_lamports,
+            );
+            invoke_signed(
+                &transfer_ix,
+                &[ctx.accounts.payer.to_account_info(), extra_meta_info.clone()],
+                &[], // No PDA seeds needed for payer
+            )?;
+        }
+
+        // Only allocate and assign if the account is still owned by the system program
+        if *extra_meta_info.owner == system_program::ID {
+            let allocate_ix = system_instruction::allocate(&extra_meta_info.key(), account_size as u64);
+            invoke_signed(&allocate_ix, &[extra_meta_info.clone()], &[signer_seeds])?;
+
+            let assign_ix = system_instruction::assign(&extra_meta_info.key(), &crate::ID);
+            invoke_signed(&assign_ix, &[extra_meta_info.clone()], &[signer_seeds])?;
+        }
+    }
+
+    let mut data = extra_meta_info.try_borrow_mut_data()?;
     ExtraAccountMetaList::init::<ExecuteInstruction>(&mut data, &account_metas)?;
 
     Ok(())
