@@ -23,4 +23,4 @@ The frontend and SDK explicitly use Yarn. When running dependency steps or works
 
 Utilize the solana MCP to gain the context of the latest transfer hooks and solana anchor syntax.
 
-Definitely write happy path tests . The project will be uploaded to devnet so keep that in context aswell. 
+Definitely write happy path tests and even sad path tests . The project will be uploaded to devnet 

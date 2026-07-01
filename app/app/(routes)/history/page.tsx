@@ -33,7 +33,7 @@ export default function HistoryPage() {
   const { publicKey } = useWallet();
   const [logs, setLogs] = useState<HistoryLog[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [actionFilter, setActionFilter] = useState("All");
   const [timeFilter, setTimeFilter] = useState("All Time");
@@ -59,9 +59,9 @@ export default function HistoryPage() {
 
   const filteredLogs = logs.filter(log => {
     // 1. Search Query
-    const searchMatch = log.target_mint.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                        (log.details && log.details.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+    const searchMatch = log.target_mint.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (log.details && log.details.toLowerCase().includes(searchQuery.toLowerCase()));
+
     if (!searchMatch) return false;
 
     // 2. Action Filter
@@ -95,9 +95,12 @@ export default function HistoryPage() {
       <div className="flex-1 p-8 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Action History</h2>
-          <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
+          <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest mb-4">
             A complete log of your policy modifications and allowlist changes
           </p>
+          <div className="bg-[#D1D1D0] border-2 border-black p-3 text-xs font-bold uppercase tracking-widest text-black">
+            Note: Due to free-tier database limitations, transaction history may occasionally be unavailable.
+          </div>
         </div>
 
         {!publicKey ? (
@@ -121,7 +124,7 @@ export default function HistoryPage() {
               <div className="flex gap-4">
                 <div className="flex items-center gap-2">
                   <Filter className="w-4 h-4 text-[#5C4E4E]" />
-                  <select 
+                  <select
                     value={actionFilter}
                     onChange={(e) => setActionFilter(e.target.value)}
                     className="border-2 border-black bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 appearance-none"
@@ -129,7 +132,7 @@ export default function HistoryPage() {
                     {uniqueActions.map(act => <option key={act} value={act}>{act}</option>)}
                   </select>
                 </div>
-                <select 
+                <select
                   value={timeFilter}
                   onChange={(e) => setTimeFilter(e.target.value)}
                   className="border-2 border-black bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 appearance-none"
@@ -144,71 +147,71 @@ export default function HistoryPage() {
 
             <Card className="p-0 overflow-hidden">
               <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b-2 border-black bg-[#5C4E4E] text-white font-bold uppercase tracking-widest text-sm">
-              <div className="col-span-3">Action</div>
-              <div className="col-span-4">Target Mint</div>
-              <div className="col-span-3">Details</div>
-              <div className="col-span-2 text-right">Time</div>
-            </div>
-            
-            <div className="divide-y-2 divide-black">
-              {loading ? (
-                <div className="px-6 py-8 text-center text-[#5C4E4E] font-semibold uppercase tracking-widest">
-                  Loading history...
-                </div>
-              ) : filteredLogs.length === 0 ? (
-                <div className="px-6 py-8 text-center text-[#5C4E4E] font-semibold uppercase tracking-widest">
-                  No actions match your filters.
-                </div>
-              ) : (
-                filteredLogs.map((log) => (
-                  <div key={log.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#D1D1D0]">
-                    <div className="col-span-3 font-bold uppercase text-xs">
-                      {log.action_type}
-                    </div>
-                    <div className="col-span-4 text-xs flex items-center gap-2">
-                      <span>{log.target_mint.slice(0, 8)}...{log.target_mint.slice(-8)}</span>
-                      <CopyButton text={log.target_mint} />
-                    </div>
-                    <div className="col-span-3 text-xs text-[#5C4E4E] overflow-hidden">
-                      {(() => {
-                        if (!log.details) return "-";
-                        try {
-                          const parsed = JSON.parse(log.details);
-                          const { tx, ...rest } = parsed;
-                          const restStr = Object.entries(rest).map(([k, v]) => `${k}: ${v}`).join(', ');
-                          
-                          return (
-                            <div className="space-y-1">
-                              {tx && (
-                                <div className="flex items-center gap-2 text-black font-bold">
-                                  <span>Tx: {tx.slice(0, 4)}...{tx.slice(-4)}</span>
-                                  <CopyButton text={tx} />
-                                </div>
-                              )}
-                              {restStr && (
-                                <div className="truncate" title={restStr}>
-                                  {restStr}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        } catch {
-                          return (
-                            <div className="truncate" title={log.details}>
-                              {log.details}
-                            </div>
-                          );
-                        }
-                      })()}
-                    </div>
-                    <div className="col-span-2 text-xs text-right text-[#5C4E4E]">
-                      {new Date(log.timestamp).toLocaleString()}
-                    </div>
+                <div className="col-span-3">Action</div>
+                <div className="col-span-4">Target Mint</div>
+                <div className="col-span-3">Details</div>
+                <div className="col-span-2 text-right">Time</div>
+              </div>
+
+              <div className="divide-y-2 divide-black">
+                {loading ? (
+                  <div className="px-6 py-8 text-center text-[#5C4E4E] font-semibold uppercase tracking-widest">
+                    Loading history...
                   </div>
-                ))
-              )}
-            </div>
-          </Card>
+                ) : filteredLogs.length === 0 ? (
+                  <div className="px-6 py-8 text-center text-[#5C4E4E] font-semibold uppercase tracking-widest">
+                    No actions match your filters.
+                  </div>
+                ) : (
+                  filteredLogs.map((log) => (
+                    <div key={log.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#D1D1D0]">
+                      <div className="col-span-3 font-bold uppercase text-xs">
+                        {log.action_type}
+                      </div>
+                      <div className="col-span-4 text-xs flex items-center gap-2">
+                        <span>{log.target_mint.slice(0, 8)}...{log.target_mint.slice(-8)}</span>
+                        <CopyButton text={log.target_mint} />
+                      </div>
+                      <div className="col-span-3 text-xs text-[#5C4E4E] overflow-hidden">
+                        {(() => {
+                          if (!log.details) return "-";
+                          try {
+                            const parsed = JSON.parse(log.details);
+                            const { tx, ...rest } = parsed;
+                            const restStr = Object.entries(rest).map(([k, v]) => `${k}: ${v}`).join(', ');
+
+                            return (
+                              <div className="space-y-1">
+                                {tx && (
+                                  <div className="flex items-center gap-2 text-black font-bold">
+                                    <span>Tx: {tx.slice(0, 4)}...{tx.slice(-4)}</span>
+                                    <CopyButton text={tx} />
+                                  </div>
+                                )}
+                                {restStr && (
+                                  <div className="truncate" title={restStr}>
+                                    {restStr}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          } catch {
+                            return (
+                              <div className="truncate" title={log.details}>
+                                {log.details}
+                              </div>
+                            );
+                          }
+                        })()}
+                      </div>
+                      <div className="col-span-2 text-xs text-right text-[#5C4E4E]">
+                        {new Date(log.timestamp).toLocaleString()}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
           </div>
         )}
       </div>
