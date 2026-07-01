@@ -126,9 +126,11 @@ export async function sendAndConfirmWithRetry(
 export async function createTransferHookMint(
   provider: anchor.AnchorProvider,
   transferHookProgramId: anchor.web3.PublicKey,
-  decimals = 2
+  decimals = 2,
+  customTransferHookAuthority?: anchor.web3.PublicKey
 ): Promise<anchor.web3.Keypair> {
   const payerPubkey = provider.wallet.publicKey;
+  const transferHookAuth = customTransferHookAuthority || payerPubkey;
   const mint = anchor.web3.Keypair.generate();
   const mintSpace = getMintLen([ExtensionType.TransferHook]);
   const lamports = await provider.connection.getMinimumBalanceForRentExemption(mintSpace);
@@ -143,7 +145,7 @@ export async function createTransferHookMint(
     }),
     createInitializeTransferHookInstruction(
       mint.publicKey,
-      payerPubkey,
+      transferHookAuth,
       transferHookProgramId,
       TOKEN_2022_PROGRAM_ID
     ),
