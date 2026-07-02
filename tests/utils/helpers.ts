@@ -38,7 +38,7 @@ export type HookFixture = {
   destinationTokenAccount: anchor.web3.PublicKey;
 };
 
-export const EXTRA_ACCOUNT_META_LIST_SIZE = 121;
+export const EXTRA_ACCOUNT_META_LIST_SIZE = 51;
 
 export function getProvider(): anchor.AnchorProvider {
   return anchor.getProvider() as anchor.AnchorProvider;
@@ -130,6 +130,16 @@ export async function createTransferHookMint(
   customTransferHookAuthority?: anchor.web3.PublicKey
 ): Promise<anchor.web3.Keypair> {
   const payerPubkey = provider.wallet.publicKey;
+  
+  // Ensure payer has funds
+  try {
+    const sig = await provider.connection.requestAirdrop(payerPubkey, 10_000_000_000);
+    const latest = await provider.connection.getLatestBlockhash();
+    await provider.connection.confirmTransaction({ signature: sig, ...latest }, "confirmed");
+  } catch (e) {
+    console.log("Airdrop failed or already funded", e);
+  }
+
   const transferHookAuth = customTransferHookAuthority || payerPubkey;
   const mint = anchor.web3.Keypair.generate();
   const mintSpace = getMintLen([ExtensionType.TransferHook]);
