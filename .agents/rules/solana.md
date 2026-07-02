@@ -24,3 +24,5 @@ The frontend and SDK explicitly use Yarn. When running dependency steps or works
 Utilize the solana MCP to gain the context of the latest transfer hooks and solana anchor syntax.
 
 Definitely write happy path tests and even sad path tests . The project will be uploaded to devnet 
+
+Account Reallocation (Solana 2.x/3.x Modular Architecture): When dynamically resizing an `AccountInfo` or `UncheckedAccount`, do NOT use the deprecated `.realloc()` method. Instead, use `.resize(new_size)?` (which takes only one argument, omitting the boolean `zero_init` flag). This aligns with the newer Agave framework standards where the explicit reallocation naming was standardized to `.resize`.

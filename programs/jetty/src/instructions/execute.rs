@@ -75,6 +75,9 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         return err!(JettyError::ExceedsVolumeLimit);
     }
 
+    // Dynamic cursor for remaining accounts
+    let idx: usize = 0;
+
     if hook_config.allowlist_enabled {
         // Expect the caller (Token-2022) to provide two allowlist PDAs in remaining accounts.
 
@@ -87,12 +90,13 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         // them behind a defensive ownership error. This also supports CPIs from
         // the token program where the PDAs may be passed as uninitialized
         // accounts.
-        if ctx.remaining_accounts.len() < 2 {
+        if ctx.remaining_accounts.len() < idx + 2 {
             return Err(error!(JettyError::SourceNotAllowlisted));
         }
 
-        let sender_entry_info = &ctx.remaining_accounts[0];
-        let receiver_entry_info = &ctx.remaining_accounts[1];
+        let sender_entry_info = &ctx.remaining_accounts[idx];
+        let receiver_entry_info = &ctx.remaining_accounts[idx + 1];
+        // idx += 2; // Uncomment when adding more features
 
         // Verify the PDAs themselves and their stored bump/owner fields.
         verify_allowlist_entry(

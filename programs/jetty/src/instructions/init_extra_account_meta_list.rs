@@ -3,9 +3,7 @@ use anchor_lang::{
     solana_program::{program::invoke_signed, system_instruction},
 };
 use anchor_spl::token_interface::{Mint, TokenInterface};
-use spl_tlv_account_resolution::{
-    account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
-};
+use spl_tlv_account_resolution::state::ExtraAccountMetaList;
 use spl_transfer_hook_interface::instruction::ExecuteInstruction;
 use anchor_spl::token_2022::ID as TOKEN_2022_PROGRAM_ID;
 
@@ -52,44 +50,7 @@ pub fn handler(ctx: Context<InitExtraAccountMetaList>) -> Result<()> {
         JettyError::InvalidTokenProgram
     );
 
-    let account_metas = [
-        ExtraAccountMeta::new_with_seeds(
-            &[
-                Seed::Literal {
-                    bytes: b"policy".to_vec(),
-                },
-                Seed::AccountKey { index: 1 },
-            ],
-            false,
-            false,
-        )?,
-        ExtraAccountMeta::new_with_seeds(
-            &[
-                Seed::Literal {
-                    bytes: b"allowlist".to_vec(),
-                },
-                Seed::AccountKey { index: 1 },
-                // Source token account key (index 0 in the execute instruction).
-                // The allowlist PDA is seeded by the token account address itself
-                // (not the wallet owner), enabling atomic same-tx ATA allowlisting.
-                Seed::AccountKey { index: 0 },
-            ],
-            false,
-            false,
-        )?,
-        ExtraAccountMeta::new_with_seeds(
-            &[
-                Seed::Literal {
-                    bytes: b"allowlist".to_vec(),
-                },
-                Seed::AccountKey { index: 1 },
-                // Destination token account key (index 2 in the execute instruction).
-                Seed::AccountKey { index: 2 },
-            ],
-            false,
-            false,
-        )?,
-    ];
+    let account_metas = crate::utils::build_extra_account_metas(&ctx.accounts.hook_config)?;
     let account_size = ExtraAccountMetaList::size_of(account_metas.len())?;
     let lamports = Rent::get()?.minimum_balance(account_size);
     let bump = ctx.bumps.extra_account_meta_list;

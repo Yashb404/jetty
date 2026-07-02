@@ -1,0 +1,20 @@
+--- programs/jetty/src/instructions/update_policy.rs
++++ programs/jetty/src/instructions/update_policy.rs
+@@ -102,7 +102,7 @@
+             )?;
+         }
+         
+-        extra_meta_info.realloc(new_size, false)?;
++        ctx.accounts.extra_account_meta_list.realloc(new_size, false)?;
+         let mut data = extra_meta_info.try_borrow_mut_data()?;
+         ExtraAccountMetaList::update::<ExecuteInstruction>(&mut data, &metas)?;
+     } else {
+@@ -110,7 +110,7 @@
+             let mut data = extra_meta_info.try_borrow_mut_data()?;
+             ExtraAccountMetaList::update::<ExecuteInstruction>(&mut data, &metas)?;
+         }
+-        extra_meta_info.realloc(new_size, false)?;
++        ctx.accounts.extra_account_meta_list.realloc(new_size, false)?;
+         
+         let excess_lamports = current_lamports.saturating_sub(required_lamports);
+         if excess_lamports > 0 {

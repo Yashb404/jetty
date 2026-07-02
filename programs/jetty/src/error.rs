@@ -31,4 +31,10 @@ pub enum JettyError {
 
     #[msg("The provided authority does not match the source token account owner.")]
     InvalidAuthority,
+
+    #[msg("The extra account meta list has not been initialized for this mint.")]
+    ExtraMetaListNotInitialized,
+
+    #[msg("The computed extra account meta list size exceeds safe bounds.")]
+    MetaListSizeOverflow,
 }

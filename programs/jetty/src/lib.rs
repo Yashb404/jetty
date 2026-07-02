@@ -1,6 +1,7 @@
 pub mod error;
 pub mod instructions;
 pub mod state;
+pub mod utils;
 
 use anchor_lang::prelude::*;
 pub(crate) use instructions::assign_policy_authority::__client_accounts_assign_policy_authority;
