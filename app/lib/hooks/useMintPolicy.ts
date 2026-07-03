@@ -5,6 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { useAnchorWorkspace } from "../../contexts/AnchorProvider";
 import { deriveHookConfigPda, deriveExtraAccountMetaListPda } from "../anchor/pdas";
 import { HookConfig } from "../anchor/types";
+import toast from "react-hot-toast";
 
 export function useMintPolicy(mintAddressString: string | null) {
   const { program } = useAnchorWorkspace();
@@ -42,8 +43,11 @@ export function useMintPolicy(mintAddressString: string | null) {
       const metaListAccountInfo = await program.provider.connection.getAccountInfo(metaListPda);
       setMetaListExists(metaListAccountInfo !== null);
     } catch (err: unknown) {
-      console.error("useMintPolicy error:", err);
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("Failed to fetch")) {
+        toast.error("Network connection refused. Please check if your Solana cluster is running.");
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }

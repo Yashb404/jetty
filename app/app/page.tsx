@@ -9,6 +9,7 @@ import { useMintPolicy } from "../lib/hooks/useMintPolicy";
 import { useJettyProgram } from "../lib/hooks/useJettyProgram";
 import { PublicKey } from "@solana/web3.js";
 import { useMintContext } from "../contexts/MintProvider";
+import toast from "react-hot-toast";
 
 export default function Home() {
   const { activeMint, setActiveMint } = useMintContext();
@@ -31,7 +32,7 @@ export default function Home() {
       new PublicKey(mintInput);
       setActiveMint(mintInput);
     } catch {
-      alert("Invalid PublicKey");
+      toast.error("Invalid PublicKey");
     }
   };
 
@@ -39,9 +40,10 @@ export default function Home() {
     if (!activeMint) return;
     try {
       await initializeHookConfig(new PublicKey(activeMint));
+      toast.success("Hook Config Initialized!");
       refetch();
     } catch (e) {
-      console.error(e);
+      // Error handled by hook
     }
   };
 
@@ -49,9 +51,10 @@ export default function Home() {
     if (!activeMint) return;
     try {
       await initExtraAccountMetaList(new PublicKey(activeMint));
+      toast.success("Extra Account Meta List Initialized!");
       refetch();
     } catch (e) {
-      console.error(e);
+      // Error handled by hook
     }
   };
 
@@ -59,10 +62,10 @@ export default function Home() {
     if (!activeMint || !newAuthInput) return;
     try {
       await assignPolicyAuthority(new PublicKey(activeMint), new PublicKey(newAuthInput));
+      toast.success("Authority Rotated!");
       refetch();
     } catch (e) {
-      console.error(e);
-      alert("Failed to rotate authority. Ensure both keys are signers.");
+      // Error handled by hook
     }
   };
 
@@ -72,10 +75,10 @@ export default function Home() {
       if (newMintStr) {
         setMintInput(newMintStr);
         setActiveMint(newMintStr);
+        toast.success("Token-2022 Mint Created & Initialized!");
       }
     } catch (e) {
-      console.error(e);
-      alert("Failed to create mint. Ensure wallet is connected and has SOL.");
+      // Error handled by hook
     }
   };
 

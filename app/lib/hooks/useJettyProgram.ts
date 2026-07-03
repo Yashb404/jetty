@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PublicKey, SystemProgram, Keypair, Transaction } from "@solana/web3.js";
+import toast from "react-hot-toast";
 import { 
   TOKEN_2022_PROGRAM_ID, 
   ExtensionType, 
@@ -35,8 +36,13 @@ export function useJettyProgram() {
       console.log(`[${actionName}] Success: ${tx}`);
       return tx;
     } catch (err: unknown) {
-      console.error(`[${actionName}] Error:`, err);
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("Failed to fetch")) {
+        toast.error("Network connection refused. Is your Solana cluster running?");
+      } else {
+        toast.error(`[${actionName}] Failed: ${msg}`);
+      }
+      setError(msg);
       throw err;
     } finally {
       setLoading(false);

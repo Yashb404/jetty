@@ -11,6 +11,7 @@ import MintCombobox from "../../../components/ui/mint-combobox";
 import { useMintPolicy } from "../../../lib/hooks/useMintPolicy";
 import { useJettyProgram } from "../../../lib/hooks/useJettyProgram";
 import { useMintContext } from "../../../contexts/MintProvider";
+import toast from "react-hot-toast";
 
 
 export default function LibraryPage() {
@@ -45,7 +46,7 @@ export default function LibraryPage() {
       new PublicKey(mintInput);
       setActiveMint(mintInput);
     } catch {
-      alert("Invalid PublicKey");
+      toast.error("Invalid PublicKey");
     }
   };
 
@@ -61,15 +62,15 @@ export default function LibraryPage() {
       const allowlistArg = allowlistEnabled !== policy.allowlistEnabled ? allowlistEnabled : null;
 
       if (pausedArg === null && allowlistArg === null && parsedAmount === null) {
-        alert("No changes detected.");
+        toast.error("No changes detected.");
         return;
       }
 
       await updatePolicy(new PublicKey(activeMint), pausedArg, allowlistArg, parsedAmount);
+      toast.success("Policy updated successfully!");
       refetch();
     } catch (e) {
-      console.error(e);
-      alert("Failed to update policy.");
+      // Error already handled by useJettyProgram's toast
     }
   };
 
