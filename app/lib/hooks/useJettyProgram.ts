@@ -80,6 +80,7 @@ export function useJettyProgram() {
       return prog.methods
         .updatePolicy({ paused, allowlistEnabled, maxTransferAmount })
         .accounts({
+          payer: prog.provider.publicKey!,
           policyAuthority: prog.provider.publicKey!,
           mint,
         })

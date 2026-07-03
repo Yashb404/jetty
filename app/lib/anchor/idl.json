@@ -418,6 +418,11 @@
       ],
       "accounts": [
         {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
           "name": "policy_authority",
           "signer": true
         },
@@ -446,6 +451,46 @@
               }
             ]
           }
+        },
+        {
+          "name": "extra_account_meta_list",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -579,6 +624,16 @@
       "code": 6009,
       "name": "InvalidAuthority",
       "msg": "The provided authority does not match the source token account owner."
+    },
+    {
+      "code": 6010,
+      "name": "ExtraMetaListNotInitialized",
+      "msg": "The extra account meta list has not been initialized for this mint."
+    },
+    {
+      "code": 6011,
+      "name": "MetaListSizeOverflow",
+      "msg": "The computed extra account meta list size exceeds safe bounds."
     }
   ],
   "types": [
