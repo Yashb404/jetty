@@ -32,6 +32,7 @@ export default function LibraryPage() {
   const [paused, setPaused] = useState(false);
   const [allowlistEnabled, setAllowlistEnabled] = useState(false);
   const [maxTransferAmount, setMaxTransferAmount] = useState("0");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (policy) {
@@ -244,65 +245,45 @@ export default function LibraryPage() {
 
         {/* Browse Marketplace Grid */}
         <div>
-          <h2 className="text-2xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 mb-6 inline-block">Browse Marketplace</h2>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-black pb-2 mb-6 gap-4">
+            <h2 className="text-2xl font-bold uppercase tracking-tighter">Browse Marketplace</h2>
+            <div className="relative w-full md:w-64">
+              <Input 
+                type="text" 
+                placeholder="Search extensions..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            {/* Ext 1 */}
-            <article className="border-2 border-black p-4 bg-white flex flex-col h-full relative">
-              <h3 className="text-sm font-bold uppercase text-black mb-2">KYC Gate</h3>
-              <p className="text-[11px] text-[#5C4E4E] mb-4 flex-grow">
-                Requires sender/receiver to have valid civic pass or external KYC attestation.
-              </p>
-              <div className="flex justify-between items-center mt-auto border-t-2 border-black pt-3">
-                <span className="text-[10px] font-bold uppercase text-[#5C4E4E]">By: Compliance_DAO</span>
-                <button disabled className="border-2 border-black px-3 py-1 bg-gray-200 text-gray-500 font-bold uppercase text-[10px] cursor-not-allowed">
-                  Coming Soon
-                </button>
-              </div>
-            </article>
+            {[
+              { name: "KYC Gate", desc: "Requires sender/receiver to have valid civic pass or external KYC attestation.", author: "Compliance_DAO" },
+              { name: "Taxation Hook", desc: "Automatically deducts a flat fee or percentage on every transfer to a treasury wallet.", author: "Treasury_Labs" },
+              { name: "Royalty Enforcer", desc: "Enforces creator royalties on SPL22 tokens transferred via supported AMMs.", author: "Metaplex" },
+              { name: "Time Lock", desc: "Prevents newly minted or vested tokens from being transferred until a specific epoch.", author: "Vesting_Protocol" }
+            ].filter(ext => 
+              ext.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+              ext.desc.toLowerCase().includes(searchQuery.toLowerCase())
+            ).map((ext, idx) => (
+              <article key={idx} className="border-2 border-black p-4 bg-white flex flex-col h-full relative">
+                <h3 className="text-sm font-bold uppercase text-black mb-2">{ext.name}</h3>
+                <p className="text-[11px] text-[#5C4E4E] mb-4 flex-grow">{ext.desc}</p>
+                <div className="flex justify-between items-center mt-auto border-t-2 border-black pt-3">
+                  <span className="text-[10px] font-bold uppercase text-[#5C4E4E]">By: {ext.author}</span>
+                  <button disabled className="border-2 border-black px-3 py-1 bg-gray-200 text-gray-500 font-bold uppercase text-[10px] cursor-not-allowed">
+                    Coming Soon
+                  </button>
+                </div>
+              </article>
+            ))}
 
-            {/* Ext 2 */}
-            <article className="border-2 border-black p-4 bg-white flex flex-col h-full relative">
-              <h3 className="text-sm font-bold uppercase text-black mb-2">Taxation Hook</h3>
-              <p className="text-[11px] text-[#5C4E4E] mb-4 flex-grow">
-                Automatically deducts a flat fee or percentage on every transfer to a treasury wallet.
-              </p>
-              <div className="flex justify-between items-center mt-auto border-t-2 border-black pt-3">
-                <span className="text-[10px] font-bold uppercase text-[#5C4E4E]">By: Treasury_Labs</span>
-                <button disabled className="border-2 border-black px-3 py-1 bg-gray-200 text-gray-500 font-bold uppercase text-[10px] cursor-not-allowed">
-                  Coming Soon
-                </button>
+            {searchQuery && (
+              <div className="col-span-full text-center py-8">
+                <p className="text-sm font-bold uppercase tracking-widest text-[#5C4E4E]">No more results found.</p>
               </div>
-            </article>
-
-            {/* Ext 3 */}
-            <article className="border-2 border-black p-4 bg-white flex flex-col h-full relative">
-              <h3 className="text-sm font-bold uppercase text-black mb-2">Royalty Enforcer</h3>
-              <p className="text-[11px] text-[#5C4E4E] mb-4 flex-grow">
-                Enforces creator royalties on SPL22 tokens transferred via supported AMMs.
-              </p>
-              <div className="flex justify-between items-center mt-auto border-t-2 border-black pt-3">
-                <span className="text-[10px] font-bold uppercase text-[#5C4E4E]">By: Metaplex</span>
-                <button disabled className="border-2 border-black px-3 py-1 bg-gray-200 text-gray-500 font-bold uppercase text-[10px] cursor-not-allowed">
-                  Coming Soon
-                </button>
-              </div>
-            </article>
-
-            {/* Ext 4 */}
-            <article className="border-2 border-black p-4 bg-white flex flex-col h-full relative">
-              <h3 className="text-sm font-bold uppercase text-black mb-2">Time Lock</h3>
-              <p className="text-[11px] text-[#5C4E4E] mb-4 flex-grow">
-                Prevents newly minted or vested tokens from being transferred until a specific epoch.
-              </p>
-              <div className="flex justify-between items-center mt-auto border-t-2 border-black pt-3">
-                <span className="text-[10px] font-bold uppercase text-[#5C4E4E]">By: Vesting_Protocol</span>
-                <button disabled className="border-2 border-black px-3 py-1 bg-gray-200 text-gray-500 font-bold uppercase text-[10px] cursor-not-allowed">
-                  Coming Soon
-                </button>
-              </div>
-            </article>
-
+            )}
           </div>
         </div>
       </main>
