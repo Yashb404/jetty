@@ -56,7 +56,7 @@ export default function VolumeLimitsDocs() {
               You can set the Volume Limit directly from the Dashboard without writing a line of code.
             </p>
             <ol className="list-decimal pl-5 space-y-2 text-sm leading-relaxed mb-6 font-bold">
-              <li>Navigate to the <strong>Policy</strong> tab on your Jetty Dashboard.</li>
+              <li>Navigate to the <strong>Library</strong> tab on your Jetty Dashboard.</li>
               <li>Locate the <strong>Volume Limit</strong> input field.</li>
               <li>Enter your desired maximum transfer amount.</li>
               <li>Click the <strong>Set Limit</strong> button and approve the transaction.</li>

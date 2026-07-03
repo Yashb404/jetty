@@ -93,7 +93,7 @@ export default function QuickGuideDocs() {
               Step 4: Configure Rules
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Navigate to the <strong>Policy</strong> tab. From here, you can manage your compliance rules entirely via the UI:
+              Navigate to the <strong>Library</strong> tab. From here, you can manage your compliance rules entirely via the UI:
             </p>
             <ul className="list-disc pl-5 space-y-4 text-sm leading-relaxed">
               <li>

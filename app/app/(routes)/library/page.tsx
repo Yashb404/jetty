@@ -13,7 +13,7 @@ import { useJettyProgram } from "../../../lib/hooks/useJettyProgram";
 import { useMintContext } from "../../../contexts/MintProvider";
 
 
-export default function PolicyPage() {
+export default function LibraryPage() {
   const { activeMint, setActiveMint } = useMintContext();
   const [mintInput, setMintInput] = useState(activeMint || "");
 
@@ -86,9 +86,9 @@ export default function PolicyPage() {
 
       <div className="flex-1 p-8 max-w-3xl mx-auto w-full space-y-8 font-mono text-black">
         <div>
-          <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Edit Policy Configuration</h2>
+          <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Extension Library</h2>
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
-            Configure compliance rules for your mint
+            Enable or disable compliance modules for your target mint
           </p>
         </div>
 
@@ -109,7 +109,7 @@ export default function PolicyPage() {
             <Card>
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <h3 className="text-lg font-bold uppercase tracking-widest">Global Pause</h3>
+                  <h3 className="text-lg font-bold uppercase tracking-widest">Global Pause Module</h3>
                   <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mt-1">Halt all transfers temporarily</p>
                 </div>
                 <button 
@@ -124,7 +124,7 @@ export default function PolicyPage() {
             <Card>
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <h3 className="text-lg font-bold uppercase tracking-widest">Allowlist Enforcement</h3>
+                  <h3 className="text-lg font-bold uppercase tracking-widest">Allowlist Module</h3>
                   <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mt-1">Restrict transfers to verified addresses</p>
                 </div>
                 <button 
@@ -137,8 +137,8 @@ export default function PolicyPage() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Max Transfer Amount</h3>
-              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Set to 0 for unlimited volume</p>
+              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Volume Limiter Module</h3>
+              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Max transfer amount (Set to 0 to disable volume limits)</p>
               <Input 
                 type="number" 
                 value={maxTransferAmount} 

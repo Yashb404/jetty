@@ -56,7 +56,7 @@ export default function GlobalPauseDocs() {
               Enforcing a Global Pause requires zero coding. 
             </p>
             <ol className="list-decimal pl-5 space-y-2 text-sm leading-relaxed mb-6 font-bold">
-              <li>Navigate to the <strong>Policy</strong> tab on your Jetty Dashboard.</li>
+              <li>Navigate to the <strong>Library</strong> tab on your Jetty Dashboard.</li>
               <li>Locate the <strong>Global Pause</strong> toggle switch.</li>
               <li>Click the toggle to turn it <strong>ON</strong>.</li>
               <li>Approve the transaction in your connected wallet.</li>

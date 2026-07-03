@@ -1,13 +1,18 @@
 import React from "react";
 import Link from "next/link";
-import { LayoutDashboard, Settings2, Activity, BookOpen, LifeBuoy } from "lucide-react";
+import Image from "next/image";
+import logoBlack from "../../assets/bw.svg";
+import { LayoutDashboard, Library, Activity, BookOpen, LifeBuoy } from "lucide-react";
 
 export default function Sidebar() {
   return (
     <aside className="w-64 border-r-2 border-black bg-[#D1D1D0] flex flex-col font-mono h-full shrink-0">
       <div className="p-6 border-b-2 border-black">
-        <h1 className="text-2xl font-bold uppercase tracking-tighter text-black">Jetty</h1>
-        <p className="text-xs uppercase tracking-widest text-[#5C4E4E] mt-1 font-semibold">Compliance Controller</p>
+        <div className="flex items-center gap-3 mb-2">
+          <Image src={logoBlack} alt="Jetty Logo" className="w-14 h-auto" />
+          <h1 className="text-3xl font-bold uppercase tracking-tighter text-black">Jetty</h1>
+        </div>
+        <p className="text-xs uppercase tracking-widest text-[#5C4E4E] font-semibold">Compliance Controller</p>
       </div>
       
       <nav className="flex-1 p-4 space-y-2">
@@ -15,9 +20,9 @@ export default function Sidebar() {
           <LayoutDashboard className="w-5 h-5" />
           Dashboard
         </Link>
-        <Link href="/policy" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
-          <Settings2 className="w-5 h-5" />
-          Policy
+        <Link href="/library" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
+          <Library className="w-5 h-5" />
+          Library
         </Link>
         <Link href="/allowlist" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
           <Activity className="w-5 h-5" />

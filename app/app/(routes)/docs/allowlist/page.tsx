@@ -58,8 +58,8 @@ export default function AllowlistDocs() {
               You can easily manage the participants allowed to interact with your token through the Jetty UI.
             </p>
             <ol className="list-decimal pl-5 space-y-2 text-sm leading-relaxed mb-6 font-bold">
-              <li>First, navigate to the <strong>Policy</strong> tab and turn the <strong>Allowlist</strong> toggle ON.</li>
-              <li>Next, navigate to the <strong>Activity</strong> tab.</li>
+              <li>First, navigate to the <strong>Library</strong> tab and turn the <strong>Allowlist</strong> toggle ON.</li>
+              <li>Next, navigate to the <strong>Allowlist</strong> tab.</li>
               <li>Paste the <strong>Token Account</strong> address of the user you want to add.</li>
               <li>Click <strong>Approve</strong>. You can revoke access at any time using the <strong>Revoke</strong> button.</li>
             </ol>
