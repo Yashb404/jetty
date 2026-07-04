@@ -51,7 +51,6 @@ describe("Module 4: Denylist / Blocklist", function () {
       .updateDenylist(true)
       .accounts({
         payer: authority,
-        policyAuthority: authority,
         mint: fixture.mint.publicKey,
         tokenAccount: fixture.sourceTokenAccount,
       })
@@ -76,7 +75,6 @@ describe("Module 4: Denylist / Blocklist", function () {
       .updateDenylist(false)
       .accounts({
         payer: authority,
-        policyAuthority: authority,
         mint: fixture.mint.publicKey,
         tokenAccount: fixture.sourceTokenAccount,
       })
@@ -87,7 +85,6 @@ describe("Module 4: Denylist / Blocklist", function () {
       .updateDenylist(true)
       .accounts({
         payer: authority,
-        policyAuthority: authority,
         mint: fixture.mint.publicKey,
         tokenAccount: fixture.destinationTokenAccount,
       })
@@ -152,7 +149,6 @@ describe("Module 4: Denylist / Blocklist", function () {
       .updateDenylist(false)
       .accounts({
         payer: authority,
-        policyAuthority: authority,
         mint: fixture.mint.publicKey,
         tokenAccount: fixture.destinationTokenAccount,
       })
