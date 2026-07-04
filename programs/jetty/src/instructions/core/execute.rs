@@ -75,6 +75,10 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         return err!(JettyError::ExceedsVolumeLimit);
     }
 
+    if hook_config.min_transfer_amount > 0 && amount < hook_config.min_transfer_amount && amount != 0 {
+        return err!(JettyError::BelowMinimumTransferAmount);
+    }
+
     // Dynamic cursor for remaining accounts
     let mut idx: usize = 0;
 

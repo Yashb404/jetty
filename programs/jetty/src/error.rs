@@ -40,4 +40,7 @@ pub enum JettyError {
 
     #[msg("Tokens are locked until the vesting period expires.")]
     TokensLocked,
+
+    #[msg("Transfer amount is below the configured minimum transfer amount.")]
+    BelowMinimumTransferAmount,
 }

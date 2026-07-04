@@ -23,6 +23,7 @@ export const JETTY_ERROR = {
   Unauthorized: 6004,
   NotTransferring: 6005,
   TokensLocked: 6007,
+  BelowMinimumTransferAmount: 6008,
 } as const;
 
 export async function expectJettyError(

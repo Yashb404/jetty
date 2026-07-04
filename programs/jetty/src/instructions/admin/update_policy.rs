@@ -15,6 +15,7 @@ pub struct PolicyUpdated {
     pub allowlist_enabled: bool,
     pub max_transfer_amount: u64,
     pub vesting_enabled: bool,
+    pub min_transfer_amount: u64,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
@@ -23,6 +24,7 @@ pub struct UpdatePolicyArgs {
     pub allowlist_enabled: Option<bool>,
     pub max_transfer_amount: Option<u64>,
     pub vesting_enabled: Option<bool>,
+    pub min_transfer_amount: Option<u64>,
 }
 
 #[derive(Accounts)]
@@ -78,6 +80,9 @@ pub fn handler(ctx: Context<UpdatePolicy>, args: UpdatePolicyArgs) -> Result<()>
     if let Some(vesting_enabled) = args.vesting_enabled {
         hook_config.vesting_enabled = vesting_enabled;
     }
+    if let Some(min_transfer_amount) = args.min_transfer_amount {
+        hook_config.min_transfer_amount = min_transfer_amount;
+    }
 
     // Build the new extra metas based on updated flags
     let metas = crate::utils::build_extra_account_metas(hook_config)?;
@@ -132,6 +137,7 @@ pub fn handler(ctx: Context<UpdatePolicy>, args: UpdatePolicyArgs) -> Result<()>
         allowlist_enabled: hook_config.allowlist_enabled,
         max_transfer_amount: hook_config.max_transfer_amount,
         vesting_enabled: hook_config.vesting_enabled,
+        min_transfer_amount: hook_config.min_transfer_amount,
     });
 
     Ok(())
