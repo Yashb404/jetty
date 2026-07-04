@@ -30,6 +30,10 @@ describe("Module 1: Vesting / Lockup", function () {
         allowlistEnabled: null,
         maxTransferAmount: null,
         vestingEnabled: true,
+        minTransferAmount: null,
+        maxHolderBps: null,
+        denylistEnabled: null,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
@@ -79,6 +83,10 @@ describe("Module 1: Vesting / Lockup", function () {
         allowlistEnabled: null,
         maxTransferAmount: null,
         vestingEnabled: false,
+        minTransferAmount: null,
+        maxHolderBps: null,
+        denylistEnabled: null,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
@@ -102,6 +110,10 @@ describe("Module 1: Vesting / Lockup", function () {
         allowlistEnabled: null,
         maxTransferAmount: null,
         vestingEnabled: true,
+        minTransferAmount: null,
+        maxHolderBps: null,
+        denylistEnabled: null,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });

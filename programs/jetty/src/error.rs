@@ -55,4 +55,13 @@ pub enum JettyError {
 
     #[msg("Destination wallet is blocked on the denylist.")]
     DestinationDenylisted,
+
+    #[msg("You must wait for the cooldown period to expire before transferring again.")]
+    CooldownNotExpired,
+
+    #[msg("A Cooldown PDA is required but missing.")]
+    CooldownEntryMissing,
+
+    #[msg("Minimum transfer amount cannot exceed maximum transfer amount.")]
+    InvalidTransferBounds,
 }

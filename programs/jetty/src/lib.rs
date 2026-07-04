@@ -5,24 +5,26 @@ pub mod utils;
 
 use anchor_lang::prelude::*;
 pub(crate) use instructions::admin::assign_policy_authority::__client_accounts_assign_policy_authority;
+pub(crate) use instructions::admin::initialize_hook_config::__client_accounts_initialize_hook_config;
+pub(crate) use instructions::admin::update_policy::__client_accounts_update_policy;
+pub(crate) use instructions::allowlist::update_allowlist::__client_accounts_update_allowlist;
+pub(crate) use instructions::cooldown::init_cooldown_entry::__client_accounts_init_cooldown_entry;
 pub(crate) use instructions::core::execute::__client_accounts_execute;
 pub(crate) use instructions::core::init_extra_account_meta_list::__client_accounts_init_extra_account_meta_list;
-pub(crate) use instructions::admin::initialize_hook_config::__client_accounts_initialize_hook_config;
-pub(crate) use instructions::allowlist::update_allowlist::__client_accounts_update_allowlist;
-pub(crate) use instructions::admin::update_policy::__client_accounts_update_policy;
-pub(crate) use instructions::vesting::set_vesting_lock::__client_accounts_set_vesting_lock;
-pub(crate) use instructions::vesting::clear_vesting_lock::__client_accounts_clear_vesting_lock;
 pub(crate) use instructions::denylist::update_denylist::__client_accounts_update_denylist;
+pub(crate) use instructions::vesting::clear_vesting_lock::__client_accounts_clear_vesting_lock;
+pub(crate) use instructions::vesting::set_vesting_lock::__client_accounts_set_vesting_lock;
 
 pub use instructions::admin::assign_policy_authority::AssignPolicyAuthority;
+pub use instructions::admin::initialize_hook_config::InitializeHookConfig;
+pub use instructions::admin::update_policy::{UpdatePolicy, UpdatePolicyArgs};
+pub use instructions::allowlist::update_allowlist::UpdateAllowlist;
+pub use instructions::cooldown::init_cooldown_entry::InitCooldownEntry;
 pub use instructions::core::execute::Execute;
 pub use instructions::core::init_extra_account_meta_list::InitExtraAccountMetaList;
-pub use instructions::admin::initialize_hook_config::InitializeHookConfig;
-pub use instructions::allowlist::update_allowlist::UpdateAllowlist;
-pub use instructions::admin::update_policy::{UpdatePolicy, UpdatePolicyArgs};
-pub use instructions::vesting::set_vesting_lock::SetVestingLock;
-pub use instructions::vesting::clear_vesting_lock::ClearVestingLock;
 pub use instructions::denylist::update_denylist::UpdateDenylist;
+pub use instructions::vesting::clear_vesting_lock::ClearVestingLock;
+pub use instructions::vesting::set_vesting_lock::SetVestingLock;
 
 declare_id!("4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku");
 
@@ -65,5 +67,9 @@ pub mod jetty {
 
     pub fn update_denylist(ctx: Context<UpdateDenylist>, flagged: bool) -> Result<()> {
         instructions::denylist::update_denylist::handler(ctx, flagged)
+    }
+
+    pub fn init_cooldown_entry(ctx: Context<InitCooldownEntry>) -> Result<()> {
+        instructions::cooldown::init_cooldown_entry::handler(ctx)
     }
 }

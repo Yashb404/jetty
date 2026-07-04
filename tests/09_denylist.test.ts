@@ -30,6 +30,7 @@ describe("Module 4: Denylist / Blocklist", function () {
         minTransferAmount: null,
         maxHolderBps: null,
         denylistEnabled: true,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
@@ -114,6 +115,7 @@ describe("Module 4: Denylist / Blocklist", function () {
         minTransferAmount: null,
         maxHolderBps: null,
         denylistEnabled: false,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
@@ -140,6 +142,7 @@ describe("Module 4: Denylist / Blocklist", function () {
         minTransferAmount: null,
         maxHolderBps: null,
         denylistEnabled: true,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });

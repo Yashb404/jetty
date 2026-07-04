@@ -39,15 +39,15 @@ pub struct UpdateDenylist<'info> {
 
 pub fn handler(ctx: Context<UpdateDenylist>, flagged: bool) -> Result<()> {
     let denylist_entry = &mut ctx.accounts.denylist_entry;
-    
+
     // Initialize if it's new
     if denylist_entry.mint == Pubkey::default() {
         denylist_entry.mint = ctx.accounts.mint.key();
         denylist_entry.token_account = ctx.accounts.token_account.key();
         denylist_entry.bump = ctx.bumps.denylist_entry;
     }
-    
+
     denylist_entry.flagged = flagged;
-    
+
     Ok(())
 }

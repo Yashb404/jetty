@@ -33,6 +33,7 @@ describe("Module 3: Receiver Balance Cap", function () {
           minTransferAmount: null,
           maxHolderBps: 10001,
           denylistEnabled: null,
+          cooldownSeconds: null,
         })
         .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
         .rpc({ commitment: "confirmed" }),
@@ -52,6 +53,7 @@ describe("Module 3: Receiver Balance Cap", function () {
         minTransferAmount: null,
         maxHolderBps: 500,
         denylistEnabled: null,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
@@ -94,6 +96,7 @@ describe("Module 3: Receiver Balance Cap", function () {
         minTransferAmount: null,
         maxHolderBps: 0,
         denylistEnabled: null,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });

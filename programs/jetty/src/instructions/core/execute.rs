@@ -11,8 +11,15 @@ use anchor_spl::token_interface::{
 
 use crate::{
     error::JettyError,
-    state::{AllowlistEntry, HookConfig, VestingEntry, DenylistEntry},
+    state::{AllowlistEntry, CooldownEntry, DenylistEntry, HookConfig, VestingEntry},
 };
+
+const IDX_ALLOWLIST_SENDER: usize = 0;
+const IDX_ALLOWLIST_RECEIVER: usize = 1;
+const IDX_VESTING_SENDER: usize = 2;
+const IDX_DENYLIST_SENDER: usize = 3;
+const IDX_DENYLIST_RECEIVER: usize = 4;
+const IDX_COOLDOWN_SENDER: usize = 5;
 
 #[derive(Accounts)]
 pub struct Execute<'info> {
@@ -75,43 +82,51 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         return err!(JettyError::ExceedsVolumeLimit);
     }
 
-    if hook_config.min_transfer_amount > 0 && amount < hook_config.min_transfer_amount && amount != 0 {
+    if hook_config.min_transfer_amount > 0
+        && amount < hook_config.min_transfer_amount
+        && amount != 0
+    {
         return err!(JettyError::BelowMinimumTransferAmount);
     }
 
     if hook_config.max_holder_bps > 0 {
-        let max_balance = (ctx.accounts.mint.supply as u128 * hook_config.max_holder_bps as u128) / 10_000;
-        let resulting_balance = ctx.accounts.destination_token_account.amount as u128 + amount as u128;
-        
+        let max_balance = (ctx.accounts.mint.supply as u128)
+            .checked_mul(hook_config.max_holder_bps as u128)
+            .unwrap()
+            .checked_div(10_000)
+            .unwrap();
+
+        let resulting_balance = ctx.accounts.destination_token_account.amount as u128;
+
+        msg!("Supply: {}, BPS: {}, Max Balance: {}, Dest Amount: {}, Amount: {}, Resulting Balance: {}",
+             ctx.accounts.mint.supply, hook_config.max_holder_bps, max_balance, ctx.accounts.destination_token_account.amount, amount, resulting_balance);
+
         if resulting_balance > max_balance {
             return err!(JettyError::ExceedsHolderCap);
         }
     }
 
-    // Dynamic cursor for remaining accounts
-    let mut idx: usize = 0;
+    // Ensure we have exactly 9 extra accounts passed via the token program in remaining_accounts.
+    // Index 0: Source allowlist entry PDA
+    // Index 1: Destination allowlist entry PDA
+    // Index 2: Sender Vesting Entry PDA
+    // Index 3: Sender Denylist Entry PDA
+    // Index 4: Receiver Denylist Entry PDA
+    // Index 5: Sender Cooldown Entry PDA
+    // Index 6: Sender Protocol Exemption PDA
+    // Index 7: Receiver Protocol Exemption PDA
+    // Index 8: Sender Volume Tracker PDA
+
+    // Fallback safety check (the Token program should enforce this based on our `ExtraAccountMetaList`)
+    msg!("remaining_accounts len: {}", ctx.remaining_accounts.len());
+    if ctx.remaining_accounts.len() < 9 {
+        return Err(error!(JettyError::MetaListSizeOverflow));
+    }
 
     if hook_config.allowlist_enabled {
-        // Expect the caller (Token-2022) to provide two allowlist PDAs in remaining accounts.
+        let sender_entry_info = &ctx.remaining_accounts[IDX_ALLOWLIST_SENDER];
+        let receiver_entry_info = &ctx.remaining_accounts[IDX_ALLOWLIST_RECEIVER];
 
-        // Note: We intentionally do NOT perform owner checks on the allowlist PDAs
-        // found in `ctx.remaining_accounts` before attempting to parse them.
-        // These PDAs may be uninitialized or not owned by this program in some
-        // failure scenarios; allowing `verify_allowlist_entry` to run ensures
-        // that domain-specific errors like `SourceNotAllowlisted` or
-        // `DestinationNotAllowlisted` surface to callers instead of masking
-        // them behind a defensive ownership error. This also supports CPIs from
-        // the token program where the PDAs may be passed as uninitialized
-        // accounts.
-        if ctx.remaining_accounts.len() < idx + 2 {
-            return Err(error!(JettyError::SourceNotAllowlisted));
-        }
-
-        let sender_entry_info = &ctx.remaining_accounts[idx];
-        let receiver_entry_info = &ctx.remaining_accounts[idx + 1];
-        idx += 2; 
-
-        // Verify the PDAs themselves and their stored bump/owner fields.
         verify_allowlist_entry(
             sender_entry_info,
             &ctx.accounts.mint.key(),
@@ -127,11 +142,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
     }
 
     if hook_config.vesting_enabled {
-        if ctx.remaining_accounts.len() < idx + 1 {
-            // Missing the injected account entirely
-            return Err(error!(JettyError::TokensLocked));
-        }
-        let sender_vesting_info = &ctx.remaining_accounts[idx];
+        let sender_vesting_info = &ctx.remaining_accounts[IDX_VESTING_SENDER];
 
         verify_vesting_entry(
             sender_vesting_info,
@@ -141,14 +152,8 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
     }
 
     if hook_config.denylist_enabled {
-        if ctx.remaining_accounts.len() < idx + 2 {
-            // Missing the injected accounts entirely
-            return Err(error!(JettyError::SourceDenylisted)); // Or destination, doesn't matter, just fail
-        }
-        
-        let sender_denylist_info = &ctx.remaining_accounts[idx];
-        let receiver_denylist_info = &ctx.remaining_accounts[idx + 1];
-        // idx += 2; // if more features are added
+        let sender_denylist_info = &ctx.remaining_accounts[IDX_DENYLIST_SENDER];
+        let receiver_denylist_info = &ctx.remaining_accounts[IDX_DENYLIST_RECEIVER];
 
         verify_denylist_entry(
             sender_denylist_info,
@@ -156,13 +161,50 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
             &ctx.accounts.source_token_account.key(),
             JettyError::SourceDenylisted,
         )?;
-        
+
         verify_denylist_entry(
             receiver_denylist_info,
             &ctx.accounts.mint.key(),
             &ctx.accounts.destination_token_account.key(),
             JettyError::DestinationDenylisted,
         )?;
+    }
+
+    if hook_config.cooldown_seconds != 0 {
+        let cooldown_account_info = &ctx.remaining_accounts[IDX_COOLDOWN_SENDER];
+
+        // ONLY enter this block if cooldown is actually enabled for this mint.
+        // We use Account::try_from because this PDA is loaded dynamically from remaining_accounts.
+        msg!("Cooldown is enabled. Attempting to deserialize PDA...");
+        let mut cooldown_entry = match Account::<CooldownEntry>::try_from(cooldown_account_info) {
+            Ok(entry) => {
+                msg!("Cooldown PDA successfully deserialized");
+                entry
+            }
+            Err(e) => {
+                msg!("Failed to deserialize Cooldown PDA: {:?}", e);
+                return err!(JettyError::CooldownEntryMissing);
+            }
+        };
+
+        let current_time = Clock::get()?.unix_timestamp;
+
+        // Cooldown expiration check (skip if timestamp is 0 to allow first transfer)
+        if cooldown_entry.last_transfer_timestamp != 0
+            && current_time
+                < cooldown_entry.last_transfer_timestamp + hook_config.cooldown_seconds as i64
+        {
+            return err!(JettyError::CooldownNotExpired);
+        }
+
+        // Mutate the state
+        cooldown_entry.last_transfer_timestamp = current_time;
+
+        // State mutation only needs an explicit `.exit(ctx.program_id)?` call because `CooldownEntry`
+        // is manually deserialized from `ctx.remaining_accounts` (via dynamic ExtraAccountMetaList resolution),
+        // not declared as a named, typed field in a `#[derive(Accounts)]` struct. Anchor's automatic
+        // account-state persistence on instruction exit only applies to accounts declared that second way.
+        cooldown_entry.exit(ctx.program_id)?;
     }
 
     Ok(())
@@ -184,7 +226,12 @@ fn verify_allowlist_entry<'info>(
 
     let bump_seed = [allowlist_entry.bump];
     let expected_address = Pubkey::create_program_address(
-        &[b"allowlist", mint.as_ref(), token_account.as_ref(), &bump_seed],
+        &[
+            b"allowlist",
+            mint.as_ref(),
+            token_account.as_ref(),
+            &bump_seed,
+        ],
         &crate::ID,
     )
     .map_err(|_| error!(error_code))?;
@@ -200,21 +247,34 @@ fn verify_vesting_entry<'info>(
 ) -> Result<()> {
     if let Ok(vesting_entry) = Account::<VestingEntry>::try_from(account_info) {
         require_keys_eq!(vesting_entry.mint, *mint, JettyError::TokensLocked);
-        require_keys_eq!(vesting_entry.token_account, *token_account, JettyError::TokensLocked);
+        require_keys_eq!(
+            vesting_entry.token_account,
+            *token_account,
+            JettyError::TokensLocked
+        );
 
         let bump_seed = [vesting_entry.bump];
         let expected_address = Pubkey::create_program_address(
-            &[b"vesting", mint.as_ref(), token_account.as_ref(), &bump_seed],
+            &[
+                b"vesting",
+                mint.as_ref(),
+                token_account.as_ref(),
+                &bump_seed,
+            ],
             &crate::ID,
         )
         .map_err(|_| error!(JettyError::TokensLocked))?;
-        require_keys_eq!(account_info.key(), expected_address, JettyError::TokensLocked);
+        require_keys_eq!(
+            account_info.key(),
+            expected_address,
+            JettyError::TokensLocked
+        );
 
         if Clock::get()?.unix_timestamp < vesting_entry.unlock_timestamp {
             return Err(error!(JettyError::TokensLocked));
         }
     }
-    
+
     Ok(())
 }
 
@@ -230,7 +290,12 @@ fn verify_denylist_entry<'info>(
 
         let bump_seed = [denylist_entry.bump];
         let expected_address = Pubkey::create_program_address(
-            &[b"denylist", mint.as_ref(), token_account.as_ref(), &bump_seed],
+            &[
+                b"denylist",
+                mint.as_ref(),
+                token_account.as_ref(),
+                &bump_seed,
+            ],
             &crate::ID,
         )
         .map_err(|_| error!(error_code))?;
@@ -240,6 +305,6 @@ fn verify_denylist_entry<'info>(
             return Err(error!(error_code));
         }
     }
-    
+
     Ok(())
 }

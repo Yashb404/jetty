@@ -66,7 +66,7 @@ describe("execute (transfer hook)", function () {
     const fixture = await createHookFixture(program);
 
     await program.methods
-      .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null })
+      .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -87,12 +87,12 @@ describe("execute (transfer hook)", function () {
     const fixture = await createHookFixture(program);
 
     await program.methods
-      .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null })
+      .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
     await program.methods
-      .updatePolicy({ paused: false, allowlistEnabled: null, maxTransferAmount: null })
+      .updatePolicy({ paused: false, allowlistEnabled: null, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -114,7 +114,7 @@ describe("execute (transfer hook)", function () {
     const fixture = await createHookFixture(program);
 
     await program.methods
-      .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(5) })
+      .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(5), vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -135,7 +135,7 @@ describe("execute (transfer hook)", function () {
     const fixture = await createHookFixture(program);
 
     await program.methods
-      .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(10) })
+      .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(10), vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -160,7 +160,7 @@ describe("execute (transfer hook)", function () {
     await allowlist(fixture.mint.publicKey, fixture.destinationTokenAccount);
 
     await program.methods
-      .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null })
+      .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -184,7 +184,7 @@ describe("execute (transfer hook)", function () {
     await allowlist(fixture.mint.publicKey, fixture.sourceTokenAccount);
 
     await program.methods
-      .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null })
+      .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -208,7 +208,7 @@ describe("execute (transfer hook)", function () {
     await allowlist(fixture.mint.publicKey, fixture.destinationTokenAccount);
 
     await program.methods
-      .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null })
+      .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -234,7 +234,7 @@ describe("execute (transfer hook)", function () {
     await revoke(fixture.mint.publicKey, fixture.sourceTokenAccount);
 
     await program.methods
-      .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null })
+      .updatePolicy({ paused: null, allowlistEnabled: true, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 

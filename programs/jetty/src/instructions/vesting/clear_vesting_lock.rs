@@ -41,6 +41,6 @@ pub fn handler(ctx: Context<ClearVestingLock>) -> Result<()> {
 
     // The account is automatically closed and rent is transferred to the payer
     // due to the `close = payer` constraint in the macro.
-    
+
     Ok(())
 }

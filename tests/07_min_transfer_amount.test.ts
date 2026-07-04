@@ -31,6 +31,7 @@ describe("Module 2: Minimum Transfer Amount (anti-dust)", function () {
         minTransferAmount: new anchor.BN(10),
         maxHolderBps: null,
         denylistEnabled: null,
+        cooldownSeconds: null,
       })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
