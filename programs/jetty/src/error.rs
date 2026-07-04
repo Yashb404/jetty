@@ -49,4 +49,10 @@ pub enum JettyError {
 
     #[msg("Basis points must be between 0 and 10000.")]
     InvalidBps,
+
+    #[msg("Source wallet is blocked on the denylist.")]
+    SourceDenylisted,
+
+    #[msg("Destination wallet is blocked on the denylist.")]
+    DestinationDenylisted,
 }

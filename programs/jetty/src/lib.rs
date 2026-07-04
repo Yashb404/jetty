@@ -12,6 +12,7 @@ pub(crate) use instructions::allowlist::update_allowlist::__client_accounts_upda
 pub(crate) use instructions::admin::update_policy::__client_accounts_update_policy;
 pub(crate) use instructions::vesting::set_vesting_lock::__client_accounts_set_vesting_lock;
 pub(crate) use instructions::vesting::clear_vesting_lock::__client_accounts_clear_vesting_lock;
+pub(crate) use instructions::denylist::update_denylist::__client_accounts_update_denylist;
 
 pub use instructions::admin::assign_policy_authority::AssignPolicyAuthority;
 pub use instructions::core::execute::Execute;
@@ -21,6 +22,7 @@ pub use instructions::allowlist::update_allowlist::UpdateAllowlist;
 pub use instructions::admin::update_policy::{UpdatePolicy, UpdatePolicyArgs};
 pub use instructions::vesting::set_vesting_lock::SetVestingLock;
 pub use instructions::vesting::clear_vesting_lock::ClearVestingLock;
+pub use instructions::denylist::update_denylist::UpdateDenylist;
 
 declare_id!("4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku");
 
@@ -59,5 +61,9 @@ pub mod jetty {
 
     pub fn clear_vesting_lock(ctx: Context<ClearVestingLock>) -> Result<()> {
         instructions::vesting::clear_vesting_lock::handler(ctx)
+    }
+
+    pub fn update_denylist(ctx: Context<UpdateDenylist>, flagged: bool) -> Result<()> {
+        instructions::denylist::update_denylist::handler(ctx, flagged)
     }
 }

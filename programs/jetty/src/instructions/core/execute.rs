@@ -11,7 +11,7 @@ use anchor_spl::token_interface::{
 
 use crate::{
     error::JettyError,
-    state::{AllowlistEntry, HookConfig, VestingEntry},
+    state::{AllowlistEntry, HookConfig, VestingEntry, DenylistEntry},
 };
 
 #[derive(Accounts)]
@@ -140,6 +140,31 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         )?;
     }
 
+    if hook_config.denylist_enabled {
+        if ctx.remaining_accounts.len() < idx + 2 {
+            // Missing the injected accounts entirely
+            return Err(error!(JettyError::SourceDenylisted)); // Or destination, doesn't matter, just fail
+        }
+        
+        let sender_denylist_info = &ctx.remaining_accounts[idx];
+        let receiver_denylist_info = &ctx.remaining_accounts[idx + 1];
+        // idx += 2; // if more features are added
+
+        verify_denylist_entry(
+            sender_denylist_info,
+            &ctx.accounts.mint.key(),
+            &ctx.accounts.source_token_account.key(),
+            JettyError::SourceDenylisted,
+        )?;
+        
+        verify_denylist_entry(
+            receiver_denylist_info,
+            &ctx.accounts.mint.key(),
+            &ctx.accounts.destination_token_account.key(),
+            JettyError::DestinationDenylisted,
+        )?;
+    }
+
     Ok(())
 }
 
@@ -187,6 +212,32 @@ fn verify_vesting_entry<'info>(
 
         if Clock::get()?.unix_timestamp < vesting_entry.unlock_timestamp {
             return Err(error!(JettyError::TokensLocked));
+        }
+    }
+    
+    Ok(())
+}
+
+fn verify_denylist_entry<'info>(
+    account_info: &'info AccountInfo<'info>,
+    mint: &Pubkey,
+    token_account: &Pubkey,
+    error_code: JettyError,
+) -> Result<()> {
+    if let Ok(denylist_entry) = Account::<DenylistEntry>::try_from(account_info) {
+        require_keys_eq!(denylist_entry.mint, *mint, error_code);
+        require_keys_eq!(denylist_entry.token_account, *token_account, error_code);
+
+        let bump_seed = [denylist_entry.bump];
+        let expected_address = Pubkey::create_program_address(
+            &[b"denylist", mint.as_ref(), token_account.as_ref(), &bump_seed],
+            &crate::ID,
+        )
+        .map_err(|_| error!(error_code))?;
+        require_keys_eq!(account_info.key(), expected_address, error_code);
+
+        if denylist_entry.flagged {
+            return Err(error!(error_code));
         }
     }
     

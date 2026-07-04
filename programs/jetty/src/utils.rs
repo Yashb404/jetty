@@ -88,6 +88,41 @@ pub fn build_extra_account_metas(hook_config: &HookConfig) -> Result<Vec<ExtraAc
         .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
     );
 
+    // ── Denylist Entry PDAs ────────────────────────────────────
+    // Always push 2 PDAs: sender's and receiver's.
+    // Seeds: ["denylist", mint_key, token_account_key]
+    // Sender: token_account_key is at index 0.
+    metas.push(
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"denylist".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 0 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+    );
+    
+    // Receiver: token_account_key is at index 2.
+    metas.push(
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"denylist".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 2 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+    );
+
     // Safety check: Enforce a hard cap on the number of features (metas) to prevent
     // unbounded growth of the ExtraAccountMetaList PDA and keep the tx size well
     // under Solana's 1232-byte limit.

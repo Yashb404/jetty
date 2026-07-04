@@ -17,6 +17,7 @@ pub struct PolicyUpdated {
     pub vesting_enabled: bool,
     pub min_transfer_amount: u64,
     pub max_holder_bps: u16,
+    pub denylist_enabled: bool,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
@@ -27,6 +28,7 @@ pub struct UpdatePolicyArgs {
     pub vesting_enabled: Option<bool>,
     pub min_transfer_amount: Option<u64>,
     pub max_holder_bps: Option<u16>,
+    pub denylist_enabled: Option<bool>,
 }
 
 #[derive(Accounts)]
@@ -89,6 +91,9 @@ pub fn handler(ctx: Context<UpdatePolicy>, args: UpdatePolicyArgs) -> Result<()>
         require!(max_holder_bps <= 10000, JettyError::InvalidBps);
         hook_config.max_holder_bps = max_holder_bps;
     }
+    if let Some(denylist_enabled) = args.denylist_enabled {
+        hook_config.denylist_enabled = denylist_enabled;
+    }
 
     // Build the new extra metas based on updated flags
     let metas = crate::utils::build_extra_account_metas(hook_config)?;
@@ -145,6 +150,7 @@ pub fn handler(ctx: Context<UpdatePolicy>, args: UpdatePolicyArgs) -> Result<()>
         vesting_enabled: hook_config.vesting_enabled,
         min_transfer_amount: hook_config.min_transfer_amount,
         max_holder_bps: hook_config.max_holder_bps,
+        denylist_enabled: hook_config.denylist_enabled,
     });
 
     Ok(())
