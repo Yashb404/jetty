@@ -37,4 +37,7 @@ pub enum JettyError {
 
     #[msg("The computed extra account meta list size exceeds safe bounds.")]
     MetaListSizeOverflow,
+
+    #[msg("Tokens are locked until the vesting period expires.")]
+    TokensLocked,
 }

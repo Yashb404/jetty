@@ -14,6 +14,7 @@ pub struct PolicyUpdated {
     pub paused: bool,
     pub allowlist_enabled: bool,
     pub max_transfer_amount: u64,
+    pub vesting_enabled: bool,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
@@ -21,6 +22,7 @@ pub struct UpdatePolicyArgs {
     pub paused: Option<bool>,
     pub allowlist_enabled: Option<bool>,
     pub max_transfer_amount: Option<u64>,
+    pub vesting_enabled: Option<bool>,
 }
 
 #[derive(Accounts)]
@@ -72,6 +74,9 @@ pub fn handler(ctx: Context<UpdatePolicy>, args: UpdatePolicyArgs) -> Result<()>
     }
     if let Some(max_transfer_amount) = args.max_transfer_amount {
         hook_config.max_transfer_amount = max_transfer_amount;
+    }
+    if let Some(vesting_enabled) = args.vesting_enabled {
+        hook_config.vesting_enabled = vesting_enabled;
     }
 
     // Build the new extra metas based on updated flags
@@ -126,6 +131,7 @@ pub fn handler(ctx: Context<UpdatePolicy>, args: UpdatePolicyArgs) -> Result<()>
         paused: hook_config.paused,
         allowlist_enabled: hook_config.allowlist_enabled,
         max_transfer_amount: hook_config.max_transfer_amount,
+        vesting_enabled: hook_config.vesting_enabled,
     });
 
     Ok(())

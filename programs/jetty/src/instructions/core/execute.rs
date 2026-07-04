@@ -11,7 +11,7 @@ use anchor_spl::token_interface::{
 
 use crate::{
     error::JettyError,
-    state::{AllowlistEntry, HookConfig},
+    state::{AllowlistEntry, HookConfig, VestingEntry},
 };
 
 #[derive(Accounts)]
@@ -76,7 +76,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
     }
 
     // Dynamic cursor for remaining accounts
-    let idx: usize = 0;
+    let mut idx: usize = 0;
 
     if hook_config.allowlist_enabled {
         // Expect the caller (Token-2022) to provide two allowlist PDAs in remaining accounts.
@@ -96,7 +96,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
 
         let sender_entry_info = &ctx.remaining_accounts[idx];
         let receiver_entry_info = &ctx.remaining_accounts[idx + 1];
-        // idx += 2; // Uncomment when adding more features
+        idx += 2; 
 
         // Verify the PDAs themselves and their stored bump/owner fields.
         verify_allowlist_entry(
@@ -110,6 +110,20 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
             &ctx.accounts.mint.key(),
             &ctx.accounts.destination_token_account.key(),
             JettyError::DestinationNotAllowlisted,
+        )?;
+    }
+
+    if hook_config.vesting_enabled {
+        if ctx.remaining_accounts.len() < idx + 1 {
+            // Missing the injected account entirely
+            return Err(error!(JettyError::TokensLocked));
+        }
+        let sender_vesting_info = &ctx.remaining_accounts[idx];
+
+        verify_vesting_entry(
+            sender_vesting_info,
+            &ctx.accounts.mint.key(),
+            &ctx.accounts.source_token_account.key(),
         )?;
     }
 
@@ -138,5 +152,30 @@ fn verify_allowlist_entry<'info>(
     .map_err(|_| error!(error_code))?;
     require_keys_eq!(account_info.key(), expected_address, error_code);
 
+    Ok(())
+}
+
+fn verify_vesting_entry<'info>(
+    account_info: &'info AccountInfo<'info>,
+    mint: &Pubkey,
+    token_account: &Pubkey,
+) -> Result<()> {
+    if let Ok(vesting_entry) = Account::<VestingEntry>::try_from(account_info) {
+        require_keys_eq!(vesting_entry.mint, *mint, JettyError::TokensLocked);
+        require_keys_eq!(vesting_entry.token_account, *token_account, JettyError::TokensLocked);
+
+        let bump_seed = [vesting_entry.bump];
+        let expected_address = Pubkey::create_program_address(
+            &[b"vesting", mint.as_ref(), token_account.as_ref(), &bump_seed],
+            &crate::ID,
+        )
+        .map_err(|_| error!(JettyError::TokensLocked))?;
+        require_keys_eq!(account_info.key(), expected_address, JettyError::TokensLocked);
+
+        if Clock::get()?.unix_timestamp < vesting_entry.unlock_timestamp {
+            return Err(error!(JettyError::TokensLocked));
+        }
+    }
+    
     Ok(())
 }

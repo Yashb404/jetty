@@ -69,7 +69,24 @@ pub fn build_extra_account_metas(hook_config: &HookConfig) -> Result<Vec<ExtraAc
         );
     }
 
-    // FIXME: Add future module metas here (vesting, cooldown, holder cap, etc.)
+    // ── Sender Vesting Entry PDA ────────────────────────────────────
+    // Seeds: ["vesting", mint_key, source_token_account_key]
+    // Index 0 = source token account, Index 1 = mint.
+    // Injected unconditionally, checked conditionally inside execute.rs.
+    metas.push(
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"vesting".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 0 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+    );
 
     // Safety check: Enforce a hard cap on the number of features (metas) to prevent
     // unbounded growth of the ExtraAccountMetaList PDA and keep the tx size well

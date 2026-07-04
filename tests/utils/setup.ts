@@ -22,6 +22,7 @@ export const JETTY_ERROR = {
   DestinationNotAllowlisted: 6003,
   Unauthorized: 6004,
   NotTransferring: 6005,
+  TokensLocked: 6007,
 } as const;
 
 export async function expectJettyError(

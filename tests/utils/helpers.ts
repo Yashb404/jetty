@@ -81,6 +81,17 @@ export function deriveAllowlistEntryPda(
   );
 }
 
+export function deriveVestingEntryPda(
+  mint: anchor.web3.PublicKey,
+  tokenAccount: anchor.web3.PublicKey,
+  programId: anchor.web3.PublicKey
+): [anchor.web3.PublicKey, number] {
+  return anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("vesting"), mint.toBuffer(), tokenAccount.toBuffer()],
+    programId
+  );
+}
+
 export async function createFundedUser(
   provider: anchor.AnchorProvider,
   lamports = 2_000_000_000
