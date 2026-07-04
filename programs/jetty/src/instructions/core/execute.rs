@@ -79,6 +79,15 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         return err!(JettyError::BelowMinimumTransferAmount);
     }
 
+    if hook_config.max_holder_bps > 0 {
+        let max_balance = (ctx.accounts.mint.supply as u128 * hook_config.max_holder_bps as u128) / 10_000;
+        let resulting_balance = ctx.accounts.destination_token_account.amount as u128 + amount as u128;
+        
+        if resulting_balance > max_balance {
+            return err!(JettyError::ExceedsHolderCap);
+        }
+    }
+
     // Dynamic cursor for remaining accounts
     let mut idx: usize = 0;
 

@@ -11,5 +11,6 @@ pub struct HookConfig {
     pub max_transfer_amount: u64,
     pub vesting_enabled: bool,
     pub min_transfer_amount: u64,
-    pub _reserved: [u8; 56],
+    pub max_holder_bps: u16,
+    pub _reserved: [u8; 54],
 }

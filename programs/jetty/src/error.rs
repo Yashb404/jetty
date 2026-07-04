@@ -43,4 +43,10 @@ pub enum JettyError {
 
     #[msg("Transfer amount is below the configured minimum transfer amount.")]
     BelowMinimumTransferAmount,
+
+    #[msg("Transfer would exceed the receiver's maximum allowed balance cap.")]
+    ExceedsHolderCap,
+
+    #[msg("Basis points must be between 0 and 10000.")]
+    InvalidBps,
 }
