@@ -1,5 +1,4 @@
 import React from "react";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -7,14 +6,6 @@ import { ArrowLeft } from "lucide-react";
 export default function CooldownDocs() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
 
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>
@@ -45,6 +36,60 @@ export default function CooldownDocs() {
                 Users MUST have this PDA initialized before they can transfer tokens if the cooldown period is greater than 0.
               </p>
             </div>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4">
+              Using the Dashboard
+            </h3>
+            <p className="text-sm leading-relaxed mb-4">
+              You can set the cooldown period directly from the Library Dashboard:
+            </p>
+            <ol className="list-decimal pl-5 space-y-2 text-sm leading-relaxed mb-6 font-bold">
+              <li>Navigate to the <strong>Library</strong> tab.</li>
+              <li>Locate the <strong>Velocity Limiter</strong> module.</li>
+              <li>Input the cooldown time in <strong>seconds</strong> (e.g., 60 for one minute).</li>
+              <li>Click <strong>Save Changes</strong>. Set to 0 to disable.</li>
+            </ol>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4 text-[#5C4E4E]">
+              Under the Hood: Contract Integration
+            </h3>
+            <p className="text-sm leading-relaxed mb-4 text-[#5C4E4E]">
+              To enable cooldowns programmatically, update the policy via the <code>updatePolicy</code> instruction. Additionally, users must initialize a <code>CooldownEntry</code> PDA before their first transfer.
+            </p>
+            <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
+{`// 1. Set the cooldown to 60 seconds
+await program.methods
+  .updatePolicy({ 
+    paused: null, 
+    allowlistEnabled: null,
+    maxTransferAmount: null,
+    vestingEnabled: null,
+    minTransferAmount: null,
+    maxHolderBps: null,
+    denylistEnabled: null,
+    cooldownSeconds: 60, // 60 seconds
+  })
+  .accounts({ 
+    mint: mintPubkey, 
+    policyAuthority: wallet.publicKey, 
+  })
+  .rpc();
+
+// 2. User must initialize their Cooldown PDA before transferring
+await program.methods
+  .initCooldownEntry()
+  .accounts({
+    payer: userWallet.publicKey,
+    mint: mintPubkey,
+    tokenAccount: userTokenAccountPubkey,
+    // systemProgram, etc.
+  })
+  .rpc();`}
+            </pre>
           </div>
         </Card>
       </div>

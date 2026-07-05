@@ -1,5 +1,4 @@
 import React from "react";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -7,14 +6,6 @@ import { ArrowLeft } from "lucide-react";
 export default function MinTransferDocs() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
 
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>
@@ -59,6 +50,38 @@ export default function MinTransferDocs() {
               <li>Input the minimum number of base tokens (in lowest decimals).</li>
               <li>Click <strong>Save Changes</strong>. Set to 0 to disable.</li>
             </ol>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4 text-[#5C4E4E]">
+              Under the Hood: Contract Integration
+            </h3>
+            <p className="text-sm leading-relaxed mb-4 text-[#5C4E4E]">
+              To set the minimum transfer amount programmatically, pass a <code>BN</code> (BigNumber) to the <code>updatePolicy</code> instruction.
+            </p>
+            <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
+{`import { BN } from "@coral-xyz/anchor";
+
+// Require all transfers to be at least 1 token (assuming 6 decimals)
+const minAmount = new BN(1).mul(new BN(10).pow(new BN(6)));
+
+await program.methods
+  .updatePolicy({ 
+    paused: null, 
+    allowlistEnabled: null,
+    maxTransferAmount: null,
+    vestingEnabled: null,
+    minTransferAmount: minAmount,
+    maxHolderBps: null,
+    denylistEnabled: null,
+    cooldownSeconds: null,
+  })
+  .accounts({ 
+    mint: mintPubkey, 
+    policyAuthority: wallet.publicKey, 
+  })
+  .rpc();`}
+            </pre>
           </div>
         </Card>
       </div>

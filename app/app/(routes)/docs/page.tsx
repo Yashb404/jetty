@@ -1,5 +1,4 @@
 import React from "react";
-import WalletConnect from "../../../components/web3/wallet-connect";
 import Card from "../../../components/ui/card";
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
@@ -7,14 +6,6 @@ import { ArrowRight, ExternalLink } from "lucide-react";
 export default function DocsPage() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
 
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>

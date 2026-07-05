@@ -1,5 +1,4 @@
 import React from "react";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -7,14 +6,6 @@ import { ArrowLeft } from "lucide-react";
 export default function DenylistDocs() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
 
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>
@@ -44,6 +35,55 @@ export default function DenylistDocs() {
                 the transaction is aborted with <code>SourceDenylisted</code> (6016) or <code>DestinationDenylisted</code> (6017).
               </p>
             </div>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4">
+              Using the Dashboard
+            </h3>
+            <p className="text-sm leading-relaxed mb-4">
+              You can easily manage your denylist participants through the Jetty UI.
+            </p>
+            <ol className="list-decimal pl-5 space-y-2 text-sm leading-relaxed mb-6 font-bold">
+              <li>First, navigate to the <strong>Library</strong> tab and turn the <strong>Denylist</strong> toggle ON.</li>
+              <li>Next, navigate to the <strong>Denylist</strong> configuration tab.</li>
+              <li>Paste the <strong>Associated Token Account (ATA)</strong> address of the user you want to block.</li>
+              <li>Click <strong>Deny Access</strong>. You can unblock them at any time using the <strong>Revoke</strong> button.</li>
+            </ol>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4 text-[#5C4E4E]">
+              Under the Hood: Contract Integration
+            </h3>
+            <p className="text-sm leading-relaxed mb-4 text-[#5C4E4E]">
+              For developers building custom interfaces, you can block a wallet programmatically by invoking the <code>updateDenylist</code> 
+              instruction with the <code>true</code> boolean. To unblock, pass <code>false</code>.
+            </p>
+            <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
+{`// Flag a wallet's Token Account on the Denylist
+await program.methods
+  .updateDenylist(true) 
+  .accounts({
+    payer: wallet.publicKey,
+    policyAuthority: wallet.publicKey,
+    mint: mintPubkey,
+    tokenAccount: targetTokenAccountPubkey,
+  })
+  .rpc();
+
+// Remove a wallet from the Denylist
+// Note: This closes the DenylistEntry PDA and refunds the rent
+await program.methods
+  .updateDenylist(false) 
+  .accounts({
+    payer: wallet.publicKey,
+    policyAuthority: wallet.publicKey,
+    mint: mintPubkey,
+    tokenAccount: targetTokenAccountPubkey,
+  })
+  .rpc();`}
+            </pre>
           </div>
         </Card>
       </div>

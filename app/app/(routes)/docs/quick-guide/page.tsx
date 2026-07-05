@@ -1,21 +1,11 @@
 import React from "react";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 
 export default function QuickGuideDocs() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
-
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>
           <Link href="/docs" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide hover:underline text-[#5C4E4E] hover:text-black transition-colors mb-4">
@@ -59,8 +49,8 @@ export default function QuickGuideDocs() {
               with Jetty&apos;s Transfer Hook, paste its address into the <em>Target Mint</em> input and click <strong>Load</strong>. 
             </p>
             <p className="text-sm leading-relaxed mb-4">
-              <strong>Persistence:</strong> Once you load a mint, Jetty will automatically persist it across all tabs 
-              (Policy, Activity) so you don&apos;t have to keep pasting it.
+              <strong>Persistence:</strong> Once you load a mint, Jetty will automatically persist it across all modules 
+              so you don&apos;t have to keep pasting it.
             </p>
             <p className="text-sm leading-relaxed text-[#5C4E4E] font-bold">
               Tip: If you don&apos;t have a mint yet, you can create one instantly by clicking &quot;Create Token-2022 Mint&quot; on the Dashboard!
@@ -93,46 +83,40 @@ export default function QuickGuideDocs() {
               Step 4: Configure Rules
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Navigate to the <strong>Library</strong> tab. From here, you can manage your compliance rules entirely via the UI:
+              Navigate to the <strong>Library</strong> tab. From here, you can manage 7 distinct compliance rules entirely via the UI:
             </p>
             <ul className="list-disc pl-5 space-y-4 text-sm leading-relaxed">
               <li>
                 <strong>Global Pause:</strong> Simply toggle the switch ON/OFF and approve the transaction. When ON, all transfers are frozen.
               </li>
               <li>
-                <strong>Volume Limits:</strong> Enter a numeric limit. <strong>Important Metric Note:</strong> Values must be entered in 
+                <strong>Numeric Limits:</strong> Enter limits for Volume (Max Transfer), Anti-Dust (Min Transfer), or Receiver Cap. <strong>Important Metric Note:</strong> Values must be entered in 
                 raw format based on your token&apos;s decimals. For example, if your token has 6 decimals, a limit of 1,000 tokens 
                 must be entered as <code>1000000000</code>.
               </li>
               <li>
-                <strong>Allowlist Toggle:</strong> Turn this ON if you want to strictly restrict transfers to pre-approved participants.
+                <strong>Module Toggles:</strong> Turn ON Allowlist, Denylist, Vesting, or Cooldowns. These require further configuration on their dedicated pages (e.g., assigning specific users).
               </li>
             </ul>
           </Card>
 
           <Card>
             <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4">
-              Step 5: Manage Allowlist Accounts
+              Step 5: Manage Account Policies
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Navigate to the <strong>Activity</strong> tab to add specific users to your Allowlist. 
+              If you enabled advanced modules like Allowlist, Denylist, or Vesting, you can configure individual users by navigating to their respective configuration pages (e.g., <strong>Hooks &gt; Allowlist</strong>).
             </p>
             <p className="text-sm leading-relaxed bg-[#D1D1D0] p-4 border-2 border-black mb-4">
               <strong>CRITICAL: Token Accounts vs. Wallet Addresses</strong><br /><br />
-              When adding a user, you must input their <strong>Associated Token Account (ATA)</strong> address, NOT their main wallet address. 
+              When configuring a user, you must input their <strong>Associated Token Account (ATA)</strong> address, NOT their main wallet address. 
               The ATA is the specific sub-account that holds your custom token. You can easily find a user&apos;s ATA by looking at their 
               wallet on an explorer like Solscan and checking their token holdings.
             </p>
             <p className="text-sm leading-relaxed">
-              Paste the ATA, click <strong>Approve</strong>, and Jetty will securely allocate an <code>AllowlistEntry</code> for that account!
+              Paste the ATA, click <strong>Approve / Deny / Lock</strong>, and Jetty will securely allocate the corresponding PDA for that account!
             </p>
           </Card>
-        </div>
-
-        <div className="flex justify-end pt-4 border-t-2 border-black">
-          <Link href="/docs/global-pause" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide hover:underline transition-colors">
-            Next: Global Pause Details <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       </div>
     </div>

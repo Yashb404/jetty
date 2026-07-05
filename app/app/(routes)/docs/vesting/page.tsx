@@ -1,5 +1,4 @@
 import React from "react";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -7,14 +6,6 @@ import { ArrowLeft } from "lucide-react";
 export default function VestingDocs() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
 
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>
@@ -58,6 +49,18 @@ export default function VestingDocs() {
 {`// Set a vesting lock on a Token Account
 await program.methods
   .setVestingLock(new anchor.BN(unlockTimestamp)) 
+  .accounts({
+    payer: wallet.publicKey,
+    policyAuthority: wallet.publicKey,
+    mint: mintPubkey,
+    tokenAccount: userTokenAccountPubkey,
+  })
+  .rpc();
+
+// Revoke a vesting lock early
+// Note: This closes the VestingEntry PDA and refunds the rent
+await program.methods
+  .clearVestingLock()
   .accounts({
     payer: wallet.publicKey,
     policyAuthority: wallet.publicKey,

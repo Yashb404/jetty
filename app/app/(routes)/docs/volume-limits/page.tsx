@@ -1,20 +1,11 @@
 import React from "react";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export default function VolumeLimitsDocs() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
 
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>
@@ -110,15 +101,6 @@ await program.methods
             </pre>
           </div>
         </Card>
-
-        <div className="flex justify-between pt-4 border-t-2 border-black">
-          <Link href="/docs/global-pause" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide hover:underline transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Previous: Global Pause
-          </Link>
-          <Link href="/docs/allowlist" className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide hover:underline transition-colors">
-            Next: Allowlist <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
       </div>
     </div>
   );

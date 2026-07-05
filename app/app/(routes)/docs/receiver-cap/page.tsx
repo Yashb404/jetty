@@ -1,5 +1,4 @@
 import React from "react";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -7,14 +6,6 @@ import { ArrowLeft } from "lucide-react";
 export default function ReceiverCapDocs() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
 
       <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black pb-20">
         <div>
@@ -48,6 +39,34 @@ export default function ReceiverCapDocs() {
                 and rolls back the transaction with <code>ExceedsHolderCap</code> (6014) if the cap is exceeded.
               </p>
             </div>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4 text-[#5C4E4E]">
+              Under the Hood: Contract Integration
+            </h3>
+            <p className="text-sm leading-relaxed mb-4 text-[#5C4E4E]">
+              To set the receiver cap programmatically, pass the limit in <strong>basis points</strong> to the <code>updatePolicy</code> instruction.
+            </p>
+            <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
+{`// Set the Receiver Cap to 1% of the total supply (100 basis points)
+await program.methods
+  .updatePolicy({ 
+    paused: null, 
+    allowlistEnabled: null,
+    maxTransferAmount: null,
+    vestingEnabled: null,
+    minTransferAmount: null,
+    maxHolderBps: 100, // 1% = 100 bps
+    denylistEnabled: null,
+    cooldownSeconds: null,
+  })
+  .accounts({ 
+    mint: mintPubkey, 
+    policyAuthority: wallet.publicKey, 
+  })
+  .rpc();`}
+            </pre>
           </div>
         </Card>
       </div>
