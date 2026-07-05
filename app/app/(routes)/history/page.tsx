@@ -38,6 +38,14 @@ export default function HistoryPage() {
   const [actionFilter, setActionFilter] = useState("All");
   const [timeFilter, setTimeFilter] = useState("All Time");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, actionFilter, timeFilter, pageSize]);
+
   useEffect(() => {
     if (publicKey) {
       setLoading(true);
@@ -80,6 +88,9 @@ export default function HistoryPage() {
 
     return true;
   });
+
+  const totalPages = Math.ceil(filteredLogs.length / pageSize);
+  const paginatedLogs = filteredLogs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="flex flex-col min-h-full">
@@ -142,6 +153,15 @@ export default function HistoryPage() {
                   <option value="Last 7 Days">Last 7 Days</option>
                   <option value="Last 30 Days">Last 30 Days</option>
                 </select>
+                <select
+                  value={pageSize}
+                  onChange={(e) => setPageSize(Number(e.target.value))}
+                  className="border-2 border-black bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 appearance-none"
+                >
+                  <option value={25}>25 per page</option>
+                  <option value={50}>50 per page</option>
+                  <option value={100}>100 per page</option>
+                </select>
               </div>
             </div>
 
@@ -163,7 +183,7 @@ export default function HistoryPage() {
                     No actions match your filters.
                   </div>
                 ) : (
-                  filteredLogs.map((log) => (
+                  paginatedLogs.map((log) => (
                     <div key={log.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#D1D1D0]">
                       <div className="col-span-3 font-bold uppercase text-xs">
                         {log.action_type}
@@ -230,6 +250,30 @@ export default function HistoryPage() {
                 )}
               </div>
             </Card>
+
+            {totalPages > 1 && (
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-sm font-bold uppercase tracking-widest text-[#5C4E4E]">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="border-2 border-black px-4 py-2 bg-white text-sm font-bold uppercase hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="border-2 border-black px-4 py-2 bg-white text-sm font-bold uppercase hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
