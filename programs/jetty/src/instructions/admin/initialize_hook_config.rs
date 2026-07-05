@@ -1,9 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{
     spl_token_2022::{
-        extension::{
-            transfer_hook::TransferHook, BaseStateWithExtensions, StateWithExtensions,
-        },
+        extension::{transfer_hook::TransferHook, BaseStateWithExtensions, StateWithExtensions},
         state::Mint as SplMint,
     },
     Mint,

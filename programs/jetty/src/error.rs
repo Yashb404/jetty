@@ -37,4 +37,31 @@ pub enum JettyError {
 
     #[msg("The computed extra account meta list size exceeds safe bounds.")]
     MetaListSizeOverflow,
+
+    #[msg("Tokens are locked until the vesting period expires.")]
+    TokensLocked,
+
+    #[msg("Transfer amount is below the configured minimum transfer amount.")]
+    BelowMinimumTransferAmount,
+
+    #[msg("Transfer would exceed the receiver's maximum allowed balance cap.")]
+    ExceedsHolderCap,
+
+    #[msg("Basis points must be between 0 and 10000.")]
+    InvalidBps,
+
+    #[msg("Source wallet is blocked on the denylist.")]
+    SourceDenylisted,
+
+    #[msg("Destination wallet is blocked on the denylist.")]
+    DestinationDenylisted,
+
+    #[msg("You must wait for the cooldown period to expire before transferring again.")]
+    CooldownNotExpired,
+
+    #[msg("A Cooldown PDA is required but missing.")]
+    CooldownEntryMissing,
+
+    #[msg("Minimum transfer amount cannot exceed maximum transfer amount.")]
+    InvalidTransferBounds,
 }

@@ -33,7 +33,14 @@ export default function VolumeLimitsDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Volume limits allow you to specify a maximum ceiling for any single transaction. 
+              The Volume Limiter acts as a circuit breaker for your token. When activated, it enforces a 
+              strict ceiling on the number of tokens that can be transferred in a single transaction.
+            </p>
+            <p className="text-sm leading-relaxed mb-4 font-bold text-yellow-900 bg-yellow-100 p-2 border border-yellow-400">
+              Note: Volume Limits restrict the amount of a single transfer. If you want to restrict the total amount 
+              a user can HOLD (as a percentage of the total supply), use the Receiver Cap module instead.
+            </p>
+            <p className="text-sm leading-relaxed mb-4">
               This is commonly used to prevent massive whale dumps or flash-loan attacks on your liquidity pools.
             </p>
             <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
@@ -88,12 +95,16 @@ await program.methods
   .updatePolicy({ 
     paused: null, 
     allowlistEnabled: null,
-    maxTransferAmount: maxAmount 
+    maxTransferAmount: maxAmount,
+    vestingEnabled: null,
+    minTransferAmount: null,
+    maxHolderBps: null,
+    denylistEnabled: null,
+    cooldownSeconds: null,
   })
   .accounts({ 
     mint: mintPubkey, 
     policyAuthority: wallet.publicKey, 
-    hookConfig: hookConfigPda 
   })
   .rpc();`}
             </pre>

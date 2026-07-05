@@ -46,7 +46,7 @@ describe("assign_policy_authority", function () {
 
     // The new authority should now be able to mutate policy
     await program.methods
-      .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null })
+      .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: newAuthority.publicKey, mint: fixture.mint.publicKey })
       .signers([newAuthority])
       .rpc({ commitment: "confirmed" });
@@ -71,7 +71,7 @@ describe("assign_policy_authority", function () {
 
     await expectJettyError(
       program.methods
-        .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null })
+        .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
         .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
         .rpc({ commitment: "confirmed" }),
       JETTY_ERROR.Unauthorized

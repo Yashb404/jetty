@@ -13,11 +13,6 @@ import {
 import { Program, BN } from "@coral-xyz/anchor";
 import { useAnchorWorkspace } from "../../contexts/AnchorProvider";
 import { Jetty } from "../anchor/jetty";
-import {
-  deriveHookConfigPda,
-  deriveExtraAccountMetaListPda,
-  deriveAllowlistEntryPda,
-} from "../anchor/pdas";
 
 export function useJettyProgram() {
   const { program } = useAnchorWorkspace();
@@ -80,11 +75,25 @@ export function useJettyProgram() {
     mint: PublicKey,
     paused: boolean | null,
     allowlistEnabled: boolean | null,
-    maxTransferAmount: BN | null
+    maxTransferAmount: BN | null,
+    vestingEnabled: boolean | null,
+    minTransferAmount: BN | null,
+    maxHolderBps: number | null,
+    denylistEnabled: boolean | null,
+    cooldownSeconds: number | null
   ) => {
     return executeAction(async (prog) => {
       return prog.methods
-        .updatePolicy({ paused, allowlistEnabled, maxTransferAmount })
+        .updatePolicy({ 
+          paused, 
+          allowlistEnabled, 
+          maxTransferAmount,
+          vestingEnabled,
+          minTransferAmount,
+          maxHolderBps,
+          denylistEnabled,
+          cooldownSeconds
+        })
         .accounts({
           payer: prog.provider.publicKey!,
           policyAuthority: prog.provider.publicKey!,

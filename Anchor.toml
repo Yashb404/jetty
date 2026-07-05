@@ -14,7 +14,7 @@ jetty = "4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku"
 jetty = "4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku"
 
 [provider]
-cluster = "devnet"
+cluster = "Localnet"
 wallet = "~/.config/solana/solflare.json"
 
 [scripts]

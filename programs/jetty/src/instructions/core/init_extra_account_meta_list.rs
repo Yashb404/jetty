@@ -2,10 +2,10 @@ use anchor_lang::{
     prelude::*,
     solana_program::{program::invoke_signed, system_instruction},
 };
+use anchor_spl::token_2022::ID as TOKEN_2022_PROGRAM_ID;
 use anchor_spl::token_interface::{Mint, TokenInterface};
 use spl_tlv_account_resolution::state::ExtraAccountMetaList;
 use spl_transfer_hook_interface::instruction::ExecuteInstruction;
-use anchor_spl::token_2022::ID as TOKEN_2022_PROGRAM_ID;
 
 use crate::{error::JettyError, state::HookConfig};
 
@@ -50,7 +50,7 @@ pub fn handler(ctx: Context<InitExtraAccountMetaList>) -> Result<()> {
         JettyError::InvalidTokenProgram
     );
 
-    let account_metas = crate::utils::build_extra_account_metas(&ctx.accounts.hook_config)?;
+    let account_metas = crate::utils::build_extra_account_metas()?;
     let account_size = ExtraAccountMetaList::size_of(account_metas.len())?;
     let lamports = Rent::get()?.minimum_balance(account_size);
     let bump = ctx.bumps.extra_account_meta_list;
@@ -86,14 +86,18 @@ pub fn handler(ctx: Context<InitExtraAccountMetaList>) -> Result<()> {
             );
             invoke_signed(
                 &transfer_ix,
-                &[ctx.accounts.payer.to_account_info(), extra_meta_info.clone()],
+                &[
+                    ctx.accounts.payer.to_account_info(),
+                    extra_meta_info.clone(),
+                ],
                 &[], // No PDA seeds needed for payer
             )?;
         }
 
         // Only allocate and assign if the account is still owned by the system program
         if *extra_meta_info.owner == system_program::ID {
-            let allocate_ix = system_instruction::allocate(&extra_meta_info.key(), account_size as u64);
+            let allocate_ix =
+                system_instruction::allocate(&extra_meta_info.key(), account_size as u64);
             invoke_signed(&allocate_ix, &[extra_meta_info.clone()], &[signer_seeds])?;
 
             let assign_ix = system_instruction::assign(&extra_meta_info.key(), &crate::ID);

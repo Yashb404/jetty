@@ -14,7 +14,7 @@ describe("update_policy", function () {
     const fixture = await createHookFixture(program);
 
     await program.methods
-      .updatePolicy({ paused: true, allowlistEnabled: true, maxTransferAmount: new anchor.BN(25) })
+      .updatePolicy({ paused: true, allowlistEnabled: true, maxTransferAmount: new anchor.BN(25), vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -29,13 +29,13 @@ describe("update_policy", function () {
 
     // Set a known baseline
     await program.methods
-      .updatePolicy({ paused: false, allowlistEnabled: false, maxTransferAmount: new anchor.BN(100) })
+      .updatePolicy({ paused: false, allowlistEnabled: false, maxTransferAmount: new anchor.BN(100), vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
     // Only change paused — everything else must stay as-is
     await program.methods
-      .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null })
+      .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -51,12 +51,12 @@ describe("update_policy", function () {
 
     // Enable a limit, then clear it
     await program.methods
-      .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(5) })
+      .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(5), vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
     await program.methods
-      .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(0) })
+      .updatePolicy({ paused: null, allowlistEnabled: null, maxTransferAmount: new anchor.BN(0), vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
       .accounts({ policyAuthority: authority, mint: fixture.mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
@@ -79,7 +79,7 @@ describe("update_policy", function () {
 
     await expectJettyError(
       program.methods
-        .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null })
+        .updatePolicy({ paused: true, allowlistEnabled: null, maxTransferAmount: null, vestingEnabled: null, minTransferAmount: null, maxHolderBps: null, denylistEnabled: null, cooldownSeconds: null })
         .accounts({ policyAuthority: wrongAuthority.publicKey, mint: fixture.mint.publicKey })
         .signers([wrongAuthority])
         .rpc({ commitment: "confirmed" }),

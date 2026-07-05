@@ -38,7 +38,14 @@ export type HookFixture = {
   destinationTokenAccount: anchor.web3.PublicKey;
 };
 
-export const EXTRA_ACCOUNT_META_LIST_SIZE = 51;
+// Compute the expected size of the ExtraAccountMetaList PDA programmatically.
+// The list uses SPL TLV encoding: 8-byte discriminator + 4-byte length + 4-byte instruction_count = 16 bytes base header.
+// Each ExtraAccountMeta entry is precisely 35 bytes.
+const EXTRA_ACCOUNT_META_LIST_HEADER_SIZE = 16;
+const EXTRA_ACCOUNT_META_SIZE = 35;
+const NUM_EXTRA_ACCOUNTS = 10; // 1 HookConfig + 9 Module PDAs (Allowlistx2, Vesting, Denylistx2, Cooldown, Exemptionx2, Volume)
+
+export const EXTRA_ACCOUNT_META_LIST_SIZE = EXTRA_ACCOUNT_META_LIST_HEADER_SIZE + (NUM_EXTRA_ACCOUNTS * EXTRA_ACCOUNT_META_SIZE);
 
 export function getProvider(): anchor.AnchorProvider {
   return anchor.getProvider() as anchor.AnchorProvider;
@@ -77,6 +84,28 @@ export function deriveAllowlistEntryPda(
 ): [anchor.web3.PublicKey, number] {
   return anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("allowlist"), mint.toBuffer(), tokenAccount.toBuffer()],
+    programId
+  );
+}
+
+export function deriveVestingEntryPda(
+  mint: anchor.web3.PublicKey,
+  tokenAccount: anchor.web3.PublicKey,
+  programId: anchor.web3.PublicKey
+): [anchor.web3.PublicKey, number] {
+  return anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("vesting"), mint.toBuffer(), tokenAccount.toBuffer()],
+    programId
+  );
+}
+
+export function deriveDenylistEntryPda(
+  mint: anchor.web3.PublicKey,
+  tokenAccount: anchor.web3.PublicKey,
+  programId: anchor.web3.PublicKey
+): [anchor.web3.PublicKey, number] {
+  return anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("denylist"), mint.toBuffer(), tokenAccount.toBuffer()],
     programId
   );
 }

@@ -1,8 +1,6 @@
 use anchor_lang::prelude::*;
 use spl_tlv_account_resolution::{account::ExtraAccountMeta, seeds::Seed};
 
-use crate::state::HookConfig;
-
 /// Dynamically builds the `ExtraAccountMeta` vector based on the currently
 /// enabled features in the given `HookConfig`.
 ///
@@ -13,11 +11,9 @@ use crate::state::HookConfig;
 /// Additional metas are appended only for features that are actively enabled,
 /// keeping the `ExtraAccountMetaList` PDA minimal for users who only need
 /// a subset of Jetty's compliance modules.
-pub fn build_extra_account_metas(hook_config: &HookConfig) -> Result<Vec<ExtraAccountMeta>> {
-    let mut metas: Vec<ExtraAccountMeta> = vec![
-        // ── Baseline: hook_config PDA ──────────────────────────────────
-        // Seeds: ["policy", mint_key]
-        // Index 1 in the Execute instruction layout is the mint account.
+pub fn build_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
+    let metas: Vec<ExtraAccountMeta> = vec![
+        // 0. Baseline: hook_config PDA
         ExtraAccountMeta::new_with_seeds(
             &[
                 Seed::Literal {
@@ -29,54 +25,124 @@ pub fn build_extra_account_metas(hook_config: &HookConfig) -> Result<Vec<ExtraAc
             false,
         )
         .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 1. Source allowlist entry PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"allowlist".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 0 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 2. Destination allowlist entry PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"allowlist".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 2 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 3. Sender Vesting Entry PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"vesting".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 0 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 4. Sender Denylist Entry PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"denylist".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 0 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 5. Receiver Denylist Entry PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"denylist".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 2 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 6. Sender Cooldown Entry PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"cooldown".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 0 },
+            ],
+            false,
+            true, // is_writable
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 7. Sender Protocol Exemption PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"exemption".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 0 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 8. Receiver Protocol Exemption PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"exemption".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 2 },
+            ],
+            false,
+            false,
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
+        // 9. Sender Volume Tracker PDA
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::Literal {
+                    bytes: b"volume".to_vec(),
+                },
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 0 },
+            ],
+            false,
+            true, // is_writable
+        )
+        .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
     ];
-
-    if hook_config.allowlist_enabled {
-        // ── Source allowlist entry PDA ──────────────────────────────────
-        // Seeds: ["allowlist", mint_key, source_token_account_key]
-        // Index 0 = source token account, Index 1 = mint.
-        metas.push(
-            ExtraAccountMeta::new_with_seeds(
-                &[
-                    Seed::Literal {
-                        bytes: b"allowlist".to_vec(),
-                    },
-                    Seed::AccountKey { index: 1 },
-                    Seed::AccountKey { index: 0 },
-                ],
-                false,
-                false,
-            )
-            .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
-        );
-
-        // ── Destination allowlist entry PDA ────────────────────────────
-        // Seeds: ["allowlist", mint_key, destination_token_account_key]
-        // Index 2 = destination token account.
-        metas.push(
-            ExtraAccountMeta::new_with_seeds(
-                &[
-                    Seed::Literal {
-                        bytes: b"allowlist".to_vec(),
-                    },
-                    Seed::AccountKey { index: 1 },
-                    Seed::AccountKey { index: 2 },
-                ],
-                false,
-                false,
-            )
-            .map_err(|_| error!(crate::error::JettyError::MetaListSizeOverflow))?,
-        );
-    }
-
-    // FIXME: Add future module metas here (vesting, cooldown, holder cap, etc.)
-
-    // Safety check: Enforce a hard cap on the number of features (metas) to prevent
-    // unbounded growth of the ExtraAccountMetaList PDA and keep the tx size well
-    // under Solana's 1232-byte limit.
-    if metas.len() > 10 {
-        return Err(error!(crate::error::JettyError::MetaListSizeOverflow));
-    }
 
     Ok(metas)
 }
