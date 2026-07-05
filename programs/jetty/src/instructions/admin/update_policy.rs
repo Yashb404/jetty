@@ -1,7 +1,5 @@
-use anchor_lang::{prelude::*, solana_program::system_instruction};
+use anchor_lang::prelude::*;
 use anchor_spl::token_interface::Mint;
-use spl_tlv_account_resolution::state::ExtraAccountMetaList;
-use spl_transfer_hook_interface::instruction::ExecuteInstruction;
 
 use crate::{error::JettyError, state::HookConfig};
 

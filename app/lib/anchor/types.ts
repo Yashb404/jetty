@@ -8,6 +8,11 @@ export interface HookConfig {
   paused: boolean;
   allowlistEnabled: boolean;
   maxTransferAmount: BN;
+  vestingEnabled: boolean;
+  minTransferAmount: BN;
+  maxHolderBps: number;
+  denylistEnabled: boolean;
+  cooldownSeconds: number;
 }
 
 export interface AllowlistEntry {

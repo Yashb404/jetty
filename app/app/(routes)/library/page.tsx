@@ -11,6 +11,7 @@ import MintCombobox from "../../../components/ui/mint-combobox";
 import { useMintPolicy } from "../../../lib/hooks/useMintPolicy";
 import { useJettyProgram } from "../../../lib/hooks/useJettyProgram";
 import { useMintContext } from "../../../contexts/MintProvider";
+import Toast from "../../../components/ui/toast";
 
 
 export default function LibraryPage() {
@@ -30,6 +31,12 @@ export default function LibraryPage() {
   const [paused, setPaused] = useState(false);
   const [allowlistEnabled, setAllowlistEnabled] = useState(false);
   const [maxTransferAmount, setMaxTransferAmount] = useState("0");
+  const [vestingEnabled, setVestingEnabled] = useState(false);
+  const [minTransferAmount, setMinTransferAmount] = useState("0");
+  const [maxHolderBps, setMaxHolderBps] = useState("0");
+  const [denylistEnabled, setDenylistEnabled] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState("0");
+  const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
 
   useEffect(() => {
     if (policy) {
@@ -37,6 +44,11 @@ export default function LibraryPage() {
       setPaused(policy.paused);
       setAllowlistEnabled(policy.allowlistEnabled);
       setMaxTransferAmount(policy.maxTransferAmount.toString());
+      setVestingEnabled(policy.vestingEnabled);
+      setMinTransferAmount(policy.minTransferAmount.toString());
+      setMaxHolderBps(policy.maxHolderBps.toString());
+      setDenylistEnabled(policy.denylistEnabled);
+      setCooldownSeconds(policy.cooldownSeconds.toString());
     }
   }, [policy]);
 
@@ -52,24 +64,53 @@ export default function LibraryPage() {
   const handleSavePolicy = async () => {
     if (!activeMint || !policy) return;
     try {
-      let parsedAmount = null;
+      let parsedMaxAmount = null;
       if (maxTransferAmount !== policy.maxTransferAmount.toString()) {
-        parsedAmount = new BN(maxTransferAmount);
+        parsedMaxAmount = new BN(maxTransferAmount);
+      }
+      
+      let parsedMinAmount = null;
+      if (minTransferAmount !== policy.minTransferAmount.toString()) {
+        parsedMinAmount = new BN(minTransferAmount);
       }
       
       const pausedArg = paused !== policy.paused ? paused : null;
       const allowlistArg = allowlistEnabled !== policy.allowlistEnabled ? allowlistEnabled : null;
+      const vestingArg = vestingEnabled !== policy.vestingEnabled ? vestingEnabled : null;
+      const bpsArg = maxHolderBps !== policy.maxHolderBps.toString() ? parseInt(maxHolderBps, 10) : null;
+      const denylistArg = denylistEnabled !== policy.denylistEnabled ? denylistEnabled : null;
+      const cooldownArg = cooldownSeconds !== policy.cooldownSeconds.toString() ? parseInt(cooldownSeconds, 10) : null;
 
-      if (pausedArg === null && allowlistArg === null && parsedAmount === null) {
-        alert("No changes detected.");
+      if (
+        pausedArg === null && 
+        allowlistArg === null && 
+        parsedMaxAmount === null &&
+        vestingArg === null &&
+        parsedMinAmount === null &&
+        bpsArg === null &&
+        denylistArg === null &&
+        cooldownArg === null
+      ) {
+        setStatusMessage({ type: "info", text: "No changes detected." });
         return;
       }
 
-      await updatePolicy(new PublicKey(activeMint), pausedArg, allowlistArg, parsedAmount);
+      await updatePolicy(
+        new PublicKey(activeMint), 
+        pausedArg, 
+        allowlistArg, 
+        parsedMaxAmount,
+        vestingArg,
+        parsedMinAmount,
+        bpsArg,
+        denylistArg,
+        cooldownArg
+      );
       refetch();
+      setStatusMessage({ type: "success", text: "Policy updated successfully." });
     } catch (e) {
       console.error(e);
-      alert("Failed to update policy.");
+      setStatusMessage({ type: "error", text: "Failed to update policy." });
     }
   };
 
@@ -141,10 +182,87 @@ export default function LibraryPage() {
               <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Max transfer amount (Set to 0 to disable volume limits)</p>
               <Input 
                 type="number" 
+                min="0"
+                step="1"
                 value={maxTransferAmount} 
                 onChange={(e) => setMaxTransferAmount(e.target.value)} 
               />
             </Card>
+
+            <Card>
+              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Anti-Dust Module</h3>
+              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Minimum transfer amount (Set to 0 to disable minimum limits)</p>
+              <Input 
+                type="number" 
+                min="0"
+                step="1"
+                value={minTransferAmount} 
+                onChange={(e) => setMinTransferAmount(e.target.value)} 
+              />
+            </Card>
+
+            <Card>
+              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Receiver Balance Cap</h3>
+              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Max Holder Basis Points (0 = no cap, 10000 = 100% of supply)</p>
+              <Input 
+                type="number" 
+                min="0"
+                max="10000"
+                step="1"
+                value={maxHolderBps} 
+                onChange={(e) => setMaxHolderBps(e.target.value)} 
+              />
+            </Card>
+            
+            <Card>
+              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Velocity Limiter (Cooldown)</h3>
+              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Seconds required between outgoing transfers (0 = disable)</p>
+              <Input 
+                type="number" 
+                min="0"
+                step="1"
+                value={cooldownSeconds} 
+                onChange={(e) => setCooldownSeconds(e.target.value)} 
+              />
+            </Card>
+
+            <Card>
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <h3 className="text-lg font-bold uppercase tracking-widest">Denylist Module</h3>
+                  <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mt-1">Block specific wallets from transferring tokens</p>
+                </div>
+                <button 
+                  onClick={() => setDenylistEnabled(!denylistEnabled)}
+                  className={`w-14 h-8 border-2 border-black rounded-none transition-colors ${denylistEnabled ? "bg-[#5C4E4E]" : "bg-[#D1D1D0]"}`}
+                >
+                  <div className={`w-6 h-6 border-2 border-black bg-white transition-transform ${denylistEnabled ? "translate-x-6" : "translate-x-0"}`} />
+                </button>
+              </div>
+            </Card>
+
+            <Card>
+              <div className="flex items-center justify-between py-2">
+                <div>
+                  <h3 className="text-lg font-bold uppercase tracking-widest">Vesting / Lockup</h3>
+                  <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mt-1">Enforce time-locked release schedules</p>
+                </div>
+                <button 
+                  onClick={() => setVestingEnabled(!vestingEnabled)}
+                  className={`w-14 h-8 border-2 border-black rounded-none transition-colors ${vestingEnabled ? "bg-[#5C4E4E]" : "bg-[#D1D1D0]"}`}
+                >
+                  <div className={`w-6 h-6 border-2 border-black bg-white transition-transform ${vestingEnabled ? "translate-x-6" : "translate-x-0"}`} />
+                </button>
+              </div>
+            </Card>
+
+            {statusMessage && (
+              <Toast
+                type={statusMessage.type}
+                message={statusMessage.text}
+                onClose={() => setStatusMessage(null)}
+              />
+            )}
 
             <div className="flex justify-end">
               <Button onClick={handleSavePolicy} disabled={loading}>

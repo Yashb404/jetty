@@ -98,8 +98,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
 
         let resulting_balance = ctx.accounts.destination_token_account.amount as u128;
 
-        msg!("Supply: {}, BPS: {}, Max Balance: {}, Dest Amount: {}, Amount: {}, Resulting Balance: {}",
-             ctx.accounts.mint.supply, hook_config.max_holder_bps, max_balance, ctx.accounts.destination_token_account.amount, amount, resulting_balance);
+
 
         if resulting_balance > max_balance {
             return err!(JettyError::ExceedsHolderCap);
@@ -118,7 +117,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
     // Index 8: Sender Volume Tracker PDA
 
     // Fallback safety check (the Token program should enforce this based on our `ExtraAccountMetaList`)
-    msg!("remaining_accounts len: {}", ctx.remaining_accounts.len());
+
     if ctx.remaining_accounts.len() < 9 {
         return Err(error!(JettyError::MetaListSizeOverflow));
     }
@@ -175,14 +174,13 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
 
         // ONLY enter this block if cooldown is actually enabled for this mint.
         // We use Account::try_from because this PDA is loaded dynamically from remaining_accounts.
-        msg!("Cooldown is enabled. Attempting to deserialize PDA...");
+
         let mut cooldown_entry = match Account::<CooldownEntry>::try_from(cooldown_account_info) {
             Ok(entry) => {
-                msg!("Cooldown PDA successfully deserialized");
                 entry
             }
             Err(e) => {
-                msg!("Failed to deserialize Cooldown PDA: {:?}", e);
+
                 return err!(JettyError::CooldownEntryMissing);
             }
         };

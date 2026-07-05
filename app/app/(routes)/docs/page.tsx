@@ -65,7 +65,7 @@ export default function DocsPage() {
           </Link>
 
           <h3 className="text-xl font-bold uppercase tracking-wide mb-4">Compliance Modules</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Link href="/docs/global-pause" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
@@ -78,6 +78,30 @@ export default function DocsPage() {
               </Card>
             </Link>
             
+            <Link href="/docs/allowlist" className="block">
+              <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
+                <div>
+                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Allowlist</h4>
+                  <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Restrict transfers strictly to pre-approved wallets.</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-bold">
+                  View Guide <ArrowRight className="w-4 h-4" />
+                </div>
+              </Card>
+            </Link>
+            
+            <Link href="/docs/denylist" className="block">
+              <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
+                <div>
+                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Denylist</h4>
+                  <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Block explicitly flagged wallets from transferring tokens.</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-bold">
+                  View Guide <ArrowRight className="w-4 h-4" />
+                </div>
+              </Card>
+            </Link>
+
             <Link href="/docs/volume-limits" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
@@ -90,11 +114,47 @@ export default function DocsPage() {
               </Card>
             </Link>
 
-            <Link href="/docs/allowlist" className="block">
+            <Link href="/docs/min-transfer" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Allowlist</h4>
-                  <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Restrict transfers strictly to pre-approved wallets.</p>
+                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Anti-Dust</h4>
+                  <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Set a minimum transfer size to prevent dust attacks.</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-bold">
+                  View Guide <ArrowRight className="w-4 h-4" />
+                </div>
+              </Card>
+            </Link>
+
+            <Link href="/docs/receiver-cap" className="block">
+              <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
+                <div>
+                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Receiver Cap</h4>
+                  <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Limit maximum holder balances based on total supply percentage.</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-bold">
+                  View Guide <ArrowRight className="w-4 h-4" />
+                </div>
+              </Card>
+            </Link>
+            
+            <Link href="/docs/cooldown" className="block">
+              <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
+                <div>
+                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Velocity Limiter</h4>
+                  <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Enforce cooldown periods between successive transfers.</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-bold">
+                  View Guide <ArrowRight className="w-4 h-4" />
+                </div>
+              </Card>
+            </Link>
+
+            <Link href="/docs/vesting" className="block">
+              <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
+                <div>
+                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Vesting / Lockup</h4>
+                  <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Lock tokens until a predefined timestamp for scheduled releases.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
                   View Guide <ArrowRight className="w-4 h-4" />
@@ -110,7 +170,7 @@ export default function DocsPage() {
               Security Architecture: Authority Rotation
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              To prevent catastrophic human error, the Jetty smart contract enforces a strict <strong>"Handshake Rule"</strong> when transferring policy ownership (Policy Authority) to a new wallet address.
+              To prevent catastrophic human error, the Jetty smart contract enforces a strict <strong>&quot;Handshake Rule&quot;</strong> when transferring policy ownership (Policy Authority) to a new wallet address.
             </p>
             <p className="text-sm leading-relaxed mb-4">
               If an administrator accidentally misspells a public key when assigning a new authority, control of the compliance rules would be lost forever. To prevent this, the underlying Rust contract strictly requires <strong>both</strong> the current authority and the new incoming authority to cryptographically sign the rotation transaction. 

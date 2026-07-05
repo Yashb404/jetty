@@ -1,8 +1,6 @@
 use anchor_lang::prelude::*;
 use spl_tlv_account_resolution::{account::ExtraAccountMeta, seeds::Seed};
 
-use crate::state::HookConfig;
-
 /// Dynamically builds the `ExtraAccountMeta` vector based on the currently
 /// enabled features in the given `HookConfig`.
 ///
