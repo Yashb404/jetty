@@ -39,6 +39,24 @@ export default function LibraryPage() {
   const [cooldownSeconds, setCooldownSeconds] = useState("0");
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [dismissedWarnings, setDismissedWarnings] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const saved = localStorage.getItem("jetty-dismissed-warnings");
+    if (saved) {
+      try {
+        setDismissedWarnings(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse dismissed warnings", e);
+      }
+    }
+  }, []);
+
+  const dismissWarning = (id: string) => {
+    const next = { ...dismissedWarnings, [id]: true };
+    setDismissedWarnings(next);
+    localStorage.setItem("jetty-dismissed-warnings", JSON.stringify(next));
+  };
 
   useEffect(() => {
     if (policy) {
@@ -82,6 +100,16 @@ export default function LibraryPage() {
       const bpsArg = maxHolderBps !== policy.maxHolderBps.toString() ? parseInt(maxHolderBps, 10) : null;
       const denylistArg = denylistEnabled !== policy.denylistEnabled ? denylistEnabled : null;
       const cooldownArg = cooldownSeconds !== policy.cooldownSeconds.toString() ? parseInt(cooldownSeconds, 10) : null;
+
+      // Logic Validation: Min > Max
+      if (parsedMinAmount !== null || parsedMaxAmount !== null) {
+        const finalMin = parsedMinAmount || new BN(policy.minTransferAmount);
+        const finalMax = parsedMaxAmount || new BN(policy.maxTransferAmount);
+        if (finalMax.gt(new BN(0)) && finalMin.gt(finalMax)) {
+          setStatusMessage({ type: "error", text: "Minimum Transfer Amount cannot be greater than Maximum Transfer Amount." });
+          return;
+        }
+      }
 
       if (
         pausedArg === null && 
@@ -377,6 +405,30 @@ export default function LibraryPage() {
 
         {activeMint && isInitialized && policy && (
           <>
+            {/* Logic & UX Warning Banners */}
+            {paused && !dismissedWarnings["global_pause"] && (
+              <div className="mb-6 p-4 border-2 border-black bg-red-700 text-white font-bold uppercase tracking-widest text-sm flex justify-between items-center gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  <span>Global Pause is active. All token transfers are halted regardless of other configurations.</span>
+                </div>
+                <button onClick={() => dismissWarning("global_pause")} className="shrink-0 hover:text-black transition-colors" aria-label="Dismiss">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            )}
+            {allowlistEnabled && denylistEnabled && !dismissedWarnings["allowlist_denylist"] && (
+              <div className="mb-6 p-4 border-2 border-black bg-yellow-400 text-black font-bold uppercase tracking-widest text-sm flex justify-between items-center gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                  <span>Warning: Both Allowlist and Denylist are active. Users must be ON the Allowlist AND NOT ON the Denylist to transfer.</span>
+                </div>
+                <button onClick={() => dismissWarning("allowlist_denylist")} className="shrink-0 hover:text-white transition-colors" aria-label="Dismiss">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            )}
+
             {/* Save Action Banner */}
             <div className="mb-6 flex justify-between items-center">
               <h2 className="text-2xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 inline-block">Installed Hooks</h2>

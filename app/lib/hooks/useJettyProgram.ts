@@ -158,10 +158,7 @@ export function useJettyProgram() {
 
   const assignPolicyAuthority = async (mint: PublicKey, newAuthority: PublicKey) => {
     return executeAction(async (prog) => {
-      // NOTE: This instruction requires both current and new authority to sign.
-      // Assuming this is handled via a multi-sig or extra signers if necessary.
-      // For now, if the new authority is not a signer here, it will fail unless passed in `.signers()`.
-      // The frontend might need adjustment to handle multiple signers.
+      // FIXME: "assignPolicyAuthority requires both the current and new authority to sign. The frontend currently does not prompt the new authority for a signature. We must implement a multi-sig or partial sign workflow before this instruction can be used."
       return prog.methods
         .assignPolicyAuthority()
         .accounts({

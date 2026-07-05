@@ -7,7 +7,11 @@ import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adap
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export default function ClientWalletProvider({ children }: { children: React.ReactNode }) {
-  const endpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.devnet.solana.com";
+  const proxyUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_PROXY_URL || "/api/rpc";
+  // FIXME: "Hardcoding localhost:3000 for SSR will break during production static builds if deployed elsewhere. Replace with an environment variable like NEXT_PUBLIC_APP_URL once the production domain is known."
+  const endpoint = typeof window !== "undefined" 
+    ? `${window.location.origin}${proxyUrl}` 
+    : `http://localhost:3000${proxyUrl}`;
 
   const wallets = useMemo(
     () => [
