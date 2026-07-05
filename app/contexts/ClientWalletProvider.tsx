@@ -21,7 +21,10 @@ export default function ClientWalletProvider({ children }: { children: React.Rea
   );
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
+    <ConnectionProvider 
+      endpoint={endpoint} 
+      config={{ wsEndpoint: process.env.NEXT_PUBLIC_SOLANA_WS_URL || "wss://api.devnet.solana.com" }}
+    >
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
