@@ -47,15 +47,16 @@ export async function POST(request: Request) {
             targetMint = ix.accounts[2];
           } else if (actionName === 'update_policy') {
             actionName = 'Update Policy';
-            targetMint = ix.accounts[1];
-            if (data.paused !== null) details.paused = data.paused;
-            if (data.allowlistEnabled !== null) details.allowlistEnabled = data.allowlistEnabled;
-            if (data.maxTransferAmount !== null) details.maxTransferAmount = data.maxTransferAmount.toString();
-            if (data.vestingEnabled !== null) details.vestingEnabled = data.vestingEnabled;
-            if (data.minTransferAmount !== null) details.minTransferAmount = data.minTransferAmount.toString();
-            if (data.maxHolderBps !== null) details.maxHolderBps = data.maxHolderBps;
-            if (data.denylistEnabled !== null) details.denylistEnabled = data.denylistEnabled;
-            if (data.cooldownSeconds !== null) details.cooldownSeconds = data.cooldownSeconds;
+            targetMint = ix.accounts[2];
+            const args = data.args || {};
+            if (args.paused !== null && args.paused !== undefined) details.paused = args.paused;
+            if (args.allowlistEnabled !== null && args.allowlistEnabled !== undefined) details.allowlistEnabled = args.allowlistEnabled;
+            if (args.maxTransferAmount !== null && args.maxTransferAmount !== undefined) details.maxTransferAmount = args.maxTransferAmount.toString();
+            if (args.vestingEnabled !== null && args.vestingEnabled !== undefined) details.vestingEnabled = args.vestingEnabled;
+            if (args.minTransferAmount !== null && args.minTransferAmount !== undefined) details.minTransferAmount = args.minTransferAmount.toString();
+            if (args.maxHolderBps !== null && args.maxHolderBps !== undefined) details.maxHolderBps = args.maxHolderBps;
+            if (args.denylistEnabled !== null && args.denylistEnabled !== undefined) details.denylistEnabled = args.denylistEnabled;
+            if (args.cooldownSeconds !== null && args.cooldownSeconds !== undefined) details.cooldownSeconds = args.cooldownSeconds;
           } else if (actionName === 'update_allowlist') {
             actionName = 'Update Allowlist';
             targetMint = ix.accounts[2];
