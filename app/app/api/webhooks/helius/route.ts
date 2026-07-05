@@ -2,26 +2,45 @@ import { NextResponse } from 'next/server';
 import client from '../../../../lib/db';
 import { BorshCoder, utils } from '@coral-xyz/anchor';
 import idl from '../../../../lib/anchor/idl.json';
+import crypto from 'crypto';
 
 const PROGRAM_ID = "4DcxDMd7iFppUn6aGkuJY3xNaF9FFNduchqByYmXiKku";
+const coder = new BorshCoder(idl as any);
 
 export async function POST(request: Request) {
   // 1. Verify Authorization Header (Helius sends this)
-  const authHeader = request.headers.get('Authorization');
-  if (process.env.HELIUS_WEBHOOK_SECRET && authHeader !== process.env.HELIUS_WEBHOOK_SECRET) {
+  const authHeader = request.headers.get('Authorization') || '';
+  const providedSecret = authHeader.replace(/^Bearer\s+/i, '').trim();
+  const expectedSecret = process.env.HELIUS_WEBHOOK_SECRET;
+
+  if (!expectedSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Use timing-safe comparison to prevent timing attacks
+  let isAuthorized = false;
+  try {
+    const providedBuffer = Buffer.from(providedSecret);
+    const expectedBuffer = Buffer.from(expectedSecret);
+    if (providedBuffer.length === expectedBuffer.length) {
+      isAuthorized = crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+    }
+  } catch (e) {
+    isAuthorized = false;
+  }
+
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const payload = await request.json();
-    const coder = new BorshCoder(idl as any);
 
     // 2. Parse the EnrichedTransaction array sent by Helius
     for (const tx of payload) {
       if (!tx.instructions) continue;
 
-      const signature = tx.signature || tx.transactionError?.signature || "UnknownTx";
-      const walletPubkey = tx.feePayer || "UnknownWallet";
+      const signature = tx.signature || "UnknownTx";
 
       for (const ix of tx.instructions) {
         // Only process instructions targeted at our Jetty program
@@ -38,44 +57,64 @@ export async function POST(request: Request) {
           let details: any = { tx: signature };
           let actionName = decoded.name;
 
+          const ixDef = idl.instructions.find((i: any) => i.name === decoded.name);
+          if (!ixDef) continue;
+
+          const getAccount = (name: string) => {
+            const idx = ixDef.accounts.findIndex((a: any) => a.name === name);
+            return idx !== -1 ? ix.accounts[idx] : undefined;
+          };
+
+          targetMint = getAccount('mint') || "Unknown";
+          const policyAuthority = getAccount('policy_authority');
+          const walletPubkey = policyAuthority || tx.feePayer || "UnknownWallet";
+          
+          if (tx.feePayer && policyAuthority && tx.feePayer !== policyAuthority) {
+            details.feePayer = tx.feePayer;
+          }
+
           // Anchor Instructions pack accounts sequentially in the IDL order
           // We can map these directly to extract the targeted mint and parameters
           const data = decoded.data as any;
 
           if (actionName === 'initialize_hook_config') {
             actionName = 'Initialize Config';
-            targetMint = ix.accounts[2];
           } else if (actionName === 'update_policy') {
             actionName = 'Update Policy';
-            targetMint = ix.accounts[2];
             const args = data.args || {};
-            if (args.paused !== null && args.paused !== undefined) details.paused = args.paused;
-            if (args.allowlistEnabled !== null && args.allowlistEnabled !== undefined) details.allowlistEnabled = args.allowlistEnabled;
-            if (args.maxTransferAmount !== null && args.maxTransferAmount !== undefined) details.maxTransferAmount = args.maxTransferAmount.toString();
-            if (args.vestingEnabled !== null && args.vestingEnabled !== undefined) details.vestingEnabled = args.vestingEnabled;
-            if (args.minTransferAmount !== null && args.minTransferAmount !== undefined) details.minTransferAmount = args.minTransferAmount.toString();
-            if (args.maxHolderBps !== null && args.maxHolderBps !== undefined) details.maxHolderBps = args.maxHolderBps;
-            if (args.denylistEnabled !== null && args.denylistEnabled !== undefined) details.denylistEnabled = args.denylistEnabled;
-            if (args.cooldownSeconds !== null && args.cooldownSeconds !== undefined) details.cooldownSeconds = args.cooldownSeconds;
+
+            if (args.paused != null) details.paused = args.paused;
+            if (args.allowlist_enabled != null) details.allowlistEnabled = args.allowlist_enabled;
+            if (args.max_transfer_amount != null) details.maxTransferAmount = args.max_transfer_amount.toString();
+            if (args.vesting_enabled != null) details.vestingEnabled = args.vesting_enabled;
+            if (args.min_transfer_amount != null) details.minTransferAmount = args.min_transfer_amount.toString();
+            if (args.max_holder_bps != null) details.maxHolderBps = args.max_holder_bps;
+            if (args.denylist_enabled != null) details.denylistEnabled = args.denylist_enabled;
+            if (args.cooldown_seconds != null) details.cooldownSeconds = args.cooldown_seconds;
           } else if (actionName === 'update_allowlist') {
             actionName = 'Update Allowlist';
-            targetMint = ix.accounts[2];
-            details.tokenAccount = ix.accounts[3];
+            details.tokenAccount = getAccount('token_account');
             details.active = data.active;
           } else if (actionName === 'init_extra_account_meta_list') {
             actionName = 'Register Extra Accounts';
-            targetMint = ix.accounts[2];
           } else {
             continue; // Unhandled action
           }
 
-          // 3. Securely insert the parsed, verified on-chain action into Turso
+          // 3. Securely insert the parsed, verified on-chain action into Turso (Idempotent)
           await client.execute({
             sql: `
               INSERT INTO history_logs (wallet_pubkey, action_type, target_mint, details)
-              VALUES (?, ?, ?, ?)
+              SELECT ?, ?, ?, ?
+              WHERE NOT EXISTS (
+                SELECT 1 FROM history_logs 
+                WHERE json_extract(details, '$.tx') = ? AND action_type = ?
+              )
             `,
-            args: [walletPubkey, actionName, targetMint, JSON.stringify(details)]
+            args: [
+              walletPubkey, actionName, targetMint, JSON.stringify(details),
+              signature, actionName
+            ]
           });
 
         } catch (decodeErr) {
