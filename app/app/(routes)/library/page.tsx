@@ -116,15 +116,214 @@ export default function LibraryPage() {
     }
   };
 
-  const isPending = (type: "pause" | "allowlist" | "limit") => {
+  const isPending = (type: string) => {
     if (!policy) return false;
     if (type === "pause") return paused !== policy.paused;
     if (type === "allowlist") return allowlistEnabled !== policy.allowlistEnabled;
-    if (type === "limit") return maxTransferAmount !== policy.maxTransferAmount.toString();
+    if (type === "denylist") return denylistEnabled !== policy.denylistEnabled;
+    if (type === "vesting") return vestingEnabled !== policy.vestingEnabled;
+    if (type === "max_amount") return maxTransferAmount !== policy.maxTransferAmount.toString();
+    if (type === "min_amount") return minTransferAmount !== policy.minTransferAmount.toString();
+    if (type === "max_bps") return maxHolderBps !== policy.maxHolderBps.toString();
+    if (type === "cooldown") return cooldownSeconds !== policy.cooldownSeconds.toString();
     return false;
   };
 
-  const hasUnsavedChanges = isPending("pause") || isPending("allowlist") || isPending("limit");
+  const hasUnsavedChanges = [
+    "pause", "allowlist", "denylist", "vesting", "max_amount", "min_amount", "max_bps", "cooldown"
+  ].some(isPending);
+
+  const isInstalled = (type: string) => {
+    if (isPending(type)) return true;
+    if (!policy) return false;
+    if (type === "pause") return policy.paused;
+    if (type === "allowlist") return policy.allowlistEnabled;
+    if (type === "denylist") return policy.denylistEnabled;
+    if (type === "vesting") return policy.vestingEnabled;
+    if (type === "max_amount") return policy.maxTransferAmount.toString() !== "0";
+    if (type === "min_amount") return policy.minTransferAmount.toString() !== "0";
+    if (type === "max_bps") return policy.maxHolderBps.toString() !== "0";
+    if (type === "cooldown") return policy.cooldownSeconds.toString() !== "0";
+    return false;
+  };
+
+  const modules = [
+    {
+      id: "pause",
+      title: "Global Transfer Pause",
+      desc: "Halt all token transfers temporarily. Useful for emergencies or planned maintenance periods.",
+      type: "toggle",
+      activeState: paused,
+      onToggle: () => setPaused(!paused),
+      onDeactivate: null,
+      inputValue: null,
+      onInputChange: null,
+      configureLink: null
+    },
+    {
+      id: "allowlist",
+      title: "Allowlist Configuration",
+      desc: "Restrict all token transfers strictly to verified addresses pre-approved by the admin authority.",
+      type: "toggle",
+      activeState: allowlistEnabled,
+      onToggle: () => setAllowlistEnabled(!allowlistEnabled),
+      onDeactivate: null,
+      inputValue: null,
+      onInputChange: null,
+      configureLink: "/allowlist"
+    },
+    {
+      id: "denylist",
+      title: "Denylist Configuration",
+      desc: "Block specific addresses or bad actors from transferring or receiving your token.",
+      type: "toggle",
+      activeState: denylistEnabled,
+      onToggle: () => setDenylistEnabled(!denylistEnabled),
+      onDeactivate: null,
+      inputValue: null,
+      onInputChange: null,
+      configureLink: null
+    },
+    {
+      id: "vesting",
+      title: "Vesting / Lockup",
+      desc: "Enforce time-locked release schedules for specific token holders to prevent early dumping.",
+      type: "toggle",
+      activeState: vestingEnabled,
+      onToggle: () => setVestingEnabled(!vestingEnabled),
+      onDeactivate: null,
+      inputValue: null,
+      onInputChange: null,
+      configureLink: null
+    },
+    {
+      id: "max_amount",
+      title: "Maximum Transfer Amount",
+      desc: "Cap the maximum amount of tokens that can be transferred in a single transaction.",
+      type: "numeric",
+      activeState: maxTransferAmount !== "0",
+      onToggle: () => setMaxTransferAmount("1000"),
+      onDeactivate: () => setMaxTransferAmount("0"),
+      inputValue: maxTransferAmount,
+      onInputChange: (val: string) => setMaxTransferAmount(val),
+      configureLink: null,
+      label: "Max Amount"
+    },
+    {
+      id: "min_amount",
+      title: "Minimum Transfer Amount",
+      desc: "Set a strict floor on transfer sizes to prevent anti-dust attacks or spam transactions.",
+      type: "numeric",
+      activeState: minTransferAmount !== "0",
+      onToggle: () => setMinTransferAmount("1"),
+      onDeactivate: () => setMinTransferAmount("0"),
+      inputValue: minTransferAmount,
+      onInputChange: (val: string) => setMinTransferAmount(val),
+      configureLink: null,
+      label: "Min Amount"
+    },
+    {
+      id: "max_bps",
+      title: "Receiver Wallet Cap",
+      desc: "Limit how much of the total token supply a single wallet can hold (in basis points).",
+      type: "numeric",
+      activeState: maxHolderBps !== "0",
+      onToggle: () => setMaxHolderBps("100"),
+      onDeactivate: () => setMaxHolderBps("0"),
+      inputValue: maxHolderBps,
+      onInputChange: (val: string) => setMaxHolderBps(val),
+      configureLink: null,
+      label: "Max Holder BPS (0-10000)"
+    },
+    {
+      id: "cooldown",
+      title: "Transfer Cooldown",
+      desc: "Enforce a time delay (in seconds) between outgoing transfers from the same wallet.",
+      type: "numeric",
+      activeState: cooldownSeconds !== "0",
+      onToggle: () => setCooldownSeconds("3600"),
+      onDeactivate: () => setCooldownSeconds("0"),
+      inputValue: cooldownSeconds,
+      onInputChange: (val: string) => setCooldownSeconds(val),
+      configureLink: null,
+      label: "Cooldown Seconds"
+    }
+  ];
+
+  const installedModules = modules.filter(m => isInstalled(m.id));
+  const availableModules = modules.filter(m => !isInstalled(m.id));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderCard = (m: any) => (
+    <article key={m.id} className="border-2 border-black p-5 bg-[#D1D1D0] flex flex-col h-full hover:bg-white transition-colors duration-200 group">
+      <div className="flex justify-between items-start mb-4">
+        <h3 className="text-lg font-bold uppercase">{m.title}</h3>
+        <span className={`border-2 border-black px-2 py-1 text-[10px] font-bold uppercase ${
+          m.activeState ? "bg-[#d1fae5] text-[#065f46]" : "bg-[#f3f4f6] text-[#4b5563]"
+        }`}>
+          {m.activeState ? "ACTIVE" : "INACTIVE"}
+        </span>
+      </div>
+      <p className="text-xs text-[#5C4E4E] mb-6 flex-grow">{m.desc}</p>
+      
+      {isPending(m.id) && (
+        <p className="text-[10px] text-yellow-600 font-bold mb-2 uppercase">Pending Save</p>
+      )}
+      
+      <div className="mt-auto flex flex-col gap-2">
+        {m.type === "toggle" ? (
+          <>
+            <button 
+              onClick={m.onToggle}
+              className={`border-2 border-black w-full py-2 font-bold uppercase text-sm transition-colors cursor-pointer active:translate-y-[1px] ${
+                m.activeState 
+                  ? "bg-transparent text-black hover:bg-black hover:text-white" 
+                  : "bg-[#5C4E4E] text-white hover:bg-black"
+              }`}
+            >
+              {m.activeState ? "Deactivate" : "Activate"}
+            </button>
+            {m.activeState && !isPending(m.id) && m.configureLink && (
+              <Link href={m.configureLink} className="block text-center border-2 border-black w-full py-2 bg-transparent text-black font-bold uppercase text-sm hover:bg-black hover:text-white transition-colors active:translate-y-[1px]">
+                Configure
+              </Link>
+            )}
+          </>
+        ) : (
+          <>
+            {m.activeState ? (
+              <>
+                <div className="flex flex-col">
+                  <label className="text-[10px] font-bold uppercase mb-1 text-[#5C4E4E]">{m.label}</label>
+                  <Input 
+                    type="number" 
+                    min="0"
+                    step="1"
+                    max={m.id === "max_bps" ? "10000" : undefined}
+                    value={m.inputValue} 
+                    onChange={(e) => m.onInputChange(e.target.value)} 
+                  />
+                </div>
+                <button 
+                  onClick={m.onDeactivate}
+                  className="border-2 border-black w-full py-2 mt-2 bg-transparent text-black font-bold uppercase text-sm hover:bg-black hover:text-white transition-colors cursor-pointer active:translate-y-[1px]"
+                >
+                  Deactivate
+                </button>
+              </>
+            ) : (
+              <button 
+                onClick={m.onToggle}
+                className="border-2 border-black w-full py-2 bg-[#5C4E4E] text-white font-bold uppercase text-sm hover:bg-black transition-colors cursor-pointer active:translate-y-[1px]"
+              >
+                Activate
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    </article>
+  );
 
   return (
     <div className="flex flex-col min-h-full">
@@ -159,142 +358,13 @@ export default function LibraryPage() {
           </div>
         </div>
 
-        <Card>
-          <label className="block text-sm font-bold uppercase tracking-widest mb-2">Target Mint</label>
-          <div className="flex gap-4">
-            <MintCombobox 
-              placeholder="Enter SPL Token Mint Address..." 
-              value={mintInput} 
-              onChange={(val) => setMintInput(val)} 
+        {statusMessage && (
+          <div className="mb-8">
+            <Toast
+              type={statusMessage.type}
+              message={statusMessage.text}
+              onClose={() => setStatusMessage(null)}
             />
-            <Button onClick={handleSetMint} disabled={loading}>Load</Button>
-          </div>
-        </Card>
-
-        {activeMint && isInitialized && policy && (
-          <div className="space-y-6">
-            <Card>
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <h3 className="text-lg font-bold uppercase tracking-widest">Global Pause Module</h3>
-                  <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mt-1">Halt all transfers temporarily</p>
-                </div>
-                <button 
-                  onClick={() => setPaused(!paused)}
-                  className={`w-14 h-8 border-2 border-black rounded-none transition-colors ${paused ? "bg-[#5C4E4E]" : "bg-[#D1D1D0]"}`}
-                >
-                  <div className={`w-6 h-6 border-2 border-black bg-white transition-transform ${paused ? "translate-x-6" : "translate-x-0"}`} />
-                </button>
-              </div>
-            </Card>
-
-            <Card>
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <h3 className="text-lg font-bold uppercase tracking-widest">Allowlist Module</h3>
-                  <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mt-1">Restrict transfers to verified addresses</p>
-                </div>
-                <button 
-                  onClick={() => setAllowlistEnabled(!allowlistEnabled)}
-                  className={`w-14 h-8 border-2 border-black rounded-none transition-colors ${allowlistEnabled ? "bg-[#5C4E4E]" : "bg-[#D1D1D0]"}`}
-                >
-                  <div className={`w-6 h-6 border-2 border-black bg-white transition-transform ${allowlistEnabled ? "translate-x-6" : "translate-x-0"}`} />
-                </button>
-              </div>
-            </Card>
-
-            <Card>
-              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Volume Limiter Module</h3>
-              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Max transfer amount (Set to 0 to disable volume limits)</p>
-              <Input 
-                type="number" 
-                min="0"
-                step="1"
-                value={maxTransferAmount} 
-                onChange={(e) => setMaxTransferAmount(e.target.value)} 
-              />
-            </Card>
-
-            <Card>
-              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Anti-Dust Module</h3>
-              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Minimum transfer amount (Set to 0 to disable minimum limits)</p>
-              <Input 
-                type="number" 
-                min="0"
-                step="1"
-                value={minTransferAmount} 
-                onChange={(e) => setMinTransferAmount(e.target.value)} 
-              />
-            </Card>
-
-            <Card>
-              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Receiver Balance Cap</h3>
-              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Max Holder Basis Points (0 = no cap, 10000 = 100% of supply)</p>
-              <Input 
-                type="number" 
-                min="0"
-                max="10000"
-                step="1"
-                value={maxHolderBps} 
-                onChange={(e) => setMaxHolderBps(e.target.value)} 
-              />
-            </Card>
-            
-            <Card>
-              <h3 className="text-lg font-bold uppercase tracking-widest mb-2">Velocity Limiter (Cooldown)</h3>
-              <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mb-4">Seconds required between outgoing transfers (0 = disable)</p>
-              <Input 
-                type="number" 
-                min="0"
-                step="1"
-                value={cooldownSeconds} 
-                onChange={(e) => setCooldownSeconds(e.target.value)} 
-              />
-            </Card>
-
-            <Card>
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <h3 className="text-lg font-bold uppercase tracking-widest">Denylist Module</h3>
-                  <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mt-1">Block specific wallets from transferring tokens</p>
-                </div>
-                <button 
-                  onClick={() => setDenylistEnabled(!denylistEnabled)}
-                  className={`w-14 h-8 border-2 border-black rounded-none transition-colors ${denylistEnabled ? "bg-[#5C4E4E]" : "bg-[#D1D1D0]"}`}
-                >
-                  <div className={`w-6 h-6 border-2 border-black bg-white transition-transform ${denylistEnabled ? "translate-x-6" : "translate-x-0"}`} />
-                </button>
-              </div>
-            </Card>
-
-            <Card>
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <h3 className="text-lg font-bold uppercase tracking-widest">Vesting / Lockup</h3>
-                  <p className="text-[#5C4E4E] text-xs uppercase tracking-wider mt-1">Enforce time-locked release schedules</p>
-                </div>
-                <button 
-                  onClick={() => setVestingEnabled(!vestingEnabled)}
-                  className={`w-14 h-8 border-2 border-black rounded-none transition-colors ${vestingEnabled ? "bg-[#5C4E4E]" : "bg-[#D1D1D0]"}`}
-                >
-                  <div className={`w-6 h-6 border-2 border-black bg-white transition-transform ${vestingEnabled ? "translate-x-6" : "translate-x-0"}`} />
-                </button>
-              </div>
-            </Card>
-
-            {statusMessage && (
-              <Toast
-                type={statusMessage.type}
-                message={statusMessage.text}
-                onClose={() => setStatusMessage(null)}
-              />
-            )}
-
-            <div className="flex justify-end">
-              <Button onClick={handleSavePolicy} disabled={loading}>
-                {loading ? "Saving..." : "Save Changes"}
-              </Button>
-            </div>
           </div>
         )}
 
@@ -317,107 +387,28 @@ export default function LibraryPage() {
 
             {/* Installed Hooks Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {/* Global Pause Card */}
-              <article className="border-2 border-black p-5 bg-[#D1D1D0] flex flex-col h-full hover:bg-white transition-colors duration-200 group">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold uppercase">Global Pause</h3>
-                  <span className={`border-2 border-black px-2 py-1 text-[10px] font-bold uppercase ${
-                    paused ? "bg-[#d1fae5] text-[#065f46]" : "bg-[#f3f4f6] text-[#4b5563]"
-                  }`}>
-                    {paused ? "Active" : "Inactive"}
-                  </span>
+              {installedModules.length > 0 ? (
+                installedModules.map(renderCard)
+              ) : (
+                <div className="col-span-full border-2 border-dashed border-black p-8 text-center text-[#5C4E4E]">
+                  <p className="text-sm font-bold uppercase tracking-widest">No modules currently installed.</p>
                 </div>
-                <p className="text-xs text-[#5C4E4E] mb-6 flex-grow">
-                  Halt all token transfers temporarily. Useful for emergencies or planned maintenance periods.
-                </p>
-                {isPending("pause") && (
-                  <p className="text-[10px] text-yellow-600 font-bold mb-2 uppercase">Pending Save</p>
-                )}
-                <div className="mt-auto">
-                  <button 
-                    onClick={() => setPaused(!paused)}
-                    className="border-2 border-black w-full py-2 bg-transparent text-black font-bold uppercase text-sm hover:bg-black hover:text-white transition-colors cursor-pointer"
-                  >
-                    {paused ? "Deactivate" : "Activate"}
-                  </button>
+              )}
+            </div>
+            
+            {/* Available Hooks Grid */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 inline-block">Available Hooks</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {availableModules.length > 0 ? (
+                availableModules.map(renderCard)
+              ) : (
+                <div className="col-span-full border-2 border-dashed border-black p-8 text-center text-[#5C4E4E]">
+                  <p className="text-sm font-bold uppercase tracking-widest">All modules are installed!</p>
                 </div>
-              </article>
-
-              {/* Allowlist Gate Card */}
-              <article className="border-2 border-black p-5 bg-[#D1D1D0] flex flex-col h-full hover:bg-white transition-colors duration-200 group">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold uppercase">Allowlist Gate</h3>
-                  <span className={`border-2 border-black px-2 py-1 text-[10px] font-bold uppercase ${
-                    allowlistEnabled ? "bg-[#d1fae5] text-[#065f46]" : "bg-[#f3f4f6] text-[#4b5563]"
-                  }`}>
-                    {allowlistEnabled ? "Active" : "Inactive"}
-                  </span>
-                </div>
-                <p className="text-xs text-[#5C4E4E] mb-6 flex-grow">
-                  Restrict all token transfers strictly to verified addresses pre-approved by the admin authority.
-                </p>
-                {isPending("allowlist") && (
-                  <p className="text-[10px] text-yellow-600 font-bold mb-2 uppercase">Pending Save</p>
-                )}
-                <div className="mt-auto flex flex-col gap-2">
-                  <button 
-                    onClick={() => setAllowlistEnabled(!allowlistEnabled)}
-                    className="border-2 border-black w-full py-2 bg-transparent text-black font-bold uppercase text-sm hover:bg-black hover:text-white transition-colors cursor-pointer"
-                  >
-                    {allowlistEnabled ? "Deactivate" : "Activate"}
-                  </button>
-                  {allowlistEnabled && !isPending("allowlist") && (
-                    <Link href="/allowlist" className="block text-center border-2 border-black w-full py-2 bg-[#5C4E4E] text-white font-bold uppercase text-sm hover:bg-black transition-colors">
-                      Configure
-                    </Link>
-                  )}
-                </div>
-              </article>
-
-              {/* Token Limit Card */}
-              <article className="border-2 border-black p-5 bg-[#D1D1D0] flex flex-col h-full hover:bg-white transition-colors duration-200 group">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold uppercase">Token Limit</h3>
-                  <span className={`border-2 border-black px-2 py-1 text-[10px] font-bold uppercase ${
-                    maxTransferAmount !== "0" ? "bg-[#d1fae5] text-[#065f46]" : "bg-[#f3f4f6] text-[#4b5563]"
-                  }`}>
-                    {maxTransferAmount !== "0" ? "Active" : "Inactive"}
-                  </span>
-                </div>
-                <p className="text-xs text-[#5C4E4E] mb-6 flex-grow">
-                  Cap the maximum transfer amount per transaction to prevent mass dumping.
-                </p>
-                {isPending("limit") && (
-                  <p className="text-[10px] text-yellow-600 font-bold mb-2 uppercase">Pending Save</p>
-                )}
-                <div className="mt-auto flex flex-col gap-2">
-                  {maxTransferAmount !== "0" || isPending("limit") ? (
-                    <>
-                      <div className="flex flex-col">
-                        <label className="text-[10px] font-bold uppercase mb-1 text-[#5C4E4E]">Max Amount</label>
-                        <Input 
-                          type="number" 
-                          value={maxTransferAmount} 
-                          onChange={(e) => setMaxTransferAmount(e.target.value)} 
-                        />
-                      </div>
-                      <button 
-                        onClick={() => setMaxTransferAmount("0")}
-                        className="border-2 border-black w-full py-2 mt-2 bg-transparent text-black font-bold uppercase text-sm hover:bg-black hover:text-white transition-colors cursor-pointer"
-                      >
-                        Deactivate
-                      </button>
-                    </>
-                  ) : (
-                    <button 
-                      onClick={() => setMaxTransferAmount("1000")} // default value to start configuration
-                      className="border-2 border-black w-full py-2 bg-transparent text-black font-bold uppercase text-sm hover:bg-black hover:text-white transition-colors cursor-pointer"
-                    >
-                      Activate
-                    </button>
-                  )}
-                </div>
-              </article>
+              )}
             </div>
           </>
         )}
@@ -425,7 +416,7 @@ export default function LibraryPage() {
         {/* Browse Marketplace Grid */}
         <div>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-black pb-2 mb-6 gap-4">
-            <h2 className="text-2xl font-bold uppercase tracking-tighter">Browse Marketplace</h2>
+            <h2 className="text-2xl font-bold uppercase tracking-tighter">Community Extensions</h2>
             <div className="relative w-full md:w-64">
               <Input 
                 type="text" 

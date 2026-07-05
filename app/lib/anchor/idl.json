@@ -66,6 +66,87 @@
       "args": []
     },
     {
+      "name": "clear_vesting_lock",
+      "discriminator": [
+        157,
+        2,
+        142,
+        53,
+        233,
+        4,
+        57,
+        5
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "policy_authority",
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "hook_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_account"
+        },
+        {
+          "name": "vesting_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              },
+              {
+                "kind": "account",
+                "path": "token_account"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "execute",
       "discriminator": [
         105,
@@ -159,6 +240,88 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "init_cooldown_entry",
+      "discriminator": [
+        141,
+        111,
+        127,
+        103,
+        21,
+        108,
+        100,
+        190
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "hook_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_account"
+        },
+        {
+          "name": "cooldown_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  111,
+                  108,
+                  100,
+                  111,
+                  119,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              },
+              {
+                "kind": "account",
+                "path": "token_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
     },
     {
       "name": "init_extra_account_meta_list",
@@ -309,6 +472,96 @@
       "args": []
     },
     {
+      "name": "set_vesting_lock",
+      "discriminator": [
+        82,
+        140,
+        147,
+        145,
+        172,
+        241,
+        217,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "policy_authority",
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "hook_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_account"
+        },
+        {
+          "name": "vesting_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              },
+              {
+                "kind": "account",
+                "path": "token_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "unlock_timestamp",
+          "type": "i64"
+        }
+      ]
+    },
+    {
       "name": "update_allowlist",
       "discriminator": [
         138,
@@ -405,6 +658,100 @@
       ]
     },
     {
+      "name": "update_denylist",
+      "discriminator": [
+        61,
+        158,
+        149,
+        70,
+        107,
+        53,
+        26,
+        63
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "policy_authority",
+          "signer": true,
+          "relations": [
+            "hook_config"
+          ]
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "hook_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_account"
+        },
+        {
+          "name": "denylist_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  110,
+                  121,
+                  108,
+                  105,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              },
+              {
+                "kind": "account",
+                "path": "token_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "flagged",
+          "type": "bool"
+        }
+      ]
+    },
+    {
       "name": "update_policy",
       "discriminator": [
         212,
@@ -453,42 +800,6 @@
           }
         },
         {
-          "name": "extra_account_meta_list",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  101,
-                  120,
-                  116,
-                  114,
-                  97,
-                  45,
-                  97,
-                  99,
-                  99,
-                  111,
-                  117,
-                  110,
-                  116,
-                  45,
-                  109,
-                  101,
-                  116,
-                  97,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "mint"
-              }
-            ]
-          }
-        },
-        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
@@ -520,6 +831,32 @@
       ]
     },
     {
+      "name": "CooldownEntry",
+      "discriminator": [
+        133,
+        235,
+        219,
+        236,
+        44,
+        236,
+        82,
+        142
+      ]
+    },
+    {
+      "name": "DenylistEntry",
+      "discriminator": [
+        2,
+        44,
+        7,
+        103,
+        34,
+        229,
+        136,
+        179
+      ]
+    },
+    {
       "name": "HookConfig",
       "discriminator": [
         137,
@@ -530,6 +867,19 @@
         72,
         8,
         182
+      ]
+    },
+    {
+      "name": "VestingEntry",
+      "discriminator": [
+        18,
+        55,
+        48,
+        24,
+        157,
+        78,
+        194,
+        80
       ]
     }
   ],
@@ -634,6 +984,51 @@
       "code": 6011,
       "name": "MetaListSizeOverflow",
       "msg": "The computed extra account meta list size exceeds safe bounds."
+    },
+    {
+      "code": 6012,
+      "name": "TokensLocked",
+      "msg": "Tokens are locked until the vesting period expires."
+    },
+    {
+      "code": 6013,
+      "name": "BelowMinimumTransferAmount",
+      "msg": "Transfer amount is below the configured minimum transfer amount."
+    },
+    {
+      "code": 6014,
+      "name": "ExceedsHolderCap",
+      "msg": "Transfer would exceed the receiver's maximum allowed balance cap."
+    },
+    {
+      "code": 6015,
+      "name": "InvalidBps",
+      "msg": "Basis points must be between 0 and 10000."
+    },
+    {
+      "code": 6016,
+      "name": "SourceDenylisted",
+      "msg": "Source wallet is blocked on the denylist."
+    },
+    {
+      "code": 6017,
+      "name": "DestinationDenylisted",
+      "msg": "Destination wallet is blocked on the denylist."
+    },
+    {
+      "code": 6018,
+      "name": "CooldownNotExpired",
+      "msg": "You must wait for the cooldown period to expire before transferring again."
+    },
+    {
+      "code": 6019,
+      "name": "CooldownEntryMissing",
+      "msg": "A Cooldown PDA is required but missing."
+    },
+    {
+      "code": 6020,
+      "name": "InvalidTransferBounds",
+      "msg": "Minimum transfer amount cannot exceed maximum transfer amount."
     }
   ],
   "types": [
@@ -657,6 +1052,54 @@
           },
           {
             "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CooldownEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "last_transfer_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DenylistEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "flagged",
             "type": "bool"
           },
           {
@@ -694,6 +1137,40 @@
           {
             "name": "max_transfer_amount",
             "type": "u64"
+          },
+          {
+            "name": "vesting_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "min_transfer_amount",
+            "type": "u64"
+          },
+          {
+            "name": "max_holder_bps",
+            "type": "u16"
+          },
+          {
+            "name": "denylist_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "cooldown_seconds",
+            "docs": [
+              "Cooldown is deny-by-default when enabled, unlike other modules, because it requires",
+              "mutable state (last_transfer_timestamp) that the hook cannot create itself (no funding payer).",
+              "Users MUST have a CooldownEntry initialized before transferring if this is > 0."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "_reserved",
+            "type": {
+              "array": [
+                "u8",
+                48
+              ]
+            }
           }
         ]
       }
@@ -757,6 +1234,26 @@
           {
             "name": "max_transfer_amount",
             "type": "u64"
+          },
+          {
+            "name": "vesting_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "min_transfer_amount",
+            "type": "u64"
+          },
+          {
+            "name": "max_holder_bps",
+            "type": "u16"
+          },
+          {
+            "name": "denylist_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "cooldown_seconds",
+            "type": "u32"
           }
         ]
       }
@@ -783,6 +1280,60 @@
             "type": {
               "option": "u64"
             }
+          },
+          {
+            "name": "vesting_enabled",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "min_transfer_amount",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "max_holder_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "denylist_enabled",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "cooldown_seconds",
+            "type": {
+              "option": "u32"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "VestingEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "unlock_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
           }
         ]
       }
