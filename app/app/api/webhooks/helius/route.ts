@@ -48,10 +48,14 @@ export async function POST(request: Request) {
           } else if (actionName === 'update_policy') {
             actionName = 'Update Policy';
             targetMint = ix.accounts[1];
-            details.paused = data.paused;
-            details.allowlistEnabled = data.allowlistEnabled;
-            // Convert BN to string if present
-            details.maxTransferAmount = data.maxTransferAmount ? data.maxTransferAmount.toString() : null;
+            if (data.paused !== null) details.paused = data.paused;
+            if (data.allowlistEnabled !== null) details.allowlistEnabled = data.allowlistEnabled;
+            if (data.maxTransferAmount !== null) details.maxTransferAmount = data.maxTransferAmount.toString();
+            if (data.vestingEnabled !== null) details.vestingEnabled = data.vestingEnabled;
+            if (data.minTransferAmount !== null) details.minTransferAmount = data.minTransferAmount.toString();
+            if (data.maxHolderBps !== null) details.maxHolderBps = data.maxHolderBps;
+            if (data.denylistEnabled !== null) details.denylistEnabled = data.denylistEnabled;
+            if (data.cooldownSeconds !== null) details.cooldownSeconds = data.cooldownSeconds;
           } else if (actionName === 'update_allowlist') {
             actionName = 'Update Allowlist';
             targetMint = ix.accounts[2];

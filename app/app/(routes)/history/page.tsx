@@ -178,7 +178,25 @@ export default function HistoryPage() {
                           try {
                             const parsed = JSON.parse(log.details);
                             const { tx, ...rest } = parsed;
-                            const restStr = Object.entries(rest).map(([k, v]) => `${k}: ${v}`).join(', ');
+                            
+                            const KEY_TO_NAME: Record<string, string> = {
+                              paused: "Global Pause",
+                              allowlistEnabled: "Allowlist",
+                              maxTransferAmount: "Max Amount",
+                              vestingEnabled: "Vesting",
+                              minTransferAmount: "Min Amount",
+                              maxHolderBps: "Receiver Cap",
+                              denylistEnabled: "Denylist",
+                              cooldownSeconds: "Cooldown"
+                            };
+
+                            const restStr = Object.entries(rest)
+                              .filter(([_, v]) => v !== null)
+                              .map(([k, v]) => {
+                                const name = KEY_TO_NAME[k] || k;
+                                return `${name}: ${v}`;
+                              })
+                              .join(' | ');
 
                             return (
                               <div className="space-y-1">

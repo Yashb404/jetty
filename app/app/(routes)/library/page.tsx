@@ -507,8 +507,7 @@ export default function LibraryPage() {
               <article key={idx} className="border-2 border-black p-4 bg-white flex flex-col h-full relative">
                 <h3 className="text-sm font-bold uppercase text-black mb-2">{ext.name}</h3>
                 <p className="text-[11px] text-[#5C4E4E] mb-4 flex-grow">{ext.desc}</p>
-                <div className="flex justify-between items-center mt-auto border-t-2 border-black pt-3">
-                  <span className="text-[10px] font-bold uppercase text-[#5C4E4E]">By: {ext.author}</span>
+                <div className="flex justify-end items-center mt-auto border-t-2 border-black pt-3">
                   <button disabled className="border-2 border-black px-3 py-1 bg-gray-200 text-gray-500 font-bold uppercase text-[10px] cursor-not-allowed">
                     Coming Soon
                   </button>
