@@ -179,7 +179,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
             Ok(entry) => {
                 entry
             }
-            Err(e) => {
+            Err(_) => {
 
                 return err!(JettyError::CooldownEntryMissing);
             }
