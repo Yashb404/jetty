@@ -182,7 +182,7 @@ export default function LibraryPage() {
       onDeactivate: null,
       inputValue: null,
       onInputChange: null,
-      configureLink: null
+      configureLink: "/denylist"
     },
     {
       id: "vesting",
@@ -194,7 +194,7 @@ export default function LibraryPage() {
       onDeactivate: null,
       inputValue: null,
       onInputChange: null,
-      configureLink: null
+      configureLink: "/vesting"
     },
     {
       id: "max_amount",

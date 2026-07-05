@@ -24,10 +24,6 @@ export default function Sidebar() {
           <Library className="w-5 h-5" />
           Library
         </Link>
-        <Link href="/allowlist" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
-          <Activity className="w-5 h-5" />
-          Allowlist
-        </Link>
         <Link href="/history" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -48,7 +44,7 @@ export default function Sidebar() {
       </div>
 
       <div className="p-6 border-t-2 border-black text-xs text-[#5C4E4E] font-semibold uppercase tracking-widest text-center">
-        V 0.1.1-BETA
+        V 0.2.1-BETA
       </div>
     </aside>
   );
