@@ -136,7 +136,11 @@ export default function LibraryPage() {
         denylistArg,
         cooldownArg
       );
+      
+      // Delay refetch slightly to ensure the RPC node returns the fresh account state
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       refetch();
+      
       setStatusMessage({ type: "success", text: "Policy updated successfully." });
     } catch (e) {
       console.error(e);
