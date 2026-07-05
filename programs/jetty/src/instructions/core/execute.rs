@@ -180,7 +180,7 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
                 entry
             }
             Err(_) => {
-
+                // We discard the original parsing error and return our custom Anchor error
                 return err!(JettyError::CooldownEntryMissing);
             }
         };
