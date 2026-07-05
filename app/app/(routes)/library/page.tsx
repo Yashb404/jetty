@@ -136,7 +136,11 @@ export default function LibraryPage() {
         denylistArg,
         cooldownArg
       );
+      
+      // Delay refetch slightly to ensure the RPC node returns the fresh account state
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       refetch();
+      
       setStatusMessage({ type: "success", text: "Policy updated successfully." });
     } catch (e) {
       console.error(e);
@@ -406,6 +410,17 @@ export default function LibraryPage() {
         {activeMint && isInitialized && policy && (
           <>
             {/* Logic & UX Warning Banners */}
+            {!dismissedWarnings["rpc_delay_info"] && (
+              <div className="mb-6 p-4 border-2 border-black bg-[#4B5563] text-white font-bold uppercase tracking-widest text-sm flex justify-between items-center gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span>RPC Sync: After saving, it may take a few seconds for Devnet nodes to reflect your new module state.</span>
+                </div>
+                <button onClick={() => dismissWarning("rpc_delay_info")} className="shrink-0 hover:text-black transition-colors" aria-label="Dismiss">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            )}
             {paused && !dismissedWarnings["global_pause"] && (
               <div className="mb-6 p-4 border-2 border-black bg-red-700 text-white font-bold uppercase tracking-widest text-sm flex justify-between items-center gap-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <div className="flex items-center gap-3">
