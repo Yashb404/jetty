@@ -21,3 +21,17 @@ export interface AllowlistEntry {
   active: boolean;
   bump: number;
 }
+
+export interface DenylistEntry {
+  mint: PublicKey;
+  tokenAccount: PublicKey;
+  blocked: boolean;
+  bump: number;
+}
+
+export interface VestingEntry {
+  mint: PublicKey;
+  tokenAccount: PublicKey;
+  releaseTimestamp: BN;
+  bump: number;
+}

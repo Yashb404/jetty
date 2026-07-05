@@ -117,6 +117,45 @@ export function useJettyProgram() {
     }, "Update Allowlist");
   };
 
+  const updateDenylist = async (mint: PublicKey, tokenAccount: PublicKey, blocked: boolean) => {
+    return executeAction(async (prog) => {
+      return prog.methods
+        .updateDenylist(blocked)
+        .accounts({
+          payer: prog.provider.publicKey!,
+          mint,
+          tokenAccount,
+        })
+        .rpc();
+    }, "Update Denylist");
+  };
+
+  const setVestingLock = async (mint: PublicKey, tokenAccount: PublicKey, releaseTimestamp: BN) => {
+    return executeAction(async (prog) => {
+      return prog.methods
+        .setVestingLock(releaseTimestamp)
+        .accounts({
+          payer: prog.provider.publicKey!,
+          mint,
+          tokenAccount,
+        })
+        .rpc();
+    }, "Set Vesting Lock");
+  };
+
+  const clearVestingLock = async (mint: PublicKey, tokenAccount: PublicKey) => {
+    return executeAction(async (prog) => {
+      return prog.methods
+        .clearVestingLock()
+        .accounts({
+          payer: prog.provider.publicKey!,
+          mint,
+          tokenAccount,
+        })
+        .rpc();
+    }, "Clear Vesting Lock");
+  };
+
   const assignPolicyAuthority = async (mint: PublicKey, newAuthority: PublicKey) => {
     return executeAction(async (prog) => {
       // NOTE: This instruction requires both current and new authority to sign.
@@ -203,6 +242,9 @@ export function useJettyProgram() {
     initExtraAccountMetaList,
     updatePolicy,
     updateAllowlist,
+    updateDenylist,
+    setVestingLock,
+    clearVestingLock,
     assignPolicyAuthority,
     createToken2022Mint,
   };
