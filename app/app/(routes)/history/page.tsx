@@ -243,7 +243,7 @@ export default function HistoryPage() {
                         })()}
                       </div>
                       <div className="col-span-2 text-xs text-right text-[#5C4E4E]">
-                        {new Date(log.timestamp).toLocaleString()}
+                        {new Date(log.timestamp + (!log.timestamp.includes('Z') ? 'Z' : '')).toLocaleString(undefined, { timeZoneName: 'short' })}
                       </div>
                     </div>
                   ))
