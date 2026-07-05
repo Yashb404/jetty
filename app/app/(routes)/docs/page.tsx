@@ -175,40 +175,7 @@ export default function DocsPage() {
           </div>
         </Card>
 
-        <Card>
-          <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4">
-            Relevant Resources
-          </h3>
-          <div className="flex flex-col gap-3">
-            <a 
-              href="https://spl.solana.com/token-2022" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide hover:underline text-[#5C4E4E] hover:text-black transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Solana Token-2022 Overview
-            </a>
-            <a 
-              href="https://spl.solana.com/token-2022/extensions#transfer-hooks" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide hover:underline text-[#5C4E4E] hover:text-black transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Transfer Hook Extension Docs
-            </a>
-            <a 
-              href="https://www.anchor-lang.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide hover:underline text-[#5C4E4E] hover:text-black transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Anchor Framework
-            </a>
-          </div>
-        </Card>
+
       </div>
     </div>
   );

@@ -64,3 +64,25 @@ body {
 .wallet-adapter-modal-middle {
   padding-bottom: 20px !important;
 }
+
+/* Neo-Brutalist Scrollbar */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+  border-left: 2px solid var(--foreground);
+  border-right: 2px solid var(--foreground);
+  border-top: 2px solid var(--foreground);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--foreground);
+  border: 2px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
