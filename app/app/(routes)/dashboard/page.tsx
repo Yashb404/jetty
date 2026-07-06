@@ -101,12 +101,22 @@ export default function Home() {
             <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
               Manage your Transfer Hook Compliance Controller
             </p>
-            <Link href="/docs/quick-guide" title="Click here to learn how to initialize and configure your first Transfer Hook" className="text-xs font-bold border-2 border-black px-4 py-2 hover:bg-black hover:text-[#faf9f8] transition-colors uppercase tracking-widest inline-flex items-center gap-2 brutalist-button-active bg-white">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Quick Start Guide →
-            </Link>
+            <div className="relative group inline-block">
+              <Link href="/docs/quick-guide" className="text-xs font-bold border-2 border-black px-4 py-2 hover:bg-black hover:text-[#faf9f8] transition-colors uppercase tracking-widest inline-flex items-center gap-2 brutalist-button-active bg-white w-full sm:w-auto justify-center">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Quick Start Guide →
+              </Link>
+              {/* Custom Hover Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 hidden group-hover:block w-56 p-3 bg-white border-2 border-black text-black text-[10px] font-bold uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 text-center transition-all">
+                Click here to learn how to initialize and configure your first Transfer Hook
+                
+                {/* Pointer Arrow */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-[8px] border-transparent border-t-black"></div>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-[8px] border-transparent border-t-white mt-[-3px]"></div>
+              </div>
+            </div>
           </div>
         </div>
 
