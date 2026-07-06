@@ -12,19 +12,19 @@ export default function LandingFeatures() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="border-2 border-black bg-white p-6">
-          <h4 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>Solana Native</h4>
+          <h3 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>Solana Native</h3>
           <p className="text-base text-[#4c4546]">Built for Token-2022 using Anchor/Rust (zero unsafe blocks).</p>
         </div>
         <div className="border-2 border-black bg-white p-6">
-          <h4 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>Real-time Monitoring</h4>
+          <h3 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>Real-time Monitoring</h3>
           <p className="text-base text-[#4c4546]">Event indexing powered by Helius Webhooks.</p>
         </div>
         <div className="border-2 border-black bg-white p-6">
-          <h4 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>Edge Infrastructure</h4>
+          <h3 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>Edge Infrastructure</h3>
           <p className="text-base text-[#4c4546]">Low-latency data via Turso / LibSQL.</p>
         </div>
         <div className="border-2 border-black bg-white p-6">
-          <h4 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>Open Source</h4>
+          <h3 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>Open Source</h3>
           <p className="text-base text-[#4c4546]">Verify logic on-chain or audit the GitHub repo.</p>
         </div>
       </div>

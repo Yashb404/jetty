@@ -18,7 +18,7 @@ export default function SupportPage() {
             <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between border-4 border-black">
               <div>
                 <Bug className="w-8 h-8 mb-4" />
-                <h4 className="font-bold uppercase tracking-wide mb-2 text-xl">Report an Issue</h4>
+                <h3 className="font-bold uppercase tracking-wide mb-2 text-xl">Report an Issue</h3>
                 <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">
                   Found a bug or have a feature request? Open an issue on our GitHub tracker.
                 </p>
@@ -33,7 +33,7 @@ export default function SupportPage() {
             <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between border-4 border-black">
               <div>
                 <Code className="w-8 h-8 mb-4" />
-                <h4 className="font-bold uppercase tracking-wide mb-2 text-xl">Source Code</h4>
+                <h3 className="font-bold uppercase tracking-wide mb-2 text-xl">Source Code</h3>
                 <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">
                   Jetty is fully open-source. Explore the smart contracts and frontend code.
                 </p>
@@ -49,7 +49,7 @@ export default function SupportPage() {
               <div className="flex items-start sm:items-center gap-4">
                 <MessageCircle className="w-8 h-8 sm:mb-0 mb-4" />
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-1 text-xl">Follow on X</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-1 text-xl">Follow on X</h3>
                   <p className="text-sm group-hover:text-white text-[#5C4E4E]">
                     Stay up to date with the latest features, announcements, and developments.
                   </p>

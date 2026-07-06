@@ -46,7 +46,7 @@ export default function DocsPage() {
           <Link href="/docs/quick-guide" className="block mb-8">
             <Card className="hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between border-4 border-black">
               <div>
-                <h4 className="font-bold uppercase tracking-wide mb-2 text-xl">Quick Start Guide</h4>
+                <h3 className="font-bold uppercase tracking-wide mb-2 text-xl">Quick Start Guide</h3>
                 <p className="text-sm group-hover:text-gray-300 text-[#5C4E4E]">A comprehensive step-by-step walkthrough of the Frontend Dashboard.</p>
               </div>
               <div className="flex items-center gap-2 text-sm font-bold mt-4 sm:mt-0">
@@ -60,7 +60,7 @@ export default function DocsPage() {
             <Link href="/docs/global-pause" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Global Pause</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-2 text-lg">Global Pause</h3>
                   <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Instantly freeze all token transfers across the entire network.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
@@ -72,7 +72,7 @@ export default function DocsPage() {
             <Link href="/docs/allowlist" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Allowlist</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-2 text-lg">Allowlist</h3>
                   <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Restrict transfers strictly to pre-approved wallets.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
@@ -84,7 +84,7 @@ export default function DocsPage() {
             <Link href="/docs/denylist" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Denylist</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-2 text-lg">Denylist</h3>
                   <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Block explicitly flagged wallets from transferring tokens.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
@@ -96,7 +96,7 @@ export default function DocsPage() {
             <Link href="/docs/volume-limits" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Volume Limits</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-2 text-lg">Volume Limits</h3>
                   <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Set a maximum ceiling for any single transaction.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
@@ -108,7 +108,7 @@ export default function DocsPage() {
             <Link href="/docs/min-transfer" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Anti-Dust</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-2 text-lg">Anti-Dust</h3>
                   <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Set a minimum transfer size to prevent dust attacks.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
@@ -120,7 +120,7 @@ export default function DocsPage() {
             <Link href="/docs/receiver-cap" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Receiver Cap</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-2 text-lg">Receiver Cap</h3>
                   <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Limit maximum holder balances based on total supply percentage.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
@@ -132,7 +132,7 @@ export default function DocsPage() {
             <Link href="/docs/cooldown" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Velocity Limiter</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-2 text-lg">Velocity Limiter</h3>
                   <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Enforce cooldown periods between successive transfers.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
@@ -144,7 +144,7 @@ export default function DocsPage() {
             <Link href="/docs/vesting" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
-                  <h4 className="font-bold uppercase tracking-wide mb-2 text-lg">Vesting / Lockup</h4>
+                  <h3 className="font-bold uppercase tracking-wide mb-2 text-lg">Vesting / Lockup</h3>
                   <p className="text-sm mb-4 group-hover:text-gray-300 text-[#5C4E4E]">Lock tokens until a predefined timestamp for scheduled releases.</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm font-bold">
