@@ -22,8 +22,12 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
 }
 
-.wallet-adapter-button-trigger {
+.jetty-wallet-btn .wallet-adapter-button {
   background-color: #FF5722 !important;
+}
+
+.jetty-wallet-btn .wallet-adapter-button:hover {
+  background-color: #000000 !important;
 }
 
 .wallet-adapter-modal-wrapper {
