@@ -132,7 +132,7 @@ export default function Home() {
         {activeMint && (
           <div className="space-y-6">
             {!isInitialized && (
-              <Card className="bg-[#5C4E4E] text-white">
+              <Card variant="dark">
                 <h3 className="text-xl font-bold uppercase mb-2">Initialize Policy</h3>
                 <p className="mb-4 text-sm">This mint has not been initialized with Jetty yet.</p>
                 <Button variant="secondary" onClick={handleInit} disabled={loading}>
@@ -142,7 +142,7 @@ export default function Home() {
             )}
 
             {isInitialized && !metaListExists && (
-              <Card className="bg-[#5C4E4E] text-white">
+              <Card variant="dark">
                 <h3 className="text-xl font-bold uppercase mb-2">Initialize Account Meta List</h3>
                 <p className="mb-4 text-sm">Required for Token-2022 Transfer Hook CPI resolution.</p>
                 <Button variant="secondary" onClick={handleInitMeta} disabled={loading}>

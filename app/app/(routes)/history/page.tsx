@@ -121,7 +121,7 @@ export default function HistoryPage() {
         </div>
 
         {!publicKey ? (
-          <Card className="bg-[#5C4E4E] text-white">
+          <Card variant="dark">
             <h3 className="text-xl font-bold uppercase mb-2">Wallet Disconnected</h3>
             <p className="text-sm">Please connect your wallet to view your action history.</p>
           </Card>

@@ -1,8 +1,17 @@
 import React from "react";
 
-export default function Card({ children, className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "dark";
+}
+
+export default function Card({ children, className = "", variant = "default", ...props }: CardProps) {
+  const baseClasses = "border-2 border-black p-6 font-mono rounded-none";
+  const variantClasses = variant === "dark" 
+    ? "bg-[#5C4E4E] text-white" 
+    : "bg-[#faf9f8] text-black";
+
   return (
-    <div className={`border-2 border-black bg-[#faf9f8] p-6 font-mono text-black rounded-none ${className}`} {...props}>
+    <div className={`${baseClasses} ${variantClasses} ${className}`} {...props}>
       {children}
     </div>
   );

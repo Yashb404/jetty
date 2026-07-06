@@ -187,7 +187,7 @@ export default function VestingManagerPage() {
         )}
 
         {activeMint && !isInitialized && (
-          <Card className="bg-[#5C4E4E] text-white">
+          <Card variant="dark">
             <h3 className="text-xl font-bold uppercase mb-2">Not Initialized</h3>
             <p className="text-sm">This mint has no policy configured. Please initialize it on the Dashboard first.</p>
           </Card>
