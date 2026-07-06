@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Input from "../../../../components/ui/input";
 import Button from "../../../../components/ui/button";
@@ -82,18 +81,7 @@ export default function VestingManagerPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8]">
-        <div className="flex items-center gap-4">
-          <Link href="/library" className="flex items-center gap-2 text-black hover:text-[#5C4E4E] transition-colors font-bold uppercase tracking-widest text-sm">
-            &larr; Back to Marketplace
-          </Link>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
-
-      <div className="flex-1 p-8 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
+      <div className="flex-1 p-8 pt-20 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Vesting & Lockup Manager</h2>
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">

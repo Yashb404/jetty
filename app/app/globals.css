@@ -10,8 +10,16 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: "JetBrains Mono", var(--font-geist-sans), monospace;
+  font-family: var(--font-jetbrains-mono), monospace;
   overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space-mono), monospace;
+}
+
+.brutalist-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
 }
 
 /* Wallet adapter styles override to fit neo-brutalist theme */

@@ -1,20 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import WalletConnect from "../../../components/web3/wallet-connect";
 import { Book, Shield, Ban, Activity, ShieldAlert, Users, Lock, Clock } from "lucide-react";
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col h-full w-full">
-      <header className="flex justify-between items-center shrink-0 h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8] z-10">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
-
       <div className="flex flex-1 min-h-0">
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto">

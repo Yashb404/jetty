@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { PublicKey } from "@solana/web3.js";
-import WalletConnect from "../../../../components/web3/wallet-connect";
 import Card from "../../../../components/ui/card";
 import Input from "../../../../components/ui/input";
 import Button from "../../../../components/ui/button";
@@ -66,16 +65,7 @@ export default function AllowlistManagerPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
-
-      <div className="flex-1 p-8 max-w-4xl mx-auto w-full space-y-8 font-mono text-black">
+      <div className="flex-1 p-8 pt-20 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Allowlist Manager</h2>
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">

@@ -109,7 +109,7 @@ export default function QuickGuideDocs() {
             </p>
             <p className="text-sm leading-relaxed bg-[#faf9f8] p-4 border-2 border-black mb-4">
               <strong>CRITICAL: Token Accounts vs. Wallet Addresses</strong><br /><br />
-              When configuring a user, you must input their <strong>Associated Token Account (ATA)</strong> address, NOT their main wallet address. 
+              When configuring a user, the user must also have an Associated Token Account (ATA) address derived from that mint. 
               The ATA is the specific sub-account that holds your custom token. You can easily find a user&apos;s ATA by looking at their 
               wallet on an explorer like Solscan and checking their token holdings.
             </p>

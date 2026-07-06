@@ -13,6 +13,10 @@ const config: Config = {
           white: "#ffffff",
         },
       },
+      fontFamily: {
+        mono: ['var(--font-jetbrains-mono)', 'monospace'],
+        space: ['var(--font-space-mono)', 'monospace'],
+      },
     },
   },
   plugins: [],

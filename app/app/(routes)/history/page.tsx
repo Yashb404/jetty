@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import WalletConnect from "../../../components/web3/wallet-connect";
+import Link from "next/link";
 import Card from "../../../components/ui/card";
 import { Copy, Check, Search, Filter } from "lucide-react";
 
@@ -100,16 +100,7 @@ export default function HistoryPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8]">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <WalletConnect />
-        </div>
-      </header>
-
-      <div className="flex-1 p-8 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
+      <div className="flex-1 p-8 pt-20 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Action History</h2>
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest mb-4">
