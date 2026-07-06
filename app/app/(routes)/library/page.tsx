@@ -433,8 +433,11 @@ export default function LibraryPage() {
             )}
 
             {/* Save Action Banner */}
-            <div className="mb-6 flex justify-between items-center">
-              <h2 className="text-2xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 inline-block">Installed Hooks</h2>
+            <div className="border-b-4 border-black pb-4 mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div className="flex items-center gap-3">
+
+                <h2 className="text-2xl font-bold uppercase tracking-tighter leading-none">Installed Hooks</h2>
+              </div>
               <Button onClick={handleSavePolicy} disabled={loading || !hasUnsavedChanges}>
                 {loading ? "Saving..." : "Save Configuration"}
               </Button>
@@ -452,8 +455,9 @@ export default function LibraryPage() {
             </div>
 
             {/* Available Hooks Grid */}
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 inline-block">Available Hooks</h2>
+            <div className="border-b-4 border-black pb-4 mb-6 flex items-center gap-3">
+
+              <h2 className="text-2xl font-bold uppercase tracking-tighter leading-none">Available Hooks</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -469,9 +473,12 @@ export default function LibraryPage() {
         )}
 
         {/* Browse Marketplace Grid */}
-        <div>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-black pb-2 mb-6 gap-4">
-            <h2 className="text-2xl font-bold uppercase tracking-tighter">Community Extensions</h2>
+        <div className="mt-12">
+          <div className="border-b-4 border-black pb-4 mb-6 flex flex-col md:flex-row justify-between md:items-end gap-4">
+            <div className="flex items-center gap-3">
+
+              <h2 className="text-2xl font-bold uppercase tracking-tighter leading-none">Browse Hooks</h2>
+            </div>
             <div className="relative w-full md:w-64">
               <Input
                 type="text"
