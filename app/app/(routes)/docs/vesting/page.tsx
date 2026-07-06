@@ -24,14 +24,14 @@ export default function VestingDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              The Vesting module allows you to lock tokens in a specific user&apos;s wallet until a predefined timestamp. 
+              The Vesting module allows you to lock tokens in a specific user&apos;s wallet until a predefined timestamp.
               Before the unlock timestamp is reached, the user cannot transfer any tokens out of their account, though they can still receive tokens.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
-                When active, Jetty checks if a <code>VestingEntry</code> PDA exists for the sender&apos;s token account. 
-                If it does, Jetty compares the Solana clock&apos;s current Unix timestamp against the entry&apos;s <code>unlock_timestamp</code>. 
+                When active, Jetty checks if a <code>VestingEntry</code> PDA exists for the sender&apos;s token account.
+                If it does, Jetty compares the Solana clock&apos;s current Unix timestamp against the entry&apos;s <code>unlock_timestamp</code>.
                 If the current time is less than the unlock time, it reverts with <code>TokensLocked</code> (6012).
               </p>
             </div>
@@ -42,11 +42,11 @@ export default function VestingDocs() {
               Under the Hood: Contract Integration
             </h3>
             <p className="text-sm leading-relaxed mb-4 text-[#5C4E4E]">
-              For developers building custom interfaces, you can enforce a vesting lock programmatically by invoking the <code>set_vesting_lock</code> 
+              For developers building custom interfaces, you can enforce a vesting lock programmatically by invoking the <code>set_vesting_lock</code>
               instruction with a Unix timestamp.
             </p>
             <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
-{`// Set a vesting lock on a Token Account
+              {`// Set a vesting lock on a Token Account
 await program.methods
   .setVestingLock(new anchor.BN(unlockTimestamp)) 
   .accounts({

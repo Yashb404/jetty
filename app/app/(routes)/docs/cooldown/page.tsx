@@ -24,15 +24,15 @@ export default function CooldownDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              The Velocity Limiter enforces a strict cooldown period between outgoing token transfers. 
-              This is often used to prevent flash-loan attacks, sandwich attacks, or rapid dumping of liquidity. 
+              The Velocity Limiter enforces a strict cooldown period between outgoing token transfers.
+              This is often used to prevent flash-loan attacks, sandwich attacks, or rapid dumping of liquidity.
               When enabled, a user must wait a specific number of seconds before initiating another transfer.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Important Note:</p>
               <p className="text-sm leading-relaxed mb-4">
-                Because the Transfer Hook requires a mutable state account to record the last transfer timestamp, 
-                enabling this module changes the token to a <strong>deny-by-default</strong> model if the sender lacks a <code>CooldownEntry</code> PDA. 
+                Because the Transfer Hook requires a mutable state account to record the last transfer timestamp,
+                enabling this module changes the token to a <strong>deny-by-default</strong> model if the sender lacks a <code>CooldownEntry</code> PDA.
                 Users MUST have this PDA initialized before they can transfer tokens if the cooldown period is greater than 0.
               </p>
             </div>
@@ -61,7 +61,7 @@ export default function CooldownDocs() {
               To enable cooldowns programmatically, update the policy via the <code>updatePolicy</code> instruction. Additionally, users must initialize a <code>CooldownEntry</code> PDA before their first transfer.
             </p>
             <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
-{`// 1. Set the cooldown to 60 seconds
+              {`// 1. Set the cooldown to 60 seconds
 await program.methods
   .updatePolicy({ 
     paused: null, 

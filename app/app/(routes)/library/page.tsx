@@ -87,12 +87,12 @@ export default function LibraryPage() {
       if (maxTransferAmount !== policy.maxTransferAmount.toString()) {
         parsedMaxAmount = new BN(maxTransferAmount);
       }
-      
+
       let parsedMinAmount = null;
       if (minTransferAmount !== policy.minTransferAmount.toString()) {
         parsedMinAmount = new BN(minTransferAmount);
       }
-      
+
       const pausedArg = paused !== policy.paused ? paused : null;
       const allowlistArg = allowlistEnabled !== policy.allowlistEnabled ? allowlistEnabled : null;
       const vestingArg = vestingEnabled !== policy.vestingEnabled ? vestingEnabled : null;
@@ -111,8 +111,8 @@ export default function LibraryPage() {
       }
 
       if (
-        pausedArg === null && 
-        allowlistArg === null && 
+        pausedArg === null &&
+        allowlistArg === null &&
         parsedMaxAmount === null &&
         vestingArg === null &&
         parsedMinAmount === null &&
@@ -125,9 +125,9 @@ export default function LibraryPage() {
       }
 
       await updatePolicy(
-        new PublicKey(activeMint), 
-        pausedArg, 
-        allowlistArg, 
+        new PublicKey(activeMint),
+        pausedArg,
+        allowlistArg,
         parsedMaxAmount,
         vestingArg,
         parsedMinAmount,
@@ -135,11 +135,11 @@ export default function LibraryPage() {
         denylistArg,
         cooldownArg
       );
-      
+
       // Delay refetch slightly to ensure the RPC node returns the fresh account state
       await new Promise((resolve) => setTimeout(resolve, 1500));
       refetch();
-      
+
       setStatusMessage({ type: "success", text: "Policy updated successfully." });
     } catch (e) {
       console.error(e);
@@ -286,31 +286,29 @@ export default function LibraryPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderCard = (m: any) => (
-    <article key={m.id} className="border-2 border-black p-5 bg-[#faf9f8] flex flex-col h-full hover:bg-white transition-colors duration-200 group">
+    <article key={m.id} className="border-2 border-black p-5 bg-[#f4f3f2] flex flex-col h-full hover:bg-white transition-colors duration-200 group">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-lg font-bold uppercase">{m.title}</h3>
-        <span className={`border-2 border-black px-2 py-1 text-[10px] font-bold uppercase ${
-          m.activeState ? "bg-[#d1fae5] text-[#065f46]" : "bg-[#f3f4f6] text-[#4b5563]"
-        }`}>
+        <span className={`border-2 border-black px-2 py-1 text-[10px] font-bold uppercase ${m.activeState ? "bg-[#d1fae5] text-[#065f46]" : "bg-[#f3f4f6] text-[#4b5563]"
+          }`}>
           {m.activeState ? "ACTIVE" : "INACTIVE"}
         </span>
       </div>
       <p className="text-xs text-[#5C4E4E] mb-6 flex-grow">{m.desc}</p>
-      
+
       {isPending(m.id) && (
         <p className="text-[10px] text-yellow-600 font-bold mb-2 uppercase">Pending Save</p>
       )}
-      
+
       <div className="mt-auto flex flex-col gap-2">
         {m.type === "toggle" ? (
           <>
-            <button 
+            <button
               onClick={m.onToggle}
-              className={`border-2 border-black w-full py-2 font-bold uppercase text-sm transition-colors cursor-pointer active:translate-y-[1px] ${
-                m.activeState 
-                  ? "bg-transparent text-black hover:bg-black hover:text-white" 
-                  : "bg-[#5C4E4E] text-white hover:bg-black"
-              }`}
+              className={`border-2 border-black w-full py-2 font-bold uppercase text-sm transition-colors cursor-pointer active:translate-y-[1px] ${m.activeState
+                ? "bg-transparent text-black hover:bg-black hover:text-white"
+                : "bg-[#FF5722] text-white hover:bg-black"
+                }`}
             >
               {m.activeState ? "Deactivate" : "Activate"}
             </button>
@@ -326,16 +324,16 @@ export default function LibraryPage() {
               <>
                 <div className="flex flex-col">
                   <label className="text-[10px] font-bold uppercase mb-1 text-[#5C4E4E]">{m.label}</label>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     min="0"
                     step="1"
                     max={m.id === "max_bps" ? "10000" : undefined}
-                    value={m.inputValue} 
-                    onChange={(e) => m.onInputChange(e.target.value)} 
+                    value={m.inputValue}
+                    onChange={(e) => m.onInputChange(e.target.value)}
                   />
                 </div>
-                <button 
+                <button
                   onClick={m.onDeactivate}
                   className="border-2 border-black w-full py-2 mt-2 bg-transparent text-black font-bold uppercase text-sm hover:bg-black hover:text-white transition-colors cursor-pointer active:translate-y-[1px]"
                 >
@@ -343,9 +341,9 @@ export default function LibraryPage() {
                 </button>
               </>
             ) : (
-              <button 
+              <button
                 onClick={m.onToggle}
-                className="border-2 border-black w-full py-2 bg-[#5C4E4E] text-white font-bold uppercase text-sm hover:bg-black transition-colors cursor-pointer active:translate-y-[1px]"
+                className="border-2 border-black w-full py-2 bg-[#FF5722] text-white font-bold uppercase text-sm hover:bg-black transition-colors cursor-pointer active:translate-y-[1px]"
               >
                 Activate
               </button>
@@ -365,13 +363,13 @@ export default function LibraryPage() {
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest mb-6">
             Manage and install smart contract extensions for your token
           </p>
-          <div className="border-2 border-black p-3 bg-[#faf9f8] flex flex-col md:flex-row items-center gap-4 w-full md:w-max">
+          <div className="border-2 border-black p-3 bg-[#f4f3f2] flex flex-col md:flex-row items-center gap-4 w-full md:w-max">
             <span className="text-sm font-bold uppercase tracking-widest text-black">Target Mint:</span>
             <div className="w-80">
-              <MintCombobox 
-                placeholder="Enter SPL Token Mint Address..." 
-                value={mintInput} 
-                onChange={(val) => setMintInput(val)} 
+              <MintCombobox
+                placeholder="Enter SPL Token Mint Address..."
+                value={mintInput}
+                onChange={(val) => setMintInput(val)}
               />
             </div>
             <Button onClick={handleSetMint} disabled={loading} variant="secondary">
@@ -391,7 +389,7 @@ export default function LibraryPage() {
         )}
 
         {activeMint && !isInitialized && (
-          <div className="border-2 border-black bg-[#5C4E4E] text-white p-6 mb-12">
+          <div className="border-2 border-black bg-[#FF5722] text-white p-6 mb-12">
             <h3 className="text-xl font-bold uppercase mb-2">Not Initialized</h3>
             <p className="text-sm">This mint has no policy configured. Please initialize it on the Dashboard first.</p>
           </div>
@@ -452,12 +450,12 @@ export default function LibraryPage() {
                 </div>
               )}
             </div>
-            
+
             {/* Available Hooks Grid */}
             <div className="mb-6">
               <h2 className="text-2xl font-bold uppercase tracking-tighter border-b-2 border-black pb-2 inline-block">Available Hooks</h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               {availableModules.length > 0 ? (
                 availableModules.map(renderCard)
@@ -475,9 +473,9 @@ export default function LibraryPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-2 border-black pb-2 mb-6 gap-4">
             <h2 className="text-2xl font-bold uppercase tracking-tighter">Community Extensions</h2>
             <div className="relative w-full md:w-64">
-              <Input 
-                type="text" 
-                placeholder="Search extensions..." 
+              <Input
+                type="text"
+                placeholder="Search extensions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -490,8 +488,8 @@ export default function LibraryPage() {
               { name: "Taxation Hook", desc: "Automatically deducts a flat fee or percentage on every transfer to a treasury wallet.", author: "Treasury_Labs" },
               { name: "Royalty Enforcer", desc: "Enforces creator royalties on SPL22 tokens transferred via supported AMMs.", author: "Metaplex" },
               { name: "Time Lock", desc: "Prevents newly minted or vested tokens from being transferred until a specific epoch.", author: "Vesting_Protocol" }
-            ].filter(ext => 
-              ext.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+            ].filter(ext =>
+              ext.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
               ext.desc.toLowerCase().includes(searchQuery.toLowerCase())
             ).map((ext, idx) => (
               <article key={idx} className="border-2 border-black p-4 bg-white flex flex-col h-full relative">

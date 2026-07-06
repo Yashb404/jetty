@@ -106,7 +106,7 @@ export default function HistoryPage() {
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest mb-4">
             A complete log of your policy modifications and allowlist changes
           </p>
-          <div className="bg-[#faf9f8] border-2 border-black p-3 text-xs font-bold uppercase tracking-widest text-black">
+          <div className="bg-[#f4f3f2] border-2 border-black p-3 text-xs font-bold uppercase tracking-widest text-black">
             Note: Due to free-tier database limitations, transaction history may occasionally be unavailable.
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function HistoryPage() {
             </div>
 
             <Card className="p-0 overflow-hidden">
-              <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b-2 border-black bg-[#5C4E4E] text-white font-bold uppercase tracking-widest text-sm">
+              <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b-2 border-black bg-[#FF5722] text-white font-bold uppercase tracking-widest text-sm">
                 <div className="col-span-3">Action</div>
                 <div className="col-span-4">Target Mint</div>
                 <div className="col-span-3">Details</div>
@@ -181,7 +181,7 @@ export default function HistoryPage() {
                   </div>
                 ) : (
                   paginatedLogs.map((log) => (
-                    <div key={log.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#faf9f8]">
+                    <div key={log.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#f4f3f2]">
                       <div className="col-span-3 font-bold uppercase text-xs">
                         {log.action_type}
                       </div>
@@ -195,7 +195,7 @@ export default function HistoryPage() {
                           try {
                             const parsed = JSON.parse(log.details);
                             const { tx, ...rest } = parsed;
-                            
+
                             const KEY_TO_NAME: Record<string, string> = {
                               paused: "Global Pause",
                               allowlistEnabled: "Allowlist",
@@ -254,14 +254,14 @@ export default function HistoryPage() {
                   Page {currentPage} of {totalPages}
                 </span>
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     className="border-2 border-black px-4 py-2 bg-white text-sm font-bold uppercase hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Previous
                   </button>
-                  <button 
+                  <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                     className="border-2 border-black px-4 py-2 bg-white text-sm font-bold uppercase hover:bg-black hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

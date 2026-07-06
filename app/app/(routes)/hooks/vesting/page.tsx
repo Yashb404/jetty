@@ -92,10 +92,10 @@ export default function VestingManagerPage() {
         <Card>
           <label className="block text-sm font-bold uppercase tracking-widest mb-2">Target Mint</label>
           <div className="flex gap-4">
-            <MintCombobox 
-              placeholder="Enter SPL Token Mint Address..." 
-              value={mintInput} 
-              onChange={(val) => setMintInput(val)} 
+            <MintCombobox
+              placeholder="Enter SPL Token Mint Address..."
+              value={mintInput}
+              onChange={(val) => setMintInput(val)}
             />
             <Button onClick={handleSetMint} disabled={loading}>Load</Button>
           </div>
@@ -109,18 +109,18 @@ export default function VestingManagerPage() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                 <div className="col-span-12 md:col-span-5">
                   <label className="block text-[10px] font-bold uppercase mb-1 text-[#5C4E4E]">Token Account Address</label>
-                  <Input 
-                    placeholder="Enter Token Account Address..." 
-                    value={newTokenAccountInput} 
-                    onChange={(e) => setNewTokenAccountInput(e.target.value)} 
+                  <Input
+                    placeholder="Enter Token Account Address..."
+                    value={newTokenAccountInput}
+                    onChange={(e) => setNewTokenAccountInput(e.target.value)}
                   />
                 </div>
                 <div className="col-span-12 md:col-span-4">
                   <label className="block text-[10px] font-bold uppercase mb-1 text-[#5C4E4E]">Release Date & Time</label>
-                  <Input 
-                    type="datetime-local" 
-                    value={releaseDatetime} 
-                    onChange={(e) => setReleaseDatetime(e.target.value)} 
+                  <Input
+                    type="datetime-local"
+                    value={releaseDatetime}
+                    onChange={(e) => setReleaseDatetime(e.target.value)}
                   />
                 </div>
                 <div className="col-span-12 md:col-span-3">
@@ -132,12 +132,12 @@ export default function VestingManagerPage() {
             </Card>
 
             <Card className="p-0">
-              <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b-2 border-black bg-[#5C4E4E] text-white font-bold uppercase tracking-widest text-sm">
+              <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b-2 border-black bg-[#FF5722] text-white font-bold uppercase tracking-widest text-sm">
                 <div className="col-span-6">Token Account</div>
                 <div className="col-span-4">Release Date</div>
                 <div className="col-span-2 text-right">Action</div>
               </div>
-              
+
               <div className="divide-y-2 divide-black">
                 {entries.length === 0 ? (
                   <div className="px-6 py-8 text-center text-[#5C4E4E] font-semibold uppercase tracking-widest">
@@ -149,7 +149,7 @@ export default function VestingManagerPage() {
                     const isLocked = releaseDate.getTime() > now;
 
                     return (
-                      <div key={idx} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#faf9f8]">
+                      <div key={idx} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#f4f3f2]">
                         <div className="col-span-6 flex items-center gap-3">
                           <span className="font-mono text-black">
                             {entry.account.tokenAccount.toBase58()}

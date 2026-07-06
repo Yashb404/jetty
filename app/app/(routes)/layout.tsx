@@ -1,6 +1,6 @@
 import React from "react";
 import Sidebar from "../../components/layout/sidebar";
-import FloatingWallet from "../../components/web3/floating-wallet";
+import DashboardNav from "../../components/layout/dashboard-nav";
 
 export default function RoutesLayout({
   children,
@@ -8,12 +8,14 @@ export default function RoutesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#faf9f8]">
-      <Sidebar />
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto h-full relative">
-        <FloatingWallet />
-        {children}
-      </main>
+    <div className="flex flex-col h-screen w-full overflow-hidden bg-[#f4f3f2]">
+      <DashboardNav />
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto relative bg-[#f4f3f2]">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

@@ -17,14 +17,14 @@ export default function LandingButton({ href, variant = "primary", children, cla
   } else if (variant === "secondary") {
     variantClasses = "bg-transparent text-black border-2 border-black hover:bg-black hover:text-white transition-colors";
   } else if (variant === "accent") {
-    variantClasses = "bg-[#5C4E4E] border-2 border-black text-white hover:bg-black transition-colors";
+    variantClasses = "bg-[#FF5722] border-2 border-black text-white hover:bg-black hover:text-white transition-colors";
   } else if (variant === "white") {
-    variantClasses = "bg-[#faf9f8] text-black border-2 border-[#faf9f8] hover:bg-black hover:text-[#faf9f8] transition-colors";
+    variantClasses = "bg-[#f4f3f2] text-black border-2 border-[#f4f3f2] hover:bg-black hover:text-[#f4f3f2] transition-colors";
   }
 
   return (
-    <Link 
-      href={href} 
+    <Link
+      href={href}
       className={`inline-block text-center font-bold tracking-[0.1em] uppercase brutalist-button-active ${variantClasses} ${spaceMono.className} ${className}`}
     >
       {children}

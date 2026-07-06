@@ -24,18 +24,18 @@ export default function ReceiverCapDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              The Receiver Cap module limits the maximum percentage of the total token supply that any single wallet can hold. 
+              The Receiver Cap module limits the maximum percentage of the total token supply that any single wallet can hold.
               This prevents whales from accumulating a dangerous percentage of governance tokens or liquidity.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed mb-4">
-                The cap is measured in <strong>Basis Points (BPS)</strong> relative to the on-chain total supply of the mint. 
+                The cap is measured in <strong>Basis Points (BPS)</strong> relative to the on-chain total supply of the mint.
                 (100 BPS = 1%, 10,000 BPS = 100%).
               </p>
               <p className="text-sm leading-relaxed">
-                Because of the Token-2022 Transfer Hook execution timing, Jetty is invoked <em>after</em> the tokens have actually been transferred. 
-                Jetty examines the destination account&apos;s current balance, recalculates the maximum allowed balance via <code>(supply * max_bps) / 10000</code>, 
+                Because of the Token-2022 Transfer Hook execution timing, Jetty is invoked <em>after</em> the tokens have actually been transferred.
+                Jetty examines the destination account&apos;s current balance, recalculates the maximum allowed balance via <code>(supply * max_bps) / 10000</code>,
                 and rolls back the transaction with <code>ExceedsHolderCap</code> (6014) if the cap is exceeded.
               </p>
             </div>
@@ -49,7 +49,7 @@ export default function ReceiverCapDocs() {
               To set the receiver cap programmatically, pass the limit in <strong>basis points</strong> to the <code>updatePolicy</code> instruction.
             </p>
             <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
-{`// Set the Receiver Cap to 1% of the total supply (100 basis points)
+              {`// Set the Receiver Cap to 1% of the total supply (100 basis points)
 await program.methods
   .updatePolicy({ 
     paused: null, 

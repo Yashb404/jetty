@@ -93,7 +93,7 @@ export default function Home() {
               Manage your Transfer Hook Compliance Controller
             </p>
             <Tooltip text="Click here to learn how to initialize and configure your first Transfer Hook">
-              <Link href="/docs/quick-guide" className="text-xs font-bold border-2 border-black px-4 py-2 hover:bg-black hover:text-[#faf9f8] transition-colors uppercase tracking-widest inline-flex items-center gap-2 brutalist-button-active bg-white w-full sm:w-auto justify-center">
+              <Link href="/docs/quick-guide" className="text-xs font-bold border-2 border-black px-4 py-2 hover:bg-black hover:text-[#f4f3f2] transition-colors uppercase tracking-widest inline-flex items-center gap-2 brutalist-button-active bg-white w-full sm:w-auto justify-center">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -107,10 +107,10 @@ export default function Home() {
           <Card>
             <label className="block text-sm font-bold uppercase tracking-widest mb-2">Select Target Mint</label>
             <div className="flex gap-4">
-              <Input 
-                placeholder="Enter SPL Token Mint Address..." 
-                value={mintInput} 
-                onChange={(e) => setMintInput(e.target.value)} 
+              <Input
+                placeholder="Enter SPL Token Mint Address..."
+                value={mintInput}
+                onChange={(e) => setMintInput(e.target.value)}
               />
               <Button onClick={handleSetMint} disabled={loading}>Load</Button>
             </div>
@@ -121,8 +121,8 @@ export default function Home() {
             <p className="text-xs text-[#5C4E4E] uppercase tracking-widest mb-4">
               Generate a Token-2022 Mint initialized with the Jetty Transfer Hook.
             </p>
-            <Button 
-              onClick={handleCreateMint} 
+            <Button
+              onClick={handleCreateMint}
               disabled={loading}
               variant="secondary"
             >
@@ -179,10 +179,10 @@ export default function Home() {
                 <Card>
                   <h3 className="text-lg font-bold uppercase mb-4">Rotate Policy Authority</h3>
                   <div className="flex gap-4 mb-2">
-                    <Input 
-                      placeholder="New Authority Address..." 
-                      value={newAuthInput} 
-                      onChange={(e) => setNewAuthInput(e.target.value)} 
+                    <Input
+                      placeholder="New Authority Address..."
+                      value={newAuthInput}
+                      onChange={(e) => setNewAuthInput(e.target.value)}
                     />
                     <Button onClick={handleRotateAuthority} disabled={loading} variant="secondary">Rotate</Button>
                   </div>
@@ -191,7 +191,7 @@ export default function Home() {
                   </p>
                   <div className="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-sm">
                     <p className="text-[10px] text-yellow-800 uppercase tracking-wider font-bold mb-1">
-                       Action Requires Multi-Sig
+                      Action Requires Multi-Sig
                     </p>
                     <p className="text-xs text-yellow-700">
                       Smart contract strictly enforces the &quot;Handshake Rule&quot; requiring both current and new authority to sign. Full support for partially signed transactions via this frontend will be added in a future update.

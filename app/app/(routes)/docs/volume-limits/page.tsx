@@ -24,23 +24,23 @@ export default function VolumeLimitsDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              The Volume Limiter acts as a circuit breaker for your token. When activated, it enforces a 
+              The Volume Limiter acts as a circuit breaker for your token. When activated, it enforces a
               strict ceiling on the number of tokens that can be transferred in a single transaction.
             </p>
             <p className="text-sm leading-relaxed mb-4 font-bold text-yellow-900 bg-yellow-100 p-2 border border-yellow-400">
-              Note: Volume Limits restrict the amount of a single transfer. If you want to restrict the total amount 
+              Note: Volume Limits restrict the amount of a single transfer. If you want to restrict the total amount
               a user can HOLD (as a percentage of the total supply), use the Receiver Cap module instead.
             </p>
             <p className="text-sm leading-relaxed mb-4">
               This is commonly used to prevent massive whale dumps or flash-loan attacks on your liquidity pools.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
-                Jetty compares the requested transfer <code>amount</code> against the 
-                <code> max_transfer_amount</code> stored in your <code>HookConfig</code> PDA. 
-                Because amounts are evaluated in their raw <code>u64</code> format, remember to factor 
-                in your token&apos;s decimals (e.g., 1,000 tokens with 6 decimals = 1,000,000,000). 
+                Jetty compares the requested transfer <code>amount</code> against the
+                <code> max_transfer_amount</code> stored in your <code>HookConfig</code> PDA.
+                Because amounts are evaluated in their raw <code>u64</code> format, remember to factor
+                in your token&apos;s decimals (e.g., 1,000 tokens with 6 decimals = 1,000,000,000).
                 If the amount exceeds the limit, it throws the <code>ExceedsVolumeLimit</code> error (6001).
               </p>
             </div>
@@ -59,11 +59,11 @@ export default function VolumeLimitsDocs() {
               <li>Enter your desired maximum transfer amount.</li>
               <li>Click the <strong>Set Limit</strong> button and approve the transaction.</li>
             </ol>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black mb-6">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black mb-6">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Metric Calculation:</p>
               <p className="text-sm leading-relaxed">
-                Tokens on Solana are stored in their smallest atomic unit (like Lamports for SOL). 
-                If your token has <strong>6 decimals</strong>, and you want to limit transfers to <strong>1,000 tokens</strong>, 
+                Tokens on Solana are stored in their smallest atomic unit (like Lamports for SOL).
+                If your token has <strong>6 decimals</strong>, and you want to limit transfers to <strong>1,000 tokens</strong>,
                 you must enter <code>1000000000</code> in the input field.
               </p>
             </div>
@@ -77,7 +77,7 @@ export default function VolumeLimitsDocs() {
               For developers building custom interfaces, you can update the volume limit programmatically by passing a <code>BN</code> (BigNumber) to the <code>updatePolicy</code> instruction.
             </p>
             <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
-{`import { BN } from "@coral-xyz/anchor";
+              {`import { BN } from "@coral-xyz/anchor";
 
 // Set a volume limit of 10,000 tokens (assuming 6 decimals) programmatically
 const maxAmount = new BN(10_000).mul(new BN(10).pow(new BN(6)));

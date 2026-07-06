@@ -23,16 +23,16 @@ export default function QuickGuideDocs() {
               Step 1: Connect Wallet
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              To interact with the Jetty dashboard, you must connect a Solana wallet (e.g., Phantom, Solflare). 
+              To interact with the Jetty dashboard, you must connect a Solana wallet (e.g., Phantom, Solflare).
               Ensure your wallet is set to <strong>Devnet</strong>.
             </p>
             <p className="text-sm leading-relaxed mb-4">
-              If your Devnet balance is empty, you need SOL to pay for transaction fees and rent. 
+              If your Devnet balance is empty, you need SOL to pay for transaction fees and rent.
               You can easily airdrop yourself some Devnet SOL below:
             </p>
-            <a 
-              href="https://faucet.solana.com/" 
-              target="_blank" 
+            <a
+              href="https://faucet.solana.com/"
+              target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide bg-black text-white px-4 py-2 hover:bg-gray-800 transition-colors"
             >
@@ -45,11 +45,11 @@ export default function QuickGuideDocs() {
               Step 2: Create or Load a Mint
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Navigate to the <strong>Dashboard</strong> page. If you already have a Token-2022 mint configured 
-              with Jetty&apos;s Transfer Hook, paste its address into the <em>Target Mint</em> input and click <strong>Load</strong>. 
+              Navigate to the <strong>Dashboard</strong> page. If you already have a Token-2022 mint configured
+              with Jetty&apos;s Transfer Hook, paste its address into the <em>Target Mint</em> input and click <strong>Load</strong>.
             </p>
             <p className="text-sm leading-relaxed mb-4">
-              <strong>Persistence:</strong> Once you load a mint, Jetty will automatically persist it across all modules 
+              <strong>Persistence:</strong> Once you load a mint, Jetty will automatically persist it across all modules
               so you don&apos;t have to keep pasting it.
             </p>
             <p className="text-sm leading-relaxed text-[#5C4E4E] font-bold">
@@ -62,7 +62,7 @@ export default function QuickGuideDocs() {
               Step 3: Initialize Policy & Meta List
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Before you can enforce rules, the on-chain structures must be initialized. 
+              Before you can enforce rules, the on-chain structures must be initialized.
               <strong> If you used the &quot;Create Token-2022 Mint&quot; button on the Dashboard, this is already done for you!</strong> Our system automatically batches the Mint Creation, Policy Initialization, and Meta List generation into a single transaction to save you compute units and base fees.
             </p>
             <p className="text-sm leading-relaxed mb-4">
@@ -90,8 +90,8 @@ export default function QuickGuideDocs() {
                 <strong>Global Pause:</strong> Simply toggle the switch ON/OFF and approve the transaction. When ON, all transfers are frozen.
               </li>
               <li>
-                <strong>Numeric Limits:</strong> Enter limits for Volume (Max Transfer), Anti-Dust (Min Transfer), or Receiver Cap. <strong>Important Metric Note:</strong> Values must be entered in 
-                raw format based on your token&apos;s decimals. For example, if your token has 6 decimals, a limit of 1,000 tokens 
+                <strong>Numeric Limits:</strong> Enter limits for Volume (Max Transfer), Anti-Dust (Min Transfer), or Receiver Cap. <strong>Important Metric Note:</strong> Values must be entered in
+                raw format based on your token&apos;s decimals. For example, if your token has 6 decimals, a limit of 1,000 tokens
                 must be entered as <code>1000000000</code>.
               </li>
               <li>
@@ -107,10 +107,10 @@ export default function QuickGuideDocs() {
             <p className="text-sm leading-relaxed mb-4">
               If you enabled advanced modules like Allowlist, Denylist, or Vesting, you can configure individual users by navigating to their respective configuration pages (e.g., <strong>Hooks &gt; Allowlist</strong>).
             </p>
-            <p className="text-sm leading-relaxed bg-[#faf9f8] p-4 border-2 border-black mb-4">
+            <p className="text-sm leading-relaxed bg-[#f4f3f2] p-4 border-2 border-black mb-4">
               <strong>CRITICAL: Token Accounts vs. Wallet Addresses</strong><br /><br />
-              When configuring a user, the user must also have an Associated Token Account (ATA) address derived from that mint. 
-              The ATA is the specific sub-account that holds your custom token. You can easily find a user&apos;s ATA by looking at their 
+              When configuring a user, the user must also have an Associated Token Account (ATA) address derived from that mint.
+              The ATA is the specific sub-account that holds your custom token. You can easily find a user&apos;s ATA by looking at their
               wallet on an explorer like Solscan and checking their token holdings.
             </p>
             <p className="text-sm leading-relaxed">

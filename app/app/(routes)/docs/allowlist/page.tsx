@@ -24,18 +24,18 @@ export default function AllowlistDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              When the Allowlist is active, your token effectively becomes a permissioned asset 
-              (e.g., a Security Token or RWA). Transfers will strictly fail unless both the 
+              When the Allowlist is active, your token effectively becomes a permissioned asset
+              (e.g., a Security Token or RWA). Transfers will strictly fail unless both the
               <strong> sender</strong> and the <strong> receiver</strong> are explicitly approved.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
-                For each approved wallet, Jetty allocates an <code>AllowlistEntry</code> PDA tied 
-                directly to the user&apos;s associated Token Account. During execution, Jetty evaluates 
-                the Extra Account Meta List passed by the Token-2022 program and verifies that the 
-                sender and receiver <code>AllowlistEntry</code> PDAs exist, belong to the Jetty program, 
-                and have their <code>active</code> flag set to true. If missing, it throws 
+                For each approved wallet, Jetty allocates an <code>AllowlistEntry</code> PDA tied
+                directly to the user&apos;s associated Token Account. During execution, Jetty evaluates
+                the Extra Account Meta List passed by the Token-2022 program and verifies that the
+                sender and receiver <code>AllowlistEntry</code> PDAs exist, belong to the Jetty program,
+                and have their <code>active</code> flag set to true. If missing, it throws
                 <code> SourceNotAllowlisted</code> (6002) or <code>DestinationNotAllowlisted</code> (6003).
               </p>
             </div>
@@ -54,11 +54,11 @@ export default function AllowlistDocs() {
               <li>Paste the <strong>Token Account</strong> address of the user you want to add.</li>
               <li>Click <strong>Approve</strong>. You can revoke access at any time using the <strong>Revoke</strong> button.</li>
             </ol>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black mb-6">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black mb-6">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Token Accounts vs. Wallets:</p>
               <p className="text-sm leading-relaxed">
-                When adding a user, you must input their <strong>Associated Token Account (ATA)</strong> address, NOT their main wallet address. 
-                The ATA is the specific sub-account on Solana that holds your custom token. You can find a user&apos;s ATA by looking at their 
+                When adding a user, you must input their <strong>Associated Token Account (ATA)</strong> address, NOT their main wallet address.
+                The ATA is the specific sub-account on Solana that holds your custom token. You can find a user&apos;s ATA by looking at their
                 wallet on an explorer like Solscan and checking their token holdings.
               </p>
             </div>
@@ -69,11 +69,11 @@ export default function AllowlistDocs() {
               Under the Hood: Contract Integration
             </h3>
             <p className="text-sm leading-relaxed mb-4 text-[#5C4E4E]">
-              For developers building custom interfaces, you can approve a wallet programmatically by invoking the <code>updateAllowlist</code> 
+              For developers building custom interfaces, you can approve a wallet programmatically by invoking the <code>updateAllowlist</code>
               instruction with the <code>true</code> boolean. To revoke access, pass <code>false</code>.
             </p>
             <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
-{`// Approve a wallet's Token Account programmatically
+              {`// Approve a wallet's Token Account programmatically
 await program.methods
   .updateAllowlist(true) 
   .accounts({

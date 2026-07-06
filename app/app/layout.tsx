@@ -25,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${spaceMono.variable} ${jetBrainsMono.variable}`}>
-      <body className="bg-[#faf9f8] text-black">
+      <body className="bg-[#f4f3f2] text-black">
         <ClientWalletProvider>
           <AnchorWorkspaceProvider>
             <MintProvider>

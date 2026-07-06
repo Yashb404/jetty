@@ -21,20 +21,20 @@ export default function DocsPage() {
               What is Jetty?
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Jetty is a smart contract (program) deployed on Solana that acts as a universal, 
-              no-code compliance layer for SPL Token-2022. By pointing your token&apos;s 
-              <strong> Transfer Hook</strong> extension to the Jetty program ID, every transfer 
+              Jetty is a smart contract (program) deployed on Solana that acts as a universal,
+              no-code compliance layer for SPL Token-2022. By pointing your token&apos;s
+              <strong> Transfer Hook</strong> extension to the Jetty program ID, every transfer
               of your token is intercepted and evaluated against the rules you configure here.
             </p>
             <p className="text-sm leading-relaxed mb-4">
-              Because Jetty utilizes the official SPL standard, no custom Rust code is required 
+              Because Jetty utilizes the official SPL standard, no custom Rust code is required
               to enforce complex regulations on your token.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Under the Hood:</p>
               <p className="text-sm leading-relaxed">
-                During a transfer, the Token-2022 program invokes Jetty&apos;s <code>execute</code> instruction. 
-                Jetty reads your mint&apos;s specific <code>HookConfig</code> PDA (Program Derived Address). 
+                During a transfer, the Token-2022 program invokes Jetty&apos;s <code>execute</code> instruction.
+                Jetty reads your mint&apos;s specific <code>HookConfig</code> PDA (Program Derived Address).
                 If any compliance flags fail, it immediately reverts the transaction.
               </p>
             </div>
@@ -68,7 +68,7 @@ export default function DocsPage() {
                 </div>
               </Card>
             </Link>
-            
+
             <Link href="/docs/allowlist" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
@@ -80,7 +80,7 @@ export default function DocsPage() {
                 </div>
               </Card>
             </Link>
-            
+
             <Link href="/docs/denylist" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
@@ -128,7 +128,7 @@ export default function DocsPage() {
                 </div>
               </Card>
             </Link>
-            
+
             <Link href="/docs/cooldown" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
                 <div>
@@ -164,7 +164,7 @@ export default function DocsPage() {
               To prevent catastrophic human error, the Jetty smart contract enforces a strict <strong>&quot;Handshake Rule&quot;</strong> when transferring policy ownership (Policy Authority) to a new wallet address.
             </p>
             <p className="text-sm leading-relaxed mb-4">
-              If an administrator accidentally misspells a public key when assigning a new authority, control of the compliance rules would be lost forever. To prevent this, the underlying Rust contract strictly requires <strong>both</strong> the current authority and the new incoming authority to cryptographically sign the rotation transaction. 
+              If an administrator accidentally misspells a public key when assigning a new authority, control of the compliance rules would be lost forever. To prevent this, the underlying Rust contract strictly requires <strong>both</strong> the current authority and the new incoming authority to cryptographically sign the rotation transaction.
             </p>
             <div className="bg-yellow-50 p-4 border-2 border-yellow-400 rounded-none text-yellow-800">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Multi-Sig Workflows</p>

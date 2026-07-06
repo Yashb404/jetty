@@ -6,9 +6,9 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export default function Card({ children, className = "", variant = "default", ...props }: CardProps) {
   const baseClasses = "border-2 border-black p-6 rounded-none brutalist-shadow";
-  const variantClasses = variant === "dark" 
-    ? "bg-[#5C4E4E] text-white" 
-    : "bg-[#faf9f8] text-black";
+  const variantClasses = variant === "dark"
+    ? "bg-[#FF5722] text-white"
+    : "bg-[#f4f3f2] text-black";
 
   return (
     <div className={`${baseClasses} ${variantClasses} ${className}`} {...props}>

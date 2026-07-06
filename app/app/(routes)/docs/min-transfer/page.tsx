@@ -24,14 +24,14 @@ export default function MinTransferDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              The Anti-Dust module prevents spam and low-value transactions by enforcing a minimum transfer threshold. 
+              The Anti-Dust module prevents spam and low-value transactions by enforcing a minimum transfer threshold.
               Any transfer attempt below the configured minimum amount will be rejected by the contract.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
-                When <code>min_transfer_amount</code> is strictly greater than 0, the program intercepts the transfer. 
-                If the transfer <code>amount</code> is less than the minimum (and not strictly 0, which is allowed for wallet closure operations), 
+                When <code>min_transfer_amount</code> is strictly greater than 0, the program intercepts the transfer.
+                If the transfer <code>amount</code> is less than the minimum (and not strictly 0, which is allowed for wallet closure operations),
                 the program reverts with <code>BelowMinimumTransferAmount</code> (6013).
               </p>
             </div>
@@ -60,7 +60,7 @@ export default function MinTransferDocs() {
               To set the minimum transfer amount programmatically, pass a <code>BN</code> (BigNumber) to the <code>updatePolicy</code> instruction.
             </p>
             <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
-{`import { BN } from "@coral-xyz/anchor";
+              {`import { BN } from "@coral-xyz/anchor";
 
 // Require all transfers to be at least 1 token (assuming 6 decimals)
 const minAmount = new BN(1).mul(new BN(10).pow(new BN(6)));

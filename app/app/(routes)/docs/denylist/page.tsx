@@ -24,14 +24,14 @@ export default function DenylistDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Unlike the Allowlist module which operates on a default-deny model, the Denylist module operates on a default-allow model. 
+              Unlike the Allowlist module which operates on a default-deny model, the Denylist module operates on a default-allow model.
               It allows you to explicitly flag and block malicious actors, OFAC-sanctioned addresses, or exploited contracts from transferring your token.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
-                During execution, Jetty attempts to fetch a <code>DenylistEntry</code> PDA for both the sender and the receiver. 
-                Unlike the Allowlist, if the PDA does <em>not</em> exist, the check safely passes. If the PDA exists and <code>flagged</code> is true, 
+                During execution, Jetty attempts to fetch a <code>DenylistEntry</code> PDA for both the sender and the receiver.
+                Unlike the Allowlist, if the PDA does <em>not</em> exist, the check safely passes. If the PDA exists and <code>flagged</code> is true,
                 the transaction is aborted with <code>SourceDenylisted</code> (6016) or <code>DestinationDenylisted</code> (6017).
               </p>
             </div>
@@ -57,11 +57,11 @@ export default function DenylistDocs() {
               Under the Hood: Contract Integration
             </h3>
             <p className="text-sm leading-relaxed mb-4 text-[#5C4E4E]">
-              For developers building custom interfaces, you can block a wallet programmatically by invoking the <code>updateDenylist</code> 
+              For developers building custom interfaces, you can block a wallet programmatically by invoking the <code>updateDenylist</code>
               instruction with the <code>true</code> boolean. To unblock, pass <code>false</code>.
             </p>
             <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
-{`// Flag a wallet's Token Account on the Denylist
+              {`// Flag a wallet's Token Account on the Denylist
 await program.methods
   .updateDenylist(true) 
   .accounts({

@@ -24,16 +24,16 @@ export default function GlobalPauseDocs() {
               How it Works
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              The Global Pause acts as a circuit breaker for your token. When toggled <strong>ON</strong>, 
-              Jetty instantly rejects all transfer requests across the entire network. This is critical for 
+              The Global Pause acts as a circuit breaker for your token. When toggled <strong>ON</strong>,
+              Jetty instantly rejects all transfer requests across the entire network. This is critical for
               stopping exploits, managing migrations, or temporarily pausing trading during highly volatile events.
             </p>
-            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
-                During a transfer, the Token-2022 program invokes Jetty&apos;s <code>execute</code> instruction. 
-                Jetty reads your mint&apos;s specific <code>HookConfig</code> PDA. If the <code>paused</code> 
-                flag is true, it immediately returns the <code>TransferPaused</code> custom error (6000), 
+                During a transfer, the Token-2022 program invokes Jetty&apos;s <code>execute</code> instruction.
+                Jetty reads your mint&apos;s specific <code>HookConfig</code> PDA. If the <code>paused</code>
+                flag is true, it immediately returns the <code>TransferPaused</code> custom error (6000),
                 reverting the transaction.
               </p>
             </div>
@@ -44,7 +44,7 @@ export default function GlobalPauseDocs() {
               Using the Dashboard
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Enforcing a Global Pause requires zero coding. 
+              Enforcing a Global Pause requires zero coding.
             </p>
             <ol className="list-decimal pl-5 space-y-2 text-sm leading-relaxed mb-6 font-bold">
               <li>Navigate to the <strong>Library</strong> tab on your Jetty Dashboard.</li>
@@ -62,7 +62,7 @@ export default function GlobalPauseDocs() {
               For developers building custom interfaces, you can update the pause state programmatically by invoking the <code>updatePolicy</code> instruction.
             </p>
             <pre className="bg-black text-white p-4 overflow-x-auto text-sm leading-relaxed">
-{`// Pause all transfers programmatically
+              {`// Pause all transfers programmatically
 await program.methods
   .updatePolicy({ 
     paused: true, 

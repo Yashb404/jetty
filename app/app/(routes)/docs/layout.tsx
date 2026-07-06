@@ -22,11 +22,11 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
               <Activity className="w-4 h-4" />
               Quick Start
             </Link>
-            
+
             <div className="pt-6 pb-2 text-xs font-bold text-black uppercase tracking-widest border-b-2 border-transparent">
               Modules
             </div>
-            
+
             <Link href="/docs/global-pause" className="flex items-center gap-3 text-sm text-[#5C4E4E] font-bold uppercase tracking-wide hover:text-black transition-colors">
               <ShieldAlert className="w-4 h-4" />
               Global Pause

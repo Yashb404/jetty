@@ -6,7 +6,7 @@ const spaceMono = Space_Mono({ weight: ["400", "700"], subsets: ["latin"] });
 
 export default function LandingNav() {
   return (
-    <nav className="flex justify-between items-center w-full px-8 py-4 sticky top-0 z-50 bg-[#faf9f8] border-b-2 border-black">
+    <nav className="flex justify-between items-center w-full px-8 py-4 sticky top-0 z-50 bg-[#f4f3f2] border-b-2 border-black">
       <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer">
         <span className={`text-2xl font-bold tracking-tighter text-black ${spaceMono.className}`}>JETTY</span>
       </Link>
