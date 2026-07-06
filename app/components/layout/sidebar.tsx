@@ -8,10 +8,10 @@ export default function Sidebar() {
   return (
     <aside className="w-64 border-r-2 border-black bg-[#faf9f8] flex flex-col font-mono h-full shrink-0">
       <div className="p-6 border-b-2 border-black">
-        <div className="flex items-center gap-3 mb-2">
+        <Link href="/" className="flex items-center gap-3 mb-2 hover:opacity-80 transition-opacity cursor-pointer">
           <Image src={logoBlack} alt="Jetty Logo" className="w-14 h-auto" />
           <h1 className="text-3xl font-bold uppercase tracking-tighter text-black">Jetty</h1>
-        </div>
+        </Link>
         <p className="text-xs uppercase tracking-widest text-[#5C4E4E] font-semibold">Compliance Controller</p>
       </div>
       

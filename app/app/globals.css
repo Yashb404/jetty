@@ -15,6 +15,10 @@ body {
 }
 
 /* Wallet adapter styles override to fit neo-brutalist theme */
+.wallet-adapter-button-trigger {
+  background-color: #5C4E4E !important;
+}
+
 .wallet-adapter-modal-wrapper {
   background: #faf9f8 !important;
   border: 2px solid #000000 !important;

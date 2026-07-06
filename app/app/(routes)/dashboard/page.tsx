@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import WalletConnect from "../../../components/web3/wallet-connect";
 import Card from "../../../components/ui/card";
 import Input from "../../../components/ui/input";
@@ -96,9 +97,17 @@ export default function Home() {
       <div className="flex-1 p-8 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Dashboard Overview</h2>
-          <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
-            Manage your Transfer Hook Compliance Controller
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
+              Manage your Transfer Hook Compliance Controller
+            </p>
+            <Link href="/docs/quick-guide" title="Click here to learn how to initialize and configure your first Transfer Hook" className="text-xs font-bold border-2 border-black px-4 py-2 hover:bg-black hover:text-[#faf9f8] transition-colors uppercase tracking-widest inline-flex items-center gap-2 brutalist-button-active bg-white">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Quick Start Guide →
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
