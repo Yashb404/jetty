@@ -34,7 +34,7 @@ export default function VolumeLimitsDocs() {
             <p className="text-sm leading-relaxed mb-4">
               This is commonly used to prevent massive whale dumps or flash-loan attacks on your liquidity pools.
             </p>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
                 Jetty compares the requested transfer <code>amount</code> against the 
@@ -59,7 +59,7 @@ export default function VolumeLimitsDocs() {
               <li>Enter your desired maximum transfer amount.</li>
               <li>Click the <strong>Set Limit</strong> button and approve the transaction.</li>
             </ol>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black mb-6">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black mb-6">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Metric Calculation:</p>
               <p className="text-sm leading-relaxed">
                 Tokens on Solana are stored in their smallest atomic unit (like Lamports for SOL). 

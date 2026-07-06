@@ -27,7 +27,7 @@ export default function VestingDocs() {
               The Vesting module allows you to lock tokens in a specific user&apos;s wallet until a predefined timestamp. 
               Before the unlock timestamp is reached, the user cannot transfer any tokens out of their account, though they can still receive tokens.
             </p>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
                 When active, Jetty checks if a <code>VestingEntry</code> PDA exists for the sender&apos;s token account. 

@@ -10,7 +10,7 @@ export function useRecentMints() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setRecentMints(JSON.parse(stored));
+        setTimeout(() => setRecentMints(JSON.parse(stored)), 0);
       }
     } catch (e) {
       console.error('Failed to load recent mints', e);

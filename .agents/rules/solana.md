@@ -1,7 +1,9 @@
 ---
-trigger: model_decision
+trigger: always_on
 description: Whenever the model is working on Solana smart contracts and Anchor or Rust files .
 ---
+
+When working on Rust code , especially smart contracts 
 
 1. Error Handling
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import client from '../../../../lib/db';
 import { BorshCoder, utils } from '@coral-xyz/anchor';
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
     if (providedBuffer.length === expectedBuffer.length) {
       isAuthorized = crypto.timingSafeEqual(providedBuffer, expectedBuffer);
     }
-  } catch (e) {
+  } catch {
     isAuthorized = false;
   }
 
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
           if (!decoded) continue;
 
           let targetMint = "Unknown";
-          let details: any = { tx: signature };
+          const details: any = { tx: signature };
           let actionName = decoded.name;
 
           const ixDef = idl.instructions.find((i: any) => i.name === decoded.name);

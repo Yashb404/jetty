@@ -3,7 +3,6 @@ import "./globals.css";
 import ClientWalletProvider from "../contexts/ClientWalletProvider";
 import AnchorWorkspaceProvider from "../contexts/AnchorProvider";
 import MintProvider from "../contexts/MintProvider";
-import Sidebar from "../components/layout/sidebar";
 import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({
@@ -12,15 +11,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="flex h-screen bg-[#D1D1D0] text-black overflow-hidden">
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-[#faf9f8] text-black">
         <ClientWalletProvider>
           <AnchorWorkspaceProvider>
             <MintProvider>
-              <Sidebar />
-              <main className="flex-1 flex flex-col min-w-0 overflow-y-auto h-full relative">
-                {children}
-              </main>
+              {children}
               <Toaster position="bottom-right" />
             </MintProvider>
           </AnchorWorkspaceProvider>

@@ -63,7 +63,7 @@ export default function QuickGuideDocs() {
             </h3>
             <p className="text-sm leading-relaxed mb-4">
               Before you can enforce rules, the on-chain structures must be initialized. 
-              <strong> If you used the "Create Token-2022 Mint" button on the Dashboard, this is already done for you!</strong> Our system automatically batches the Mint Creation, Policy Initialization, and Meta List generation into a single transaction to save you compute units and base fees.
+              <strong> If you used the &quot;Create Token-2022 Mint&quot; button on the Dashboard, this is already done for you!</strong> Our system automatically batches the Mint Creation, Policy Initialization, and Meta List generation into a single transaction to save you compute units and base fees.
             </p>
             <p className="text-sm leading-relaxed mb-4">
               However, if you loaded a pre-existing Token-2022 mint generated from a CLI or external tool, you will see two critical setup buttons on your Dashboard:
@@ -107,7 +107,7 @@ export default function QuickGuideDocs() {
             <p className="text-sm leading-relaxed mb-4">
               If you enabled advanced modules like Allowlist, Denylist, or Vesting, you can configure individual users by navigating to their respective configuration pages (e.g., <strong>Hooks &gt; Allowlist</strong>).
             </p>
-            <p className="text-sm leading-relaxed bg-[#D1D1D0] p-4 border-2 border-black mb-4">
+            <p className="text-sm leading-relaxed bg-[#faf9f8] p-4 border-2 border-black mb-4">
               <strong>CRITICAL: Token Accounts vs. Wallet Addresses</strong><br /><br />
               When configuring a user, you must input their <strong>Associated Token Account (ATA)</strong> address, NOT their main wallet address. 
               The ATA is the specific sub-account that holds your custom token. You can easily find a user&apos;s ATA by looking at their 

@@ -6,7 +6,7 @@ import { Book, Shield, Ban, Activity, ShieldAlert, Users, Lock, Clock } from "lu
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col h-full w-full">
-      <header className="flex justify-between items-center shrink-0 h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0] z-10">
+      <header className="flex justify-between items-center shrink-0 h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8] z-10">
         <div className="flex items-center gap-4">
           <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
         </div>

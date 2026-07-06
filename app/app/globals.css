@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #D1D1D0;
+  --background: #faf9f8;
   --foreground: #000000;
-  --card-bg: #D1D1D0;
+  --card-bg: #faf9f8;
   --card-border: #000000;
 }
 
@@ -16,7 +16,7 @@ body {
 
 /* Wallet adapter styles override to fit neo-brutalist theme */
 .wallet-adapter-modal-wrapper {
-  background: #D1D1D0 !important;
+  background: #faf9f8 !important;
   border: 2px solid #000000 !important;
   border-radius: 0px !important;
   font-family: "JetBrains Mono", var(--font-geist-mono), monospace !important;
@@ -30,7 +30,7 @@ body {
 }
 
 .wallet-adapter-modal-button-close {
-  background: #D1D1D0 !important;
+  background: #faf9f8 !important;
   border: 2px solid #000000 !important;
   border-radius: 0px !important;
   color: #000000 !important;
@@ -46,7 +46,7 @@ body {
 }
 
 .wallet-adapter-modal-list .wallet-adapter-button {
-  background: #D1D1D0 !important;
+  background: #faf9f8 !important;
   color: #000000 !important;
   border: 2px solid #000000 !important;
   border-radius: 0px !important;

@@ -2,11 +2,11 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import logoBlack from "../../assets/bw.svg";
-import { LayoutDashboard, Library, Activity, BookOpen, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, Library, BookOpen, LifeBuoy } from "lucide-react";
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 border-r-2 border-black bg-[#D1D1D0] flex flex-col font-mono h-full shrink-0">
+    <aside className="w-64 border-r-2 border-black bg-[#faf9f8] flex flex-col font-mono h-full shrink-0">
       <div className="p-6 border-b-2 border-black">
         <div className="flex items-center gap-3 mb-2">
           <Image src={logoBlack} alt="Jetty Logo" className="w-14 h-auto" />
@@ -16,7 +16,7 @@ export default function Sidebar() {
       </div>
       
       <nav className="flex-1 p-4 space-y-2">
-        <Link href="/" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
+        <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors border-2 border-transparent hover:border-black">
           <LayoutDashboard className="w-5 h-5" />
           Dashboard
         </Link>

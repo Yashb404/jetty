@@ -37,18 +37,25 @@ export default function HistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [actionFilter, setActionFilter] = useState("All");
   const [timeFilter, setTimeFilter] = useState("All Time");
+  const [now, setNow] = useState(0);
+
+  useEffect(() => {
+    setTimeout(() => setNow(Date.now()), 0);
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
   // Reset page when filters change
   useEffect(() => {
-    setCurrentPage(1);
+    setTimeout(() => setCurrentPage(1), 0);
   }, [searchQuery, actionFilter, timeFilter, pageSize]);
 
   useEffect(() => {
     if (publicKey) {
-      setLoading(true);
+      setTimeout(() => setLoading(true), 0);
       fetch(`/api/history?wallet=${publicKey.toBase58()}`)
         .then((res) => res.json())
         .then((data) => {
@@ -59,7 +66,7 @@ export default function HistoryPage() {
         .catch(console.error)
         .finally(() => setLoading(false));
     } else {
-      setLogs([]);
+      setTimeout(() => setLogs([]), 0);
     }
   }, [publicKey]);
 
@@ -78,7 +85,6 @@ export default function HistoryPage() {
     // 3. Time Filter
     if (timeFilter !== "All Time") {
       const logDate = new Date(log.timestamp).getTime();
-      const now = Date.now();
       const hoursDiff = (now - logDate) / (1000 * 60 * 60);
 
       if (timeFilter === "Last 24 Hours" && hoursDiff > 24) return false;
@@ -94,7 +100,7 @@ export default function HistoryPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
+      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8]">
         <div className="flex items-center gap-4">
           <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
         </div>
@@ -109,7 +115,7 @@ export default function HistoryPage() {
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest mb-4">
             A complete log of your policy modifications and allowlist changes
           </p>
-          <div className="bg-[#D1D1D0] border-2 border-black p-3 text-xs font-bold uppercase tracking-widest text-black">
+          <div className="bg-[#faf9f8] border-2 border-black p-3 text-xs font-bold uppercase tracking-widest text-black">
             Note: Due to free-tier database limitations, transaction history may occasionally be unavailable.
           </div>
         </div>
@@ -184,7 +190,7 @@ export default function HistoryPage() {
                   </div>
                 ) : (
                   paginatedLogs.map((log) => (
-                    <div key={log.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#D1D1D0]">
+                    <div key={log.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#faf9f8]">
                       <div className="col-span-3 font-bold uppercase text-xs">
                         {log.action_type}
                       </div>
@@ -211,7 +217,7 @@ export default function HistoryPage() {
                             };
 
                             const restStr = Object.entries(rest)
-                              .filter(([_, v]) => v !== null)
+                              .filter((entry) => entry[1] !== null)
                               .map(([k, v]) => {
                                 const name = KEY_TO_NAME[k] || k;
                                 return `${name}: ${v}`;

@@ -27,7 +27,7 @@ export default function MinTransferDocs() {
               The Anti-Dust module prevents spam and low-value transactions by enforcing a minimum transfer threshold. 
               Any transfer attempt below the configured minimum amount will be rejected by the contract.
             </p>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
                 When <code>min_transfer_amount</code> is strictly greater than 0, the program intercepts the transfer. 

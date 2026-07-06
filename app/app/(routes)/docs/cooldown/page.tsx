@@ -28,7 +28,7 @@ export default function CooldownDocs() {
               This is often used to prevent flash-loan attacks, sandwich attacks, or rapid dumping of liquidity. 
               When enabled, a user must wait a specific number of seconds before initiating another transfer.
             </p>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Important Note:</p>
               <p className="text-sm leading-relaxed mb-4">
                 Because the Transfer Hook requires a mutable state account to record the last transfer timestamp, 

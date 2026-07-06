@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import BN from "bn.js";
 import { PublicKey } from "@solana/web3.js";
 import WalletConnect from "../../../components/web3/wallet-connect";
-import Card from "../../../components/ui/card";
+
 import Input from "../../../components/ui/input";
 import Button from "../../../components/ui/button";
 import MintCombobox from "../../../components/ui/mint-combobox";
@@ -45,7 +45,7 @@ export default function LibraryPage() {
     const saved = localStorage.getItem("jetty-dismissed-warnings");
     if (saved) {
       try {
-        setDismissedWarnings(JSON.parse(saved));
+        setTimeout(() => setDismissedWarnings(JSON.parse(saved)), 0);
       } catch (e) {
         console.error("Failed to parse dismissed warnings", e);
       }
@@ -287,7 +287,7 @@ export default function LibraryPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderCard = (m: any) => (
-    <article key={m.id} className="border-2 border-black p-5 bg-[#D1D1D0] flex flex-col h-full hover:bg-white transition-colors duration-200 group">
+    <article key={m.id} className="border-2 border-black p-5 bg-[#faf9f8] flex flex-col h-full hover:bg-white transition-colors duration-200 group">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-lg font-bold uppercase">{m.title}</h3>
         <span className={`border-2 border-black px-2 py-1 text-[10px] font-bold uppercase ${
@@ -359,7 +359,7 @@ export default function LibraryPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
+      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8]">
         <div className="flex items-center gap-4">
           <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
         </div>
@@ -375,7 +375,7 @@ export default function LibraryPage() {
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest mb-6">
             Manage and install smart contract extensions for your token
           </p>
-          <div className="border-2 border-black p-3 bg-[#D1D1D0] flex flex-col md:flex-row items-center gap-4 w-full md:w-max">
+          <div className="border-2 border-black p-3 bg-[#faf9f8] flex flex-col md:flex-row items-center gap-4 w-full md:w-max">
             <span className="text-sm font-bold uppercase tracking-widest text-black">Target Mint:</span>
             <div className="w-80">
               <MintCombobox 

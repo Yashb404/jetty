@@ -28,7 +28,7 @@ export default function GlobalPauseDocs() {
               Jetty instantly rejects all transfer requests across the entire network. This is critical for 
               stopping exploits, managing migrations, or temporarily pausing trading during highly volatile events.
             </p>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
                 During a transfer, the Token-2022 program invokes Jetty&apos;s <code>execute</code> instruction. 

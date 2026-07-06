@@ -13,7 +13,7 @@ interface ToastProps {
 const STYLE_MAP: Record<ToastProps["type"], string> = {
   success: "bg-black text-white border-black",
   error: "bg-[#5C4E4E] text-white border-[#5C4E4E]",
-  info: "bg-[#D1D1D0] text-black border-black",
+  info: "bg-[#faf9f8] text-black border-black",
 };
 
 export default function Toast({ type, message, onClose, duration = 4000 }: ToastProps) {

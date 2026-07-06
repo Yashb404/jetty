@@ -27,7 +27,7 @@ export default function DenylistDocs() {
               Unlike the Allowlist module which operates on a default-deny model, the Denylist module operates on a default-allow model. 
               It allows you to explicitly flag and block malicious actors, OFAC-sanctioned addresses, or exploited contracts from transferring your token.
             </p>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
                 During execution, Jetty attempts to fetch a <code>DenylistEntry</code> PDA for both the sender and the receiver. 

@@ -46,7 +46,7 @@ export default function MintCombobox({ value, onChange, placeholder = "Enter SPL
           {filteredMints.map((mint, idx) => (
             <li 
               key={idx}
-              className="px-4 py-2 hover:bg-[#D1D1D0] cursor-pointer font-mono text-sm text-black border-b border-[#D1D1D0] last:border-0"
+              className="px-4 py-2 hover:bg-[#faf9f8] cursor-pointer font-mono text-sm text-black border-b border-[#faf9f8] last:border-0"
               onMouseDown={(e) => {
                 // use onMouseDown instead of onClick to prevent onBlur from firing first
                 e.preventDefault();

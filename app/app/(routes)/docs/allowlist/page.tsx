@@ -28,7 +28,7 @@ export default function AllowlistDocs() {
               (e.g., a Security Token or RWA). Transfers will strictly fail unless both the 
               <strong> sender</strong> and the <strong> receiver</strong> are explicitly approved.
             </p>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Technical Detail:</p>
               <p className="text-sm leading-relaxed">
                 For each approved wallet, Jetty allocates an <code>AllowlistEntry</code> PDA tied 
@@ -54,7 +54,7 @@ export default function AllowlistDocs() {
               <li>Paste the <strong>Token Account</strong> address of the user you want to add.</li>
               <li>Click <strong>Approve</strong>. You can revoke access at any time using the <strong>Revoke</strong> button.</li>
             </ol>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black mb-6">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black mb-6">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Token Accounts vs. Wallets:</p>
               <p className="text-sm leading-relaxed">
                 When adding a user, you must input their <strong>Associated Token Account (ATA)</strong> address, NOT their main wallet address. 

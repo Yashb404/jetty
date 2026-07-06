@@ -1,7 +1,7 @@
 import React from "react";
 import Card from "../../../components/ui/card";
 import Link from "next/link";
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function DocsPage() {
   return (
@@ -30,7 +30,7 @@ export default function DocsPage() {
               Because Jetty utilizes the official SPL standard, no custom Rust code is required 
               to enforce complex regulations on your token.
             </p>
-            <div className="bg-[#D1D1D0] p-4 border-2 border-black rounded-none">
+            <div className="bg-[#faf9f8] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Under the Hood:</p>
               <p className="text-sm leading-relaxed">
                 During a transfer, the Token-2022 program invokes Jetty&apos;s <code>execute</code> instruction. 

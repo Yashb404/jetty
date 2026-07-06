@@ -67,7 +67,7 @@ export default function DenylistManagerPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
+      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8]">
         <div className="flex items-center gap-4">
           <Link href="/library" className="flex items-center gap-2 text-black hover:text-[#5C4E4E] transition-colors font-bold uppercase tracking-widest text-sm">
             &larr; Back to Marketplace
@@ -129,7 +129,7 @@ export default function DenylistManagerPage() {
                   </div>
                 ) : (
                   entries.map((entry, idx) => (
-                    <div key={idx} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#D1D1D0]">
+                    <div key={idx} className="grid grid-cols-12 gap-4 px-6 py-4 items-center bg-[#faf9f8]">
                       <div className="col-span-8 flex items-center gap-3">
                         <span className={`font-mono ${!entry.account.blocked ? 'text-[#988686] line-through' : 'text-black'}`}>
                           {entry.account.tokenAccount.toBase58()}

@@ -6,7 +6,7 @@ import { ExternalLink, Code, MessageCircle, Bug } from "lucide-react";
 export default function SupportPage() {
   return (
     <div className="flex flex-col min-h-full">
-      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#D1D1D0]">
+      <header className="flex justify-between items-center h-16 px-8 w-full border-b-2 border-black bg-[#faf9f8]">
         <div className="flex items-center gap-4">
           <span className="text-sm font-bold font-mono uppercase tracking-widest text-black">Network: Devnet</span>
         </div>
