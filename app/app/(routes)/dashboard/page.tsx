@@ -11,6 +11,7 @@ import { useJettyProgram } from "../../../lib/hooks/useJettyProgram";
 import { PublicKey } from "@solana/web3.js";
 import { useMintContext } from "../../../contexts/MintProvider";
 import toast from "react-hot-toast";
+import { Pause, ShieldCheck, Ban, Clock, ArrowDownToLine, ArrowUpToLine, PieChart, Hourglass } from "lucide-react";
 
 export default function Home() {
   const { activeMint, setActiveMint } = useMintContext();
@@ -82,6 +83,18 @@ export default function Home() {
       // Error handled by hook
     }
   };
+
+  const activeRules = [];
+  if (policy) {
+    if (policy.paused) activeRules.push({ name: "Global Pause", value: "Active", icon: Pause, link: "/docs/global-pause" });
+    if (policy.allowlistEnabled) activeRules.push({ name: "Allowlist", value: "Active", icon: ShieldCheck, link: "/hooks/allowlist" });
+    if (policy.denylistEnabled) activeRules.push({ name: "Denylist", value: "Active", icon: Ban, link: "/hooks/denylist" });
+    if (policy.vestingEnabled) activeRules.push({ name: "Vesting", value: "Active", icon: Clock, link: "/hooks/vesting" });
+    if (policy.maxTransferAmount.toString() !== "0") activeRules.push({ name: "Max Transfer", value: policy.maxTransferAmount.toString(), icon: ArrowUpToLine, link: "/docs/volume-limits" });
+    if (policy.minTransferAmount.toString() !== "0") activeRules.push({ name: "Min Transfer", value: policy.minTransferAmount.toString(), icon: ArrowDownToLine, link: "/docs/min-transfer" });
+    if (policy.maxHolderBps > 0) activeRules.push({ name: "Receiver Cap", value: `${(policy.maxHolderBps / 100).toFixed(2)}%`, icon: PieChart, link: "/docs/receiver-cap" });
+    if (policy.cooldownSeconds > 0) activeRules.push({ name: "Cooldown", value: `${policy.cooldownSeconds}s`, icon: Hourglass, link: "/docs/cooldown" });
+  }
 
   return (
     <div className="flex flex-col min-h-full">
@@ -155,25 +168,51 @@ export default function Home() {
 
             {isInitialized && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card>
-                    <div className="text-[#5C4E4E] font-bold uppercase tracking-widest text-xs mb-1">Global Pause</div>
-                    <div className="text-2xl font-bold uppercase">
-                      {policy?.paused ? "Active" : "Inactive"}
+                <div className="w-full overflow-hidden">
+                  <div className="border-b-4 border-black pb-4 mb-6 flex items-end justify-between">
+                    <div className="flex items-center gap-3">
+                      
+                      <h3 className="text-2xl font-bold uppercase tracking-tighter leading-none">Active Hooks</h3>
                     </div>
-                  </Card>
-                  <Card>
-                    <div className="text-[#5C4E4E] font-bold uppercase tracking-widest text-xs mb-1">Allowlist Enforcement</div>
-                    <div className="text-2xl font-bold uppercase">
-                      {policy?.allowlistEnabled ? "Active" : "Inactive"}
+                    <div className="bg-black text-white px-3 py-1 text-sm font-bold font-mono uppercase tracking-widest leading-none">
+                      {activeRules.length} Running
                     </div>
-                  </Card>
-                  <Card>
-                    <div className="text-[#5C4E4E] font-bold uppercase tracking-widest text-xs mb-1">Max Transfer Volume</div>
-                    <div className="text-2xl font-bold uppercase truncate">
-                      {policy?.maxTransferAmount.toString() === "0" ? "Unlimited" : policy?.maxTransferAmount.toString()}
+                  </div>
+
+                  {activeRules.length > 0 ? (
+                    <div className="flex overflow-x-auto gap-6 pb-4 snap-x">
+                      {activeRules.map((rule, i) => {
+                        const Icon = rule.icon;
+                        return (
+                          <div key={i} className="min-w-[280px] w-[280px] snap-start flex-none">
+                            <Card className="flex flex-col h-full">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Icon className="w-5 h-5 text-[#5C4E4E]" />
+                                <div className="text-[#5C4E4E] font-bold uppercase tracking-widest text-xs">{rule.name}</div>
+                              </div>
+                              <div className="text-2xl font-bold uppercase truncate flex-1 mb-4">
+                                {rule.value}
+                              </div>
+                              <Link href={rule.link} className="text-xs font-bold uppercase tracking-widest text-black border-b-2 border-transparent hover:border-black transition-colors self-start pb-0.5 inline-flex items-center gap-1">
+                                Manage <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                              </Link>
+                            </Card>
+                          </div>
+                        );
+                      })}
                     </div>
-                  </Card>
+                  ) : (
+                    <Card className="bg-[#D1D1D0] text-center py-12 flex flex-col items-center justify-center border-dashed border-4 border-[#988686]">
+                      <ShieldCheck className="w-12 h-12 text-[#988686] mb-4" />
+                      <h3 className="text-xl font-bold uppercase mb-2">No Active Rules</h3>
+                      <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest max-w-md mb-6">
+                        Your token currently operates without any Transfer Hook restrictions. It behaves like a standard SPL Token.
+                      </p>
+                      <Link href="/library">
+                        <Button variant="secondary">Configure Modules →</Button>
+                      </Link>
+                    </Card>
+                  )}
                 </div>
 
                 <Card>
