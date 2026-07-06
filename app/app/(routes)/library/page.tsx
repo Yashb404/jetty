@@ -358,7 +358,7 @@ export default function LibraryPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <main className="flex-1 p-8 pt-20 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
+      <main className="flex-1 p-8 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
         {/* Page Header & Target Mint Compact Bar */}
         <div className="mb-10">
           <h1 className="text-3xl font-bold uppercase tracking-tighter mb-2">Hook Marketplace</h1>

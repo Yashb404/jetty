@@ -66,7 +66,7 @@ export default function DenylistManagerPage() {
 
   return (
     <div className="flex flex-col min-h-full">
-      <div className="flex-1 p-8 pt-20 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
+      <div className="flex-1 p-8 max-w-5xl mx-auto w-full space-y-8 font-mono text-black">
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Denylist Manager</h2>
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">

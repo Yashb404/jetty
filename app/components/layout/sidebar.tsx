@@ -12,7 +12,7 @@ export default function Sidebar() {
           <Image src={logoBlack} alt="Jetty Logo" className="w-14 h-auto" />
           <h1 className="text-3xl font-bold uppercase tracking-tighter text-black">Jetty</h1>
         </Link>
-        <p className="text-xs uppercase tracking-widest text-[#5C4E4E] font-semibold">Compliance Controller</p>
+        <p className="text-xs uppercase tracking-widest text-[#5C4E4E] font-semibold">Transfer Hook Manager</p>
       </div>
       
       <nav className="flex-1 p-4 space-y-2">
