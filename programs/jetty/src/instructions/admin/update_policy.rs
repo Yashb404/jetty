@@ -30,9 +30,7 @@ pub struct UpdatePolicyArgs {
 
 #[derive(Accounts)]
 pub struct UpdatePolicy<'info> {
-    #[account(mut)]
-    pub payer: Signer<'info>,
-
+    /// The wallet that currently holds policy authority over this mint's hook config.
     pub policy_authority: Signer<'info>,
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -42,8 +40,6 @@ pub struct UpdatePolicy<'info> {
         bump = hook_config.bump
     )]
     pub hook_config: Account<'info, HookConfig>,
-
-    pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<UpdatePolicy>, args: UpdatePolicyArgs) -> Result<()> {
@@ -77,6 +73,12 @@ pub fn handler(ctx: Context<UpdatePolicy>, args: UpdatePolicyArgs) -> Result<()>
         hook_config.denylist_enabled = denylist_enabled;
     }
     if let Some(cooldown_seconds) = args.cooldown_seconds {
+        // Cap at 30 days (2_592_000 s). u32::MAX (~136 years) would permanently
+        // freeze every wallet after its first transfer — treat it as a footgun.
+        require!(
+            cooldown_seconds <= 2_592_000,
+            JettyError::CooldownTooLong
+        );
         hook_config.cooldown_seconds = cooldown_seconds;
     }
 

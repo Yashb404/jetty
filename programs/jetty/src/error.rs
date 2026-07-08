@@ -67,4 +67,7 @@ pub enum JettyError {
 
     #[msg("Arithmetic overflow in compliance calculation.")]
     MathOverflow,
+
+    #[msg("Cooldown period cannot exceed 30 days (2,592,000 seconds).")]
+    CooldownTooLong,
 }
