@@ -95,7 +95,6 @@ export function useJettyProgram() {
           cooldownSeconds
         })
         .accounts({
-          payer: prog.provider.publicKey!,
           policyAuthority: prog.provider.publicKey!,
           mint,
         })
