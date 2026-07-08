@@ -17,6 +17,9 @@ export const metadata: Metadata = {
       "Configure modular, on-chain compliance policies for Solana Token-2022 mints without writing custom Rust.",
     type: "website",
   },
+  verification: {
+    google: "YdwJopmySwfEy_fQw0w5BKfEl97xT9yWlYw6K1NU-O8",
+  },
 };
 
 const spaceMono = Space_Mono({
@@ -38,6 +41,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${spaceMono.variable} ${jetBrainsMono.variable}`}>
+      <head>
+        <meta name="google-site-verification" content="YdwJopmySwfEy_fQw0w5BKfEl97xT9yWlYw6K1NU-O8" />
+      </head>
       <body className="bg-[#f4f3f2] text-black">
         <ClientWalletProvider>
           <AnchorWorkspaceProvider>
