@@ -14,10 +14,10 @@ export default function LandingHero() {
           <span className={`text-sm uppercase text-[#D97706] font-bold ${spaceMono.className}`}>Deployed on Devnet</span>
         </div>
         <h1 className={`text-3xl md:text-5xl leading-tight uppercase font-bold tracking-widest ${spaceMono.className}`}>
-          The Zero-Code Compliance Layer for Solana Token-2022
+          Secure & Seamless Transfer Hook Management for Solana Token-2022
         </h1>
         <p className="text-lg text-[#4c4546] max-w-xl">
-          Enforce modular, on-chain compliance policies without writing a single line of custom Rust code.
+          Deploy and manage custom transfer rules for your token mints seamlessly—no Rust required. Add specific logic to control how and when your tokens move.
         </p>
         <div className="pt-4 flex flex-wrap gap-4">
           <LandingButton href="/dashboard" variant="primary" className="px-8 py-4 text-sm">

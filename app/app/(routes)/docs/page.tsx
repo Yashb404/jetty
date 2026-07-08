@@ -11,7 +11,7 @@ export default function DocsPage() {
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-2">Documentation</h2>
           <p className="text-[#5C4E4E] font-semibold text-sm uppercase tracking-widest">
-            Understanding the Jetty Compliance Controller
+            Understanding Jetty Transfer Hook Management
           </p>
         </div>
 
@@ -21,21 +21,21 @@ export default function DocsPage() {
               What is Jetty?
             </h3>
             <p className="text-sm leading-relaxed mb-4">
-              Jetty is a smart contract (program) deployed on Solana that acts as a universal,
-              no-code compliance layer for SPL Token-2022. By pointing your token&apos;s
-              <strong> Transfer Hook</strong> extension to the Jetty program ID, every transfer
-              of your token is intercepted and evaluated against the rules you configure here.
+              Jetty is a smart contract (program) deployed on Solana that acts as a secure and seamless
+              transfer hook manager for SPL Token-2022. By pointing your token&apos;s
+              <strong> Transfer Hook</strong> extension to the Jetty program ID, you can add custom rules to control your tokens. Every transfer
+              is intercepted and evaluated against the logic you configure here.
             </p>
             <p className="text-sm leading-relaxed mb-4">
               Because Jetty utilizes the official SPL standard, no custom Rust code is required
-              to enforce complex regulations on your token.
+              to enforce these rules and securely manage how your tokens move.
             </p>
             <div className="bg-[#f4f3f2] p-4 border-2 border-black rounded-none">
               <p className="text-sm font-bold mb-2 uppercase tracking-wide">Under the Hood:</p>
               <p className="text-sm leading-relaxed">
                 During a transfer, the Token-2022 program invokes Jetty&apos;s <code>execute</code> instruction.
                 Jetty reads your mint&apos;s specific <code>HookConfig</code> PDA (Program Derived Address).
-                If any compliance flags fail, it immediately reverts the transaction.
+                If any of your custom rules fail (e.g., transfer is not allowlisted, or exceeds a cap), it immediately reverts the transaction.
               </p>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function DocsPage() {
             </Card>
           </Link>
 
-          <h3 className="text-xl font-bold uppercase tracking-wide mb-4">Compliance Modules</h3>
+          <h3 className="text-xl font-bold uppercase tracking-wide mb-4">Transfer Hook Modules</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Link href="/docs/global-pause" className="block">
               <Card className="h-full hover:bg-black hover:text-white transition-colors cursor-pointer group flex flex-col justify-between">
@@ -175,6 +175,21 @@ export default function DocsPage() {
           </div>
         </Card>
 
+        <Card className="space-y-4">
+          <div>
+            <h3 className="text-xl font-bold uppercase tracking-wide border-b-2 border-black pb-2 mb-4">
+              Navigating the Dashboard
+            </h3>
+            <p className="text-sm leading-relaxed mb-4">
+              The Jetty Dashboard provides a centralized control center for all your Token-2022 Transfer Hooks.
+            </p>
+            <ul className="list-disc list-inside text-sm space-y-2 mb-4 text-[#5C4E4E]">
+              <li><strong>Module Routing:</strong> Clicking &quot;Manage&quot; on active rules will seamlessly route you either to the Library (for global configurations) or to specific module pages (like Allowlist or Vesting) for detailed control.</li>
+              <li><strong>Route Guards:</strong> To prevent errors, direct access to specific module pages is disabled unless you have explicitly turned on that rule in the Library.</li>
+              <li><strong>Docs Links:</strong> Quick-access &quot;Docs&quot; buttons are available alongside every active rule so you can always understand what a rule does.</li>
+            </ul>
+          </div>
+        </Card>
 
       </div>
     </div>
