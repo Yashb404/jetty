@@ -64,4 +64,7 @@ pub enum JettyError {
 
     #[msg("Minimum transfer amount cannot exceed maximum transfer amount.")]
     InvalidTransferBounds,
+
+    #[msg("Arithmetic overflow in compliance calculation.")]
+    MathOverflow,
 }

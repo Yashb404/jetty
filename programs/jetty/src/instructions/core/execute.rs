@@ -14,12 +14,18 @@ use crate::{
     state::{AllowlistEntry, CooldownEntry, DenylistEntry, HookConfig, VestingEntry},
 };
 
-const IDX_ALLOWLIST_SENDER: usize = 0;
-const IDX_ALLOWLIST_RECEIVER: usize = 1;
-const IDX_VESTING_SENDER: usize = 2;
-const IDX_DENYLIST_SENDER: usize = 3;
-const IDX_DENYLIST_RECEIVER: usize = 4;
-const IDX_COOLDOWN_SENDER: usize = 5;
+// These indices correspond to positions in `ctx.remaining_accounts`, which are
+// populated by the Token-2022 program from the `ExtraAccountMetaList` PDA.
+// Index 0 in the meta list is `hook_config` (the fixed struct account); the
+// remaining_accounts slice starts AFTER the 4 fixed `#[derive(Accounts)]` fields,
+// so the first extra meta (index 1 in the list = index 0 here) is the source
+// allowlist entry, and so on.
+const IDX_ALLOWLIST_SENDER: usize = 0;   // ExtraAccountMeta list index 1
+const IDX_ALLOWLIST_RECEIVER: usize = 1; // ExtraAccountMeta list index 2
+const IDX_VESTING_SENDER: usize = 2;     // ExtraAccountMeta list index 3
+const IDX_DENYLIST_SENDER: usize = 3;    // ExtraAccountMeta list index 4
+const IDX_DENYLIST_RECEIVER: usize = 4;  // ExtraAccountMeta list index 5
+const IDX_COOLDOWN_SENDER: usize = 5;    // ExtraAccountMeta list index 6
 
 #[derive(Accounts)]
 pub struct Execute<'info> {
@@ -92,32 +98,42 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
     if hook_config.max_holder_bps > 0 {
         let max_balance = (ctx.accounts.mint.supply as u128)
             .checked_mul(hook_config.max_holder_bps as u128)
-            .unwrap()
+            .ok_or(error!(JettyError::MathOverflow))?
             .checked_div(10_000)
-            .unwrap();
+            .ok_or(error!(JettyError::MathOverflow))?;
 
-        let resulting_balance = ctx.accounts.destination_token_account.amount as u128;
-
-
+        // Use the post-transfer balance (current + incoming amount) to correctly
+        // determine if this transfer would push the receiver over the cap.
+        // Using only the pre-transfer balance would allow any transfer that doesn't
+        // start already-over-cap, which defeats the entire purpose of this module.
+        let resulting_balance = (ctx.accounts.destination_token_account.amount as u128)
+            .checked_add(amount as u128)
+            .ok_or(error!(JettyError::MathOverflow))?;
 
         if resulting_balance > max_balance {
             return err!(JettyError::ExceedsHolderCap);
         }
     }
 
-    // Ensure we have exactly 9 extra accounts passed via the token program in remaining_accounts.
-    // Index 0: Source allowlist entry PDA
-    // Index 1: Destination allowlist entry PDA
-    // Index 2: Sender Vesting Entry PDA
-    // Index 3: Sender Denylist Entry PDA
-    // Index 4: Receiver Denylist Entry PDA
-    // Index 5: Sender Cooldown Entry PDA
-    // Index 6: Sender Protocol Exemption PDA
-    // Index 7: Receiver Protocol Exemption PDA
-    // Index 8: Sender Volume Tracker PDA
-
-    // Fallback safety check (the Token program should enforce this based on our `ExtraAccountMetaList`)
-
+    // The Token-2022 program resolves and passes all accounts registered in the
+    // `ExtraAccountMetaList` PDA into `remaining_accounts`. The meta list currently
+    // registers 10 entries (indices 0–9 in the list), but index 0 is `hook_config`
+    // which is already bound as a named typed account in the `Execute` struct.
+    // Therefore `remaining_accounts` receives 9 entries (the feature PDAs, indices
+    // 1–9 in the list), mapped to indices 0–8 here:
+    //
+    //   remaining_accounts[0] (list[1]): Source allowlist entry PDA
+    //   remaining_accounts[1] (list[2]): Destination allowlist entry PDA
+    //   remaining_accounts[2] (list[3]): Sender vesting entry PDA
+    //   remaining_accounts[3] (list[4]): Sender denylist entry PDA
+    //   remaining_accounts[4] (list[5]): Receiver denylist entry PDA
+    //   remaining_accounts[5] (list[6]): Sender cooldown entry PDA  (writable)
+    //   remaining_accounts[6] (list[7]): Sender protocol exemption PDA (future)
+    //   remaining_accounts[7] (list[8]): Receiver protocol exemption PDA (future)
+    //   remaining_accounts[8] (list[9]): Sender volume tracker PDA (future, writable)
+    //
+    // Fallback safety check — the Token program enforces this via the meta list,
+    // but we assert defensively in case of a malformed invocation.
     if ctx.remaining_accounts.len() < 9 {
         return Err(error!(JettyError::MetaListSizeOverflow));
     }
