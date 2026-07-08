@@ -58,6 +58,10 @@ export function useMintPolicy(mintAddressString: string | null) {
     refetch();
   }, [refetch]);
 
+  const updateOptimisticPolicy = useCallback((updates: Partial<HookConfig>) => {
+    setPolicy((prev) => prev ? { ...prev, ...updates } : null);
+  }, []);
+
   return {
     policy,
     isInitialized,
@@ -65,5 +69,6 @@ export function useMintPolicy(mintAddressString: string | null) {
     loading,
     error,
     refetch,
+    updateOptimisticPolicy,
   };
 }

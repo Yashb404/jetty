@@ -25,7 +25,7 @@ export default function LibraryPage() {
     }
   }, [activeMint]);
 
-  const { policy, isInitialized, refetch } = useMintPolicy(activeMint);
+  const { policy, isInitialized, refetch, updateOptimisticPolicy } = useMintPolicy(activeMint);
   const { updatePolicy, loading } = useJettyProgram();
 
   const [paused, setPaused] = useState(false);
@@ -136,9 +136,20 @@ export default function LibraryPage() {
         cooldownArg
       );
 
-      // Delay refetch slightly to ensure the RPC node returns the fresh account state
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      refetch();
+      // Optimistically update the UI to prevent flickering
+      updateOptimisticPolicy({
+        ...(pausedArg !== null && { paused: pausedArg }),
+        ...(allowlistArg !== null && { allowlistEnabled: allowlistArg }),
+        ...(parsedMaxAmount !== null && { maxTransferAmount: parsedMaxAmount }),
+        ...(vestingArg !== null && { vestingEnabled: vestingArg }),
+        ...(parsedMinAmount !== null && { minTransferAmount: parsedMinAmount }),
+        ...(bpsArg !== null && { maxHolderBps: bpsArg }),
+        ...(denylistArg !== null && { denylistEnabled: denylistArg }),
+        ...(cooldownArg !== null && { cooldownSeconds: cooldownArg })
+      });
+
+      // Fetch silently in the background after a long delay, ensuring the RPC has caught up
+      setTimeout(() => refetch(), 5000);
 
       setStatusMessage({ type: "success", text: "Policy updated successfully." });
     } catch (e) {
