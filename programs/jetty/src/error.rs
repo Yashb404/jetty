@@ -70,4 +70,7 @@ pub enum JettyError {
 
     #[msg("Cooldown period cannot exceed 30 days (2,592,000 seconds).")]
     CooldownTooLong,
+
+    #[msg("Failed to write closed account discriminator.")]
+    AccountCloseFailed,
 }

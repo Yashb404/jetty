@@ -67,9 +67,15 @@ pub fn handler(ctx: Context<UpdateAllowlist>, active: bool) -> Result<()> {
         **payer_info.try_borrow_mut_lamports()? = new_payer_balance;
         **entry_info.try_borrow_mut_lamports()? = 0;
 
-        // Zero out account data so the runtime drops ownership.
+        // Write the CLOSED_ACCOUNT_DISCRIMINATOR to fully protect against revival attacks.
         let mut data = entry_info.try_borrow_mut_data()?;
-        data.fill(0);
+        let dst: &mut [u8] = &mut data;
+        let mut cursor = std::io::Cursor::new(dst);
+        std::io::Write::write_all(
+            &mut cursor,
+            &[255u8; 8],
+        )
+        .map_err(|_| error!(JettyError::AccountCloseFailed))?;
     }
 
     Ok(())

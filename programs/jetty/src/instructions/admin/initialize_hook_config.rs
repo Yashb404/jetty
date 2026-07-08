@@ -42,6 +42,12 @@ pub fn handler(ctx: Context<InitializeHookConfig>) -> Result<()> {
     let mint_state = StateWithExtensions::<SplMint>::unpack(&mint_data)?;
     let transfer_hook = mint_state.get_extension::<TransferHook>()?;
     let transfer_hook_authority: Option<Pubkey> = transfer_hook.authority.into();
+    let transfer_hook_program_id: Option<Pubkey> = transfer_hook.program_id.into();
+
+    require!(
+        transfer_hook_program_id == Some(crate::ID),
+        JettyError::InvalidTokenProgram
+    );
 
     require!(
         transfer_hook_authority == Some(ctx.accounts.policy_authority.key()),
