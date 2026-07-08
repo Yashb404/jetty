@@ -122,6 +122,30 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
         return Err(error!(JettyError::MetaListSizeOverflow));
     }
 
+    // TODO: REMOVE BEFORE MAINNET — temporary diagnostic logging to verify
+    // remaining_accounts index alignment against the on-chain ExtraAccountMetaList.
+    // Run one real transfer against a freshly-initialized devnet mint, capture
+    // the program logs, then independently derive each expected PDA from its seeds
+    // and confirm the keys match their expected positions.
+    msg!(
+        "execute: remaining_accounts count={}, mint={}",
+        ctx.remaining_accounts.len(),
+        ctx.accounts.mint.key()
+    );
+    for (i, acct) in ctx.remaining_accounts.iter().enumerate() {
+        msg!("  remaining_accounts[{}] = {}", i, acct.key());
+    }
+    // Expected layout (must match build_extra_account_metas() in utils.rs):
+    //   [0] allowlist(mint, source_ata)
+    //   [1] allowlist(mint, destination_ata)
+    //   [2] vesting(mint, source_ata)
+    //   [3] denylist(mint, source_ata)
+    //   [4] denylist(mint, destination_ata)
+    //   [5] cooldown(mint, source_ata)   <writable>
+    //   [6] exemption(mint, source_ata)  [reserved]
+    //   [7] exemption(mint, destination_ata) [reserved]
+    //   [8] volume(mint, source_ata)     [reserved, writable]
+
     if hook_config.allowlist_enabled {
         let sender_entry_info = &ctx.remaining_accounts[IDX_ALLOWLIST_SENDER];
         let receiver_entry_info = &ctx.remaining_accounts[IDX_ALLOWLIST_RECEIVER];

@@ -81,3 +81,7 @@ Target devnet for integration testing before any mainnet discussion.
 
 
 Use the Solana MCP (if connected) for current Transfer Hook interface and Anchor syntax rather than relying on possibly-stale training data — the interface has moved before and will again.
+
+12. Use //TODO: and //FIXME: comments judiciously 
+
+Use these comments wherever there is code that will need future attention . Do not leave empty code or fake results anywhere especially without marking it with the comments .

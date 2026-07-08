@@ -1,3 +1,10 @@
+/**
+ * tests/utils/helpers.ts
+ *
+ * Low-level transaction utilities and PDA derivation helpers.
+ * All test files import from here — no copy-pasted PDA logic.
+ */
+
 import * as anchor from "@anchor-lang/core";
 import {
   ExtensionType,
@@ -8,22 +15,14 @@ import {
   getAccount,
   getAssociatedTokenAddressSync,
   getMintLen,
-  getOrCreateAssociatedTokenAccount,
-  mintToChecked,
 } from "@solana/spl-token";
-
 import type { Jetty } from "../../target/types/jetty";
 
 type JettyProgram = anchor.Program<Jetty>;
 
-// The provider wallet as a keypair — only used where @solana/spl-token
-// requires a raw Keypair (getOrCreateAssociatedTokenAccount, mintToChecked).
-// Never used to derive a pubkey; use provider.wallet.publicKey for that.
-function getWalletKeypair(provider: anchor.AnchorProvider): anchor.web3.Keypair {
-  const wallet = provider.wallet as anchor.Wallet & { payer?: anchor.web3.Keypair };
-  if (!wallet.payer) throw new Error("Provider wallet does not expose a payer keypair");
-  return wallet.payer;
-}
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 export type HookFixture = {
   mint: anchor.web3.Keypair;
@@ -38,24 +37,35 @@ export type HookFixture = {
   destinationTokenAccount: anchor.web3.PublicKey;
 };
 
-// Compute the expected size of the ExtraAccountMetaList PDA programmatically.
-// The list uses SPL TLV encoding: 8-byte discriminator + 4-byte length + 4-byte instruction_count = 16 bytes base header.
-// Each ExtraAccountMeta entry is precisely 35 bytes.
+// ---------------------------------------------------------------------------
+// ExtraAccountMetaList size calculation
+// Header: 8-byte discriminator + 4-byte length + 4-byte count = 16 bytes
+// Each ExtraAccountMeta: exactly 35 bytes
+// ---------------------------------------------------------------------------
 const EXTRA_ACCOUNT_META_LIST_HEADER_SIZE = 16;
 const EXTRA_ACCOUNT_META_SIZE = 35;
-const NUM_EXTRA_ACCOUNTS = 10; // 1 HookConfig + 9 Module PDAs (Allowlistx2, Vesting, Denylistx2, Cooldown, Exemptionx2, Volume)
+// 1 HookConfig + 9 module PDAs (Allowlist×2, Vesting, Denylist×2, Cooldown, Exemption×2, Volume)
+const NUM_EXTRA_ACCOUNTS = 10;
+export const EXTRA_ACCOUNT_META_LIST_SIZE =
+  EXTRA_ACCOUNT_META_LIST_HEADER_SIZE + NUM_EXTRA_ACCOUNTS * EXTRA_ACCOUNT_META_SIZE;
 
-export const EXTRA_ACCOUNT_META_LIST_SIZE = EXTRA_ACCOUNT_META_LIST_HEADER_SIZE + (NUM_EXTRA_ACCOUNTS * EXTRA_ACCOUNT_META_SIZE);
+// ---------------------------------------------------------------------------
+// Provider/wallet helpers
+// ---------------------------------------------------------------------------
 
-export function getProvider(): anchor.AnchorProvider {
-  return anchor.getProvider() as anchor.AnchorProvider;
+function getWalletKeypair(provider: anchor.AnchorProvider): anchor.web3.Keypair {
+  const wallet = provider.wallet as anchor.Wallet & { payer?: anchor.web3.Keypair };
+  if (!wallet.payer) throw new Error("Provider wallet does not expose a payer keypair");
+  return wallet.payer;
 }
 
-// Returns the provider wallet's public key — the key Anchor uses to sign
-// all .rpc() calls. Always consistent with what gets stored on-chain.
 export function getPayer(provider: anchor.AnchorProvider): anchor.web3.PublicKey {
   return provider.wallet.publicKey;
 }
+
+// ---------------------------------------------------------------------------
+// PDA derivation — single source of truth for all seed derivations
+// ---------------------------------------------------------------------------
 
 export function deriveHookConfigPda(
   mint: anchor.web3.PublicKey,
@@ -110,6 +120,49 @@ export function deriveDenylistEntryPda(
   );
 }
 
+export function deriveCooldownEntryPda(
+  mint: anchor.web3.PublicKey,
+  tokenAccount: anchor.web3.PublicKey,
+  programId: anchor.web3.PublicKey
+): [anchor.web3.PublicKey, number] {
+  return anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("cooldown"), mint.toBuffer(), tokenAccount.toBuffer()],
+    programId
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Transaction helpers
+// ---------------------------------------------------------------------------
+
+export async function sendAndConfirmWithRetry(
+  provider: anchor.AnchorProvider,
+  transaction: anchor.web3.Transaction,
+  signers: anchor.web3.Signer[]
+): Promise<void> {
+  let retries = 5;
+  while (retries > 0) {
+    try {
+      const latestBlockhash = await provider.connection.getLatestBlockhash("confirmed");
+      transaction.recentBlockhash = latestBlockhash.blockhash;
+      transaction.feePayer =
+        signers[0]?.publicKey ||
+        (provider.wallet as any).payer?.publicKey ||
+        provider.wallet.publicKey;
+      await provider.sendAndConfirm(transaction, signers, { commitment: "confirmed" });
+      return;
+    } catch (err: any) {
+      if (err.message && err.message.includes("Blockhash not found")) {
+        retries--;
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error("Transaction failed after retries due to blockhash issues.");
+}
+
 export async function createFundedUser(
   provider: anchor.AnchorProvider,
   lamports = 2_000_000_000
@@ -124,34 +177,6 @@ export async function createFundedUser(
   return user;
 }
 
-// Creates a Token-2022 mint with a TransferHook extension pointing at programId.
-// provider.sendAndConfirm signs with the provider wallet — consistent with
-// provider.wallet.publicKey used everywhere else.
-export async function sendAndConfirmWithRetry(
-  provider: anchor.AnchorProvider,
-  transaction: anchor.web3.Transaction,
-  signers: anchor.web3.Signer[]
-): Promise<void> {
-  let retries = 5;
-  while (retries > 0) {
-    try {
-      const latestBlockhash = await provider.connection.getLatestBlockhash("confirmed");
-      transaction.recentBlockhash = latestBlockhash.blockhash;
-      transaction.feePayer = signers[0]?.publicKey || (provider.wallet as any).payer?.publicKey || provider.wallet.publicKey;
-      await provider.sendAndConfirm(transaction, signers, { commitment: "confirmed" });
-      return;
-    } catch (err: any) {
-      if (err.message && err.message.includes("Blockhash not found")) {
-        retries--;
-        await new Promise(resolve => setTimeout(resolve, 500));
-        continue;
-      }
-      throw err;
-    }
-  }
-  throw new Error("Transaction failed after retries due to blockhash issues.");
-}
-
 export async function createTransferHookMint(
   provider: anchor.AnchorProvider,
   transferHookProgramId: anchor.web3.PublicKey,
@@ -159,17 +184,16 @@ export async function createTransferHookMint(
   customTransferHookAuthority?: anchor.web3.PublicKey
 ): Promise<anchor.web3.Keypair> {
   const payerPubkey = provider.wallet.publicKey;
-  
-  // Ensure payer has funds
+
   try {
     const sig = await provider.connection.requestAirdrop(payerPubkey, 10_000_000_000);
     const latest = await provider.connection.getLatestBlockhash();
     await provider.connection.confirmTransaction({ signature: sig, ...latest }, "confirmed");
-  } catch (e) {
-    console.log("Airdrop failed or already funded", e);
+  } catch {
+    // Already funded — ignore.
   }
 
-  const transferHookAuth = customTransferHookAuthority || payerPubkey;
+  const transferHookAuth = customTransferHookAuthority ?? payerPubkey;
   const mint = anchor.web3.Keypair.generate();
   const mintSpace = getMintLen([ExtensionType.TransferHook]);
   const lamports = await provider.connection.getMinimumBalanceForRentExemption(mintSpace);
@@ -209,7 +233,7 @@ export async function getOrCreateToken2022Ata(
 ): Promise<anchor.web3.PublicKey> {
   const payer = getWalletKeypair(provider);
   const ata = getAssociatedTokenAddressSync(mint, owner, false, TOKEN_2022_PROGRAM_ID);
-  
+
   const info = await provider.connection.getAccountInfo(ata, "confirmed");
   if (info) return ata;
 
@@ -221,10 +245,9 @@ export async function getOrCreateToken2022Ata(
     mint,
     TOKEN_2022_PROGRAM_ID
   );
-  
+
   const transaction = new anchor.web3.Transaction().add(instruction);
   await sendAndConfirmWithRetry(provider, transaction, [payer]);
-  
   return ata;
 }
 
@@ -237,7 +260,7 @@ export async function mintToken2022To(
 ): Promise<void> {
   const payer = getWalletKeypair(provider);
   const { createMintToCheckedInstruction } = require("@solana/spl-token");
-  
+
   const instruction = createMintToCheckedInstruction(
     mint,
     destination,
@@ -262,7 +285,7 @@ export async function transferWithHook(
     amount: bigint;
     decimals: number;
   }
-): Promise<void> {
+): Promise<anchor.web3.TransactionSignature> {
   const instruction = await createTransferCheckedWithTransferHookInstruction(
     provider.connection,
     params.source,
@@ -277,83 +300,100 @@ export async function transferWithHook(
   );
   const transaction = new anchor.web3.Transaction().add(instruction);
   const payer = getWalletKeypair(provider);
-  await sendAndConfirmWithRetry(provider, transaction, [payer]);
+
+  // Use sendAndConfirm directly to get the tx signature for log inspection.
+  const latestBlockhash = await provider.connection.getLatestBlockhash("confirmed");
+  transaction.recentBlockhash = latestBlockhash.blockhash;
+  transaction.feePayer = payer.publicKey;
+
+  return provider.sendAndConfirm(transaction, [payer], { commitment: "confirmed" });
 }
 
-// Creates a full fixture: mint → HookConfig → ExtraAccountMetaList → ATAs → minted tokens.
-// All authority accounts use provider.wallet.publicKey so they match what
-// Anchor signs with in every subsequent .rpc() call.
+/**
+ * transferWithHookAndLogs: same as transferWithHook but also returns the
+ * program logs. Used by the account-index integrity test.
+ */
+export async function transferWithHookAndLogs(
+  provider: anchor.AnchorProvider,
+  params: {
+    source: anchor.web3.PublicKey;
+    mint: anchor.web3.PublicKey;
+    destination: anchor.web3.PublicKey;
+    owner: anchor.web3.PublicKey;
+    amount: bigint;
+    decimals: number;
+  }
+): Promise<{ sig: string; logs: string[] }> {
+  const sig = await transferWithHook(provider, params);
+  const tx = await provider.connection.getTransaction(sig, {
+    commitment: "confirmed",
+    maxSupportedTransactionVersion: 0,
+  });
+  const logs = tx?.meta?.logMessages ?? [];
+  return { sig, logs };
+}
+
+// ---------------------------------------------------------------------------
+// createHookFixture — canonical fixture factory
+// ---------------------------------------------------------------------------
+
 export async function createHookFixture(
   program: JettyProgram,
   initialAmount = 1_000n
 ): Promise<HookFixture> {
-  try {
-    const provider = program.provider as anchor.AnchorProvider;
-    const authority = provider.wallet.publicKey;
+  const provider = program.provider as anchor.AnchorProvider;
+  const authority = provider.wallet.publicKey;
 
-    const mint = await createTransferHookMint(provider, program.programId);
+  const mint = await createTransferHookMint(provider, program.programId);
 
-    const [hookConfigPda, hookConfigBump] = deriveHookConfigPda(mint.publicKey, program.programId);
-    const [extraAccountMetaListPda, extraAccountMetaListBump] = deriveExtraAccountMetaListPda(
-      mint.publicKey,
-      program.programId
-    );
+  const [hookConfigPda, hookConfigBump] = deriveHookConfigPda(mint.publicKey, program.programId);
+  const [extraAccountMetaListPda, extraAccountMetaListBump] = deriveExtraAccountMetaListPda(
+    mint.publicKey,
+    program.programId
+  );
 
-    await program.methods
-      .initializeHookConfig()
-      .accounts({
-        payer: authority,
-        policyAuthority: authority,
-        mint: mint.publicKey,
-      })
-      .rpc({ commitment: "confirmed" });
+  await program.methods
+    .initializeHookConfig()
+    .accounts({ payer: authority, policyAuthority: authority, mint: mint.publicKey })
+    .rpc({ commitment: "confirmed" });
 
-    await program.methods
-      .initExtraAccountMetaList()
-      .accounts({
-        payer: authority,
-        policyAuthority: authority,
-        mint: mint.publicKey,
-        tokenProgram: TOKEN_2022_PROGRAM_ID,
-      })
-      .rpc({ commitment: "confirmed" });
+  await program.methods
+    .initExtraAccountMetaList()
+    .accounts({
+      payer: authority,
+      policyAuthority: authority,
+      mint: mint.publicKey,
+      tokenProgram: TOKEN_2022_PROGRAM_ID,
+    })
+    .rpc({ commitment: "confirmed" });
 
-    const sourceTokenAccount = await getOrCreateToken2022Ata(
-      provider,
-      mint.publicKey,
-      authority
-    );
+  const sourceTokenAccount = await getOrCreateToken2022Ata(provider, mint.publicKey, authority);
+  const destinationOwner = await createFundedUser(provider);
+  const destinationTokenAccount = await getOrCreateToken2022Ata(
+    provider,
+    mint.publicKey,
+    destinationOwner.publicKey
+  );
 
-    const destinationOwner = await createFundedUser(provider);
-    console.log("destinationOwner generated");
-    
-    const destinationTokenAccount = await getOrCreateToken2022Ata(
-      provider,
-      mint.publicKey,
-      destinationOwner.publicKey
-    );
-    console.log("destinationTokenAccount generated");
+  await mintToken2022To(provider, mint.publicKey, sourceTokenAccount, initialAmount, 2);
 
-    await mintToken2022To(provider, mint.publicKey, sourceTokenAccount, initialAmount, 2);
-    console.log("mintToken2022To succeeded");
-
-    return {
-      mint,
-      decimals: 2,
-      hookConfigPda,
-      hookConfigBump,
-      extraAccountMetaListPda,
-      extraAccountMetaListBump,
-      sourceOwner: authority,
-      sourceTokenAccount,
-      destinationOwner,
-      destinationTokenAccount,
-    };
-  } catch (err) {
-    console.error("createHookFixture failed at some step:", err);
-    throw err;
-  }
+  return {
+    mint,
+    decimals: 2,
+    hookConfigPda,
+    hookConfigBump,
+    extraAccountMetaListPda,
+    extraAccountMetaListBump,
+    sourceOwner: authority,
+    sourceTokenAccount,
+    destinationOwner,
+    destinationTokenAccount,
+  };
 }
+
+// ---------------------------------------------------------------------------
+// Token balance helper
+// ---------------------------------------------------------------------------
 
 export async function getTokenAmount(
   provider: anchor.AnchorProvider,
@@ -374,6 +414,10 @@ export function expectedAta(
 ): anchor.web3.PublicKey {
   return getAssociatedTokenAddressSync(mint, owner, false, TOKEN_2022_PROGRAM_ID);
 }
+
+// ---------------------------------------------------------------------------
+// Error extraction — handles all Anchor error formats
+// ---------------------------------------------------------------------------
 
 export function extractErrorCode(error: unknown): number | null {
   const candidate = error as {
