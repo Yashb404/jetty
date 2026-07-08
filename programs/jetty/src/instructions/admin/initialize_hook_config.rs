@@ -25,7 +25,7 @@ pub struct InitializeHookConfig<'info> {
     pub mint: InterfaceAccount<'info, Mint>,
 
     #[account(
-        init_if_needed,
+        init,
         payer = payer,
         seeds = [b"policy", mint.key().as_ref()],
         bump,

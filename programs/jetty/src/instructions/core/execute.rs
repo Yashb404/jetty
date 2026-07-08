@@ -102,13 +102,9 @@ pub fn handler(ctx: Context<Execute>, amount: u64) -> Result<()> {
             .checked_div(10_000)
             .ok_or(error!(JettyError::MathOverflow))?;
 
-        // Use the post-transfer balance (current + incoming amount) to correctly
-        // determine if this transfer would push the receiver over the cap.
-        // Using only the pre-transfer balance would allow any transfer that doesn't
-        // start already-over-cap, which defeats the entire purpose of this module.
-        let resulting_balance = (ctx.accounts.destination_token_account.amount as u128)
-            .checked_add(amount as u128)
-            .ok_or(error!(JettyError::MathOverflow))?;
+        // Token-2022 invokes the transfer hook AFTER updating the destination account
+        // balance, so `destination_token_account.amount` is ALREADY the post-transfer balance.
+        let resulting_balance = ctx.accounts.destination_token_account.amount as u128;
 
         if resulting_balance > max_balance {
             return err!(JettyError::ExceedsHolderCap);

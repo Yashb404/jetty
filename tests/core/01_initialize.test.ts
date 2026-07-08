@@ -66,23 +66,24 @@ describe("core/initialize", function () {
     );
   });
 
-  it("allows re-initialization (init_if_needed) without clobbering stored authority", async () => {
+  it("rejects re-initialization to prevent clobbering stored config on mint recreation", async () => {
     const mint = await createTransferHookMint(provider, program.programId);
-    const [hookConfigPda] = deriveHookConfigPda(mint.publicKey, program.programId);
 
     await program.methods
       .initializeHookConfig()
       .accounts({ payer: authority, policyAuthority: authority, mint: mint.publicKey })
       .rpc({ commitment: "confirmed" });
 
-    // Second call should succeed (not revert with "already in use")
-    await program.methods
-      .initializeHookConfig()
-      .accounts({ payer: authority, policyAuthority: authority, mint: mint.publicKey })
-      .rpc({ commitment: "confirmed" });
-
-    const cfg = await program.account.hookConfig.fetch(hookConfigPda, "confirmed");
-    expect(cfg.policyAuthority.equals(authority)).to.equal(true);
+    // Second call should fail because we use `init` instead of `init_if_needed`
+    try {
+      await program.methods
+        .initializeHookConfig()
+        .accounts({ payer: authority, policyAuthority: authority, mint: mint.publicKey })
+        .rpc({ commitment: "confirmed" });
+      expect.fail("Expected re-initialization to fail");
+    } catch (e: any) {
+      expect(e.message).to.include("already in use");
+    }
   });
 
   // ── init_extra_account_meta_list ───────────────────────────────────────────
