@@ -765,12 +765,10 @@
       ],
       "accounts": [
         {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
           "name": "policy_authority",
+          "docs": [
+            "The wallet that currently holds policy authority over this mint's hook config."
+          ],
           "signer": true
         },
         {
@@ -798,10 +796,6 @@
               }
             ]
           }
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -1029,6 +1023,21 @@
       "code": 6020,
       "name": "InvalidTransferBounds",
       "msg": "Minimum transfer amount cannot exceed maximum transfer amount."
+    },
+    {
+      "code": 6021,
+      "name": "MathOverflow",
+      "msg": "Arithmetic overflow in compliance calculation."
+    },
+    {
+      "code": 6022,
+      "name": "CooldownTooLong",
+      "msg": "Cooldown period cannot exceed 30 days (2,592,000 seconds)."
+    },
+    {
+      "code": 6023,
+      "name": "AccountCloseFailed",
+      "msg": "Failed to write closed account discriminator."
     }
   ],
   "types": [

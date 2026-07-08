@@ -771,12 +771,10 @@ export type Jetty = {
       ],
       "accounts": [
         {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
           "name": "policyAuthority",
+          "docs": [
+            "The wallet that currently holds policy authority over this mint's hook config."
+          ],
           "signer": true
         },
         {
@@ -804,10 +802,6 @@ export type Jetty = {
               }
             ]
           }
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -1035,6 +1029,21 @@ export type Jetty = {
       "code": 6020,
       "name": "invalidTransferBounds",
       "msg": "Minimum transfer amount cannot exceed maximum transfer amount."
+    },
+    {
+      "code": 6021,
+      "name": "mathOverflow",
+      "msg": "Arithmetic overflow in compliance calculation."
+    },
+    {
+      "code": 6022,
+      "name": "cooldownTooLong",
+      "msg": "Cooldown period cannot exceed 30 days (2,592,000 seconds)."
+    },
+    {
+      "code": 6023,
+      "name": "accountCloseFailed",
+      "msg": "Failed to write closed account discriminator."
     }
   ],
   "types": [
