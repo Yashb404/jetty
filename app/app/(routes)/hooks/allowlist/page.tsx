@@ -11,6 +11,8 @@ import { useJettyProgram } from "../../../../lib/hooks/useJettyProgram";
 import { useAllowlist } from "../../../../lib/hooks/useAllowlist";
 import { useMintContext } from "../../../../contexts/MintProvider";
 import { useRecentMints } from "../../../../lib/hooks/useRecentMints";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function AllowlistManagerPage() {
   const { activeMint, setActiveMint } = useMintContext();
@@ -24,7 +26,15 @@ export default function AllowlistManagerPage() {
     }
   }, [activeMint]);
 
-  const { isInitialized } = useMintPolicy(activeMint);
+  const { isInitialized, policy } = useMintPolicy(activeMint);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isInitialized && policy && !policy.allowlistEnabled) {
+      toast.error("Allowlist is not enabled for this mint.");
+      router.push("/library");
+    }
+  }, [isInitialized, policy, router]);
   const { entries, refetch: refetchAllowlist } = useAllowlist(activeMint);
   const { updateAllowlist, loading } = useJettyProgram();
 

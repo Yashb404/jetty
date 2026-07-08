@@ -86,14 +86,14 @@ export default function Home() {
 
   const activeRules = [];
   if (policy) {
-    if (policy.paused) activeRules.push({ name: "Global Pause", value: "Active", icon: Pause, link: "/docs/global-pause" });
-    if (policy.allowlistEnabled) activeRules.push({ name: "Allowlist", value: "Active", icon: ShieldCheck, link: "/hooks/allowlist" });
-    if (policy.denylistEnabled) activeRules.push({ name: "Denylist", value: "Active", icon: Ban, link: "/hooks/denylist" });
-    if (policy.vestingEnabled) activeRules.push({ name: "Vesting", value: "Active", icon: Clock, link: "/hooks/vesting" });
-    if (policy.maxTransferAmount.toString() !== "0") activeRules.push({ name: "Max Transfer", value: policy.maxTransferAmount.toString(), icon: ArrowUpToLine, link: "/docs/volume-limits" });
-    if (policy.minTransferAmount.toString() !== "0") activeRules.push({ name: "Min Transfer", value: policy.minTransferAmount.toString(), icon: ArrowDownToLine, link: "/docs/min-transfer" });
-    if (policy.maxHolderBps > 0) activeRules.push({ name: "Receiver Cap", value: `${(policy.maxHolderBps / 100).toFixed(2)}%`, icon: PieChart, link: "/docs/receiver-cap" });
-    if (policy.cooldownSeconds > 0) activeRules.push({ name: "Cooldown", value: `${policy.cooldownSeconds}s`, icon: Hourglass, link: "/docs/cooldown" });
+    if (policy.paused) activeRules.push({ name: "Global Pause", value: "Active", icon: Pause, manageLink: "/library", docsLink: "/docs/global-pause" });
+    if (policy.allowlistEnabled) activeRules.push({ name: "Allowlist", value: "Active", icon: ShieldCheck, manageLink: "/hooks/allowlist", docsLink: "/docs/allowlist" });
+    if (policy.denylistEnabled) activeRules.push({ name: "Denylist", value: "Active", icon: Ban, manageLink: "/hooks/denylist", docsLink: "/docs/denylist" });
+    if (policy.vestingEnabled) activeRules.push({ name: "Vesting", value: "Active", icon: Clock, manageLink: "/hooks/vesting", docsLink: "/docs/vesting" });
+    if (policy.maxTransferAmount.toString() !== "0") activeRules.push({ name: "Max Transfer", value: policy.maxTransferAmount.toString(), icon: ArrowUpToLine, manageLink: "/library", docsLink: "/docs/volume-limits" });
+    if (policy.minTransferAmount.toString() !== "0") activeRules.push({ name: "Min Transfer", value: policy.minTransferAmount.toString(), icon: ArrowDownToLine, manageLink: "/library", docsLink: "/docs/min-transfer" });
+    if (policy.maxHolderBps > 0) activeRules.push({ name: "Receiver Cap", value: `${(policy.maxHolderBps / 100).toFixed(2)}%`, icon: PieChart, manageLink: "/library", docsLink: "/docs/receiver-cap" });
+    if (policy.cooldownSeconds > 0) activeRules.push({ name: "Cooldown", value: `${policy.cooldownSeconds}s`, icon: Hourglass, manageLink: "/library", docsLink: "/docs/cooldown" });
   }
 
   return (
@@ -193,9 +193,14 @@ export default function Home() {
                               <div className="text-2xl font-bold uppercase truncate flex-1 mb-4">
                                 {rule.value}
                               </div>
-                              <Link href={rule.link} className="text-xs font-bold uppercase tracking-widest text-black border-b-2 border-transparent hover:border-black transition-colors self-start pb-0.5 inline-flex items-center gap-1">
-                                Manage <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                              </Link>
+                              <div className="flex items-center justify-between w-full mt-auto pt-2">
+                                <Link href={rule.manageLink} className="text-xs font-bold uppercase tracking-widest text-black border-b-2 border-transparent hover:border-black transition-colors pb-0.5 inline-flex items-center gap-1">
+                                  Manage <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                </Link>
+                                <Link href={rule.docsLink} className="text-[10px] text-[#5C4E4E] hover:text-black uppercase tracking-widest font-bold border-2 border-transparent hover:border-[#5C4E4E] px-2 py-0.5 transition-colors">
+                                  Docs
+                                </Link>
+                              </div>
                             </Card>
                           </div>
                         );

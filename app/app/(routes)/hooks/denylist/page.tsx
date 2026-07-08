@@ -11,6 +11,8 @@ import { useJettyProgram } from "../../../../lib/hooks/useJettyProgram";
 import { useDenylist } from "../../../../lib/hooks/useDenylist";
 import { useMintContext } from "../../../../contexts/MintProvider";
 import { useRecentMints } from "../../../../lib/hooks/useRecentMints";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import Link from "next/link";
 
 export default function DenylistManagerPage() {
@@ -25,7 +27,15 @@ export default function DenylistManagerPage() {
     }
   }, [activeMint]);
 
-  const { isInitialized } = useMintPolicy(activeMint);
+  const { isInitialized, policy } = useMintPolicy(activeMint);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isInitialized && policy && !policy.denylistEnabled) {
+      toast.error("Denylist is not enabled for this mint.");
+      router.push("/library");
+    }
+  }, [isInitialized, policy, router]);
   const { entries, refetch: refetchDenylist } = useDenylist(activeMint);
   const { updateDenylist, loading } = useJettyProgram();
 

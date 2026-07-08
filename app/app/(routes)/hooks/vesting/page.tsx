@@ -12,6 +12,8 @@ import { useJettyProgram } from "../../../../lib/hooks/useJettyProgram";
 import { useVesting } from "../../../../lib/hooks/useVesting";
 import { useMintContext } from "../../../../contexts/MintProvider";
 import { useRecentMints } from "../../../../lib/hooks/useRecentMints";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import Link from "next/link";
 
 export default function VestingManagerPage() {
@@ -26,7 +28,15 @@ export default function VestingManagerPage() {
     }
   }, [activeMint]);
 
-  const { isInitialized } = useMintPolicy(activeMint);
+  const { isInitialized, policy } = useMintPolicy(activeMint);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isInitialized && policy && !policy.vestingEnabled) {
+      toast.error("Vesting is not enabled for this mint.");
+      router.push("/library");
+    }
+  }, [isInitialized, policy, router]);
   const { entries, refetch: refetchVesting } = useVesting(activeMint);
   const { setVestingLock, clearVestingLock, loading } = useJettyProgram();
 
