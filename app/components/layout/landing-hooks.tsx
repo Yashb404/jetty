@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Space_Mono } from "next/font/google";
-import { ArrowLeft, ArrowRight, PauseCircle, Gauge, ShieldCheck, Timer, PieChart, Hourglass, ArrowRightLeft, Building2, Activity } from "lucide-react";
+import { ArrowLeft, ArrowRight, PauseCircle, Gauge, ShieldCheck, Timer, PieChart, Hourglass, Ban, Coins } from "lucide-react";
 
 const spaceMono = Space_Mono({ weight: ["400", "700"], subsets: ["latin"] });
 
@@ -11,47 +11,42 @@ const transferHooks = [
   {
     icon: PauseCircle,
     title: "Global Pause",
-    desc: "Instantly freeze all token transfers across the entire supply.",
+    desc: "Instantly freeze all token transfers across the entire network.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Allowlist",
+    desc: "Restrict transfers strictly to pre-approved wallets.",
+  },
+  {
+    icon: Ban,
+    title: "Denylist",
+    desc: "Block explicitly flagged wallets from transferring tokens.",
   },
   {
     icon: Gauge,
     title: "Volume Limits",
-    desc: "Enforce anti-whale ceilings and floors on individual transfers.",
+    desc: "Set a maximum ceiling for any single transaction.",
   },
   {
-    icon: ShieldCheck,
-    title: "Allowlist & Denylist",
-    desc: "Restrict transfers to pre-approved accounts or block flagged addresses.",
-  },
-  {
-    icon: Timer,
-    title: "Vesting Locks",
-    desc: "Prevent transfers from accounts until a configured Unix timestamp.",
+    icon: Coins,
+    title: "Anti-Dust",
+    desc: "Set a minimum transfer size to prevent dust attacks.",
   },
   {
     icon: PieChart,
     title: "Receiver Cap",
-    desc: "Limit the maximum percentage of supply a single wallet can accumulate.",
+    desc: "Limit maximum holder balances based on total supply percentage.",
   },
   {
     icon: Hourglass,
-    title: "Cooldowns",
-    desc: "Enforce mandatory waiting periods between outgoing transfers.",
+    title: "Velocity Limiter",
+    desc: "Enforce cooldown periods between successive transfers.",
   },
   {
-    icon: ArrowRightLeft,
-    title: "Directional Locks",
-    desc: "Configure accounts to be send-only or receive-only.",
-  },
-  {
-    icon: Building2,
-    title: "Protocol Whitelist",
-    desc: "Exempt known AMM/DEX vaults from standard compliance checks.",
-  },
-  {
-    icon: Activity,
-    title: "Rolling Velocity",
-    desc: "Enforce time-windowed volume control over rolling 24-hour periods.",
+    icon: Timer,
+    title: "Vesting / Lockup",
+    desc: "Lock tokens until a predefined timestamp for scheduled releases.",
   },
 ];
 
@@ -129,7 +124,7 @@ export default function LandingHooks() {
                   {hook.desc}
                 </p>
                 <Link href="/docs" className="mt-6 inline-block text-xs font-bold tracking-[0.1em] uppercase text-black underline group-hover:no-underline cursor-pointer">
-                  View Implementation →
+                  View Guide
                 </Link>
               </div>
             );
