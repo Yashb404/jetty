@@ -44,22 +44,27 @@ export default function SupportPage() {
             </Card>
           </a>
 
-          <a href="https://x.com/YashB404" target="_blank" rel="noopener noreferrer" className="block md:col-span-2">
-            <Card className="h-full hover:bg-[#1DA1F2] hover:border-[#1DA1F2] hover:text-white transition-colors cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between border-4 border-black">
-              <div className="flex items-start sm:items-center gap-4">
-                <MessageCircle className="w-8 h-8 sm:mb-0 mb-4" />
+          <Card className="md:col-span-2 h-full border-4 border-black">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6">
+              <div className="flex items-start sm:items-center gap-4 mb-6 sm:mb-0">
+                <MessageCircle className="w-8 h-8 sm:mb-0 mb-4 shrink-0" />
                 <div>
                   <h3 className="font-bold uppercase tracking-wide mb-1 text-xl">Follow on X</h3>
-                  <p className="text-sm group-hover:text-white text-[#5C4E4E]">
+                  <p className="text-sm text-[#5C4E4E]">
                     Stay up to date with the latest features, announcements, and developments.
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-sm font-bold mt-4 sm:mt-0">
-                @YashB404 <ExternalLink className="w-4 h-4" />
+              <div className="flex flex-col gap-3 sm:min-w-[280px]">
+                <a href="https://x.com/jettysolana" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 border-2 border-black hover:bg-[#1DA1F2] hover:border-[#1DA1F2] hover:text-white transition-colors font-bold text-sm bg-white">
+                  @JettySolana <ExternalLink className="w-4 h-4" />
+                </a>
+                <a href="https://x.com/YashB404" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 border-2 border-black hover:bg-[#1DA1F2] hover:border-[#1DA1F2] hover:text-white transition-colors font-bold text-sm bg-white">
+                  @YashB404 - Developer <ExternalLink className="w-4 h-4" />
+                </a>
               </div>
-            </Card>
-          </a>
+            </div>
+          </Card>
         </div>
       </div>
     </div>

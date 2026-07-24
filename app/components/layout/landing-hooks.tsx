@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Space_Mono } from "next/font/google";
-import { ArrowLeft, ArrowRight, PauseCircle, Gauge, ShieldCheck, Timer, PieChart, Hourglass } from "lucide-react";
+import { ArrowLeft, ArrowRight, PauseCircle, Gauge, ShieldCheck, Timer, PieChart, Hourglass, ArrowRightLeft, Building2, Activity } from "lucide-react";
 
 const spaceMono = Space_Mono({ weight: ["400", "700"], subsets: ["latin"] });
 
@@ -38,38 +38,62 @@ const transferHooks = [
     title: "Cooldowns",
     desc: "Enforce mandatory waiting periods between outgoing transfers.",
   },
+  {
+    icon: ArrowRightLeft,
+    title: "Directional Locks",
+    desc: "Configure accounts to be send-only or receive-only.",
+  },
+  {
+    icon: Building2,
+    title: "Protocol Whitelist",
+    desc: "Exempt known AMM/DEX vaults from standard compliance checks.",
+  },
+  {
+    icon: Activity,
+    title: "Rolling Velocity",
+    desc: "Enforce time-windowed volume control over rolling 24-hour periods.",
+  },
 ];
 
 export default function LandingHooks() {
-  const [startIndex, setStartIndex] = useState(0);
   const [isAuto, setIsAuto] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isAuto) return;
     const interval = setInterval(() => {
-      setStartIndex((prev) => (prev + 1) % transferHooks.length);
+      if (scrollContainerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        const maxScroll = scrollWidth - clientWidth;
+        
+        // If we reached the end, smoothly go back to the start
+        if (scrollLeft >= maxScroll - 10) {
+          scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          // Scroll by the container width (moves 3 items on desktop, 1 on mobile)
+          scrollContainerRef.current.scrollBy({ left: clientWidth, behavior: 'smooth' });
+        }
+      }
     }, 4000);
     return () => clearInterval(interval);
   }, [isAuto]);
 
   const handleNext = () => {
     setIsAuto(false);
-    setStartIndex((prev) => (prev + 1) % transferHooks.length);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: scrollContainerRef.current.clientWidth, behavior: 'smooth' });
+    }
   };
 
   const handlePrev = () => {
     setIsAuto(false);
-    setStartIndex((prev) => (prev - 1 + transferHooks.length) % transferHooks.length);
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -scrollContainerRef.current.clientWidth, behavior: 'smooth' });
+    }
   };
 
-  const visibleHooks = [
-    transferHooks[startIndex],
-    transferHooks[(startIndex + 1) % transferHooks.length],
-    transferHooks[(startIndex + 2) % transferHooks.length],
-  ];
-
   return (
-    <section className="py-12 bg-[#f4f3f2] border-y-2 border-black">
+    <section className="py-12 bg-[#f4f3f2] border-y-2 border-black overflow-hidden">
       <div className="px-8 max-w-6xl mx-auto">
         <div className="mb-10 flex justify-between items-end">
           <div>
@@ -86,25 +110,31 @@ export default function LandingHooks() {
           </div>
         </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {visibleHooks.map((hook, i) => {
-          const IconComponent = hook.icon;
-          return (
-            <div key={`${hook.title}-${startIndex}`} className="border-2 border-black bg-white p-6 brutalist-shadow group carousel-item" style={{ animationDelay: `${i * 100}ms` }}>
-              <div className="mb-4">
-                <IconComponent size={40} className="text-black" strokeWidth={1.5} />
+        <div 
+          ref={scrollContainerRef}
+          className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+          {transferHooks.map((hook, i) => {
+            const IconComponent = hook.icon;
+            return (
+              <div 
+                key={hook.title} 
+                className="snap-start shrink-0 w-full md:w-[calc(33.333%-1rem)] border-2 border-black bg-white p-6 brutalist-shadow group"
+              >
+                <div className="mb-4">
+                  <IconComponent size={40} className="text-black" strokeWidth={1.5} />
+                </div>
+                <h3 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>{hook.title}</h3>
+                <p className={`text-base text-[#4c4546] ${spaceMono.className}`}>
+                  {hook.desc}
+                </p>
+                <Link href="/docs" className="mt-6 inline-block text-xs font-bold tracking-[0.1em] uppercase text-black underline group-hover:no-underline cursor-pointer">
+                  View Implementation →
+                </Link>
               </div>
-              <h3 className={`text-xl font-bold uppercase mb-2 ${spaceMono.className}`}>{hook.title}</h3>
-              <p className={`text-base text-[#4c4546] ${spaceMono.className}`}>
-                {hook.desc}
-              </p>
-              <Link href="/docs" className="mt-6 inline-block text-xs font-bold tracking-[0.1em] uppercase text-black underline group-hover:no-underline cursor-pointer">
-                View Implementation →
-              </Link>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
